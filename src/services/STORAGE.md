@@ -27,6 +27,11 @@ Entry: `src/services/storage.ts`: `StorageService` holds the app's sessions and 
 
 The key names are stored data: never rename them (see `AGENTS.md`).
 
+## Backups
+- One format both ways: `GymmyBackup` (`format: "gymmy-backup"`, `version: 1`). `createBackup` in `backup.ts` builds it, `parseBackup` in `src/validation.ts` reads it, and `backupFile.ts` handles the download and the chosen file.
+- `parseBackup` also reads the unversioned 1.0.0 export (`appVersion: "1.0.0"`, `exportDate`). A new version must keep reading every older one, and refuses newer ones.
+- An import is previewed first (`planImport`). It adds new sessions, replaces sessions with the same id when their content differs, and replaces the exercise targets when they differ. It never deletes. `applyImport` queues it through the outbox like any other change.
+
 ## Gotchas
 - Gymmy 1.0.0 did not queue failed writes. A session saved while the server was down lived only in localStorage and was overwritten on the next start. The first start that reaches the server queues every local session the server lacks, then sets `gymmy_local_sessions_adopted_v1`.
 - 1.0.0 also copied everything into IndexedDB (`gymmy_idb`). Each start moves any sessions missing from the local copy over, and deletes the database only when every one of its sessions is in localStorage **and** confirmed by the server. Otherwise it keeps the database and tries again next start. Remove `legacyIndexedDb.ts` and its call one release after 1.1.0.
@@ -34,9 +39,5 @@ The key names are stored data: never rename them (see `AGENTS.md`).
 - A static build (no API) queues every change forever. The header shows "Offline, N pending".
 
 ## Tests
-`tests/sync.test.ts`:
-- offline saves survive a start, and offline deletes stay deleted;
-- sending is in order and stops at a failure;
-- rejected ops are set aside;
-- status classification;
-- adoption and its confirmation rule.
+- `tests/sync.test.ts`: offline saves survive a start and offline deletes stay deleted; sending is in order and stops at a failure; rejected ops are set aside; status classification; adoption and its confirmation rule.
+- `tests/backup.test.ts`: export and import round trip, reading 1.0.0 backups, refusing other files, and what an import adds, replaces or keeps.

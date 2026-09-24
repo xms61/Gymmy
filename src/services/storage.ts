@@ -3,6 +3,7 @@
 // stored it, so changes made while the server is unreachable reach it on a later start.
 import type { ExerciseDefinition, WorkoutSession } from '../types/workout.ts';
 import { EXERCISE_DEFINITIONS } from '../data/seedData.ts';
+import type { ImportPlan } from './backup.ts';
 import { deleteLegacyDatabase, readLegacySessions } from './legacyIndexedDb.ts';
 import {
   apiCallFor,
@@ -74,6 +75,21 @@ export class StorageService {
 
   static clearAllSessions(): void {
     this.record({ type: 'clearSessions' });
+  }
+
+  static getSnapshot(): Snapshot {
+    return this.snapshot;
+  }
+
+  // Queues every change in the plan as one batch, so the server receives them in order.
+  static applyImport(plan: ImportPlan): void {
+    for (const session of [...plan.newSessions, ...plan.replacedSessions]) {
+      this.enqueue({ type: 'upsertSession', session });
+    }
+    if (plan.exercises) this.enqueue({ type: 'saveExercises', exercises: plan.exercises });
+    this.persist();
+    this.notify();
+    void this.flush();
   }
 
   private static async syncOnStart(): Promise<void> {
@@ -159,26 +175,6 @@ export class StorageService {
 
   private static notify(): void {
     for (const listener of this.listeners) listener();
-  }
-
-  /**
-   * Exports all data to downloadable JSON file
-   */
-  static exportToJson(): void {
-    const data = {
-      sessions: this.getSessions(),
-      exercises: this.getExerciseDefinitions(),
-      exportDate: new Date().toISOString(),
-      appVersion: '1.0.0',
-      database: 'SQLite (data/gymmy.db) + IndexedDB'
-    };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `gymmy-backup-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
   }
 
   /**

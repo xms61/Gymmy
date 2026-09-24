@@ -49,6 +49,16 @@ export interface WorkoutSession {
   notes?: string;
 }
 
+// The one file format for exporting and importing data. Bump version when the shape changes,
+// and keep parseBackup able to read every older version.
+export interface GymmyBackup {
+  format: 'gymmy-backup';
+  version: 1;
+  exportedAt: string; // ISO string
+  sessions: WorkoutSession[];
+  exercises: ExerciseDefinition[];
+}
+
 // A workout in progress, kept in the browser so a reload can resume it.
 export interface WorkoutDraft {
   version: 1;
