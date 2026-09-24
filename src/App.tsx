@@ -22,6 +22,10 @@ import { describeSyncStatus, needsAttention, syncLabel } from './components/sync
 
 type AppTab = 'dashboard' | 'calendar' | 'analytics';
 
+// Starting a workout waits this long at most for the first sync, so a slow or unreachable server
+// never blocks training: after that the tracker uses the copy in this browser.
+const FIRST_SYNC_WAIT_MS = 5000;
+
 const NAV_TABS: { id: AppTab; label: string; icon: LucideIcon }[] = [
   { id: 'dashboard', label: 'Home', icon: Flame },
   { id: 'calendar', label: 'Calendar', icon: CalendarIcon },
@@ -38,6 +42,8 @@ export function App() {
   // A workout left unfinished by a reload or a closed tab, offered for resuming.
   const [draft, setDraft] = useState<WorkoutDraft | null>(() => loadDraft());
   const [resumeFrom, setResumeFrom] = useState<WorkoutDraft | null>(null);
+  // The tracker's targets come from history, so a workout starts only after the first sync.
+  const [isFirstSyncDone, setIsFirstSyncDone] = useState(false);
 
   const refreshData = () => {
     setSessions(StorageService.getSessions());
@@ -49,7 +55,8 @@ export function App() {
   useEffect(() => {
     const unsubscribe = StorageService.subscribe(refreshData);
     refreshData();
-    void StorageService.init();
+    const waitLimit = new Promise(resolve => setTimeout(resolve, FIRST_SYNC_WAIT_MS));
+    void Promise.race([StorageService.init(), waitLimit]).then(() => setIsFirstSyncDone(true));
     return unsubscribe;
   }, []);
 
@@ -102,6 +109,8 @@ export function App() {
     return (
       <LiveTracker
         workoutType={activeWorkoutType}
+        sessions={sessions}
+        exercises={exercises}
         resumeFrom={resumeFrom}
         onFinish={handleFinishWorkout}
         onCancel={handleLeaveWorkout}
@@ -156,6 +165,7 @@ export function App() {
             sessions={sessions}
             exercises={exercises}
             onStartWorkout={handleStartWorkout}
+            canStart={isFirstSyncDone}
             onNavigateToCalendar={() => setActiveTab('calendar')}
           />
         )}
