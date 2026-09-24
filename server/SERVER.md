@@ -7,6 +7,7 @@ Entry: `server/vitePlugin.ts`: a Vite plugin that serves `/api/*` from the dev a
 
 ## Rules
 - Every request body is checked by a parser in `src/validation.ts` before it reaches `db.ts`. The browser uses the same parsers, so the two sides accept the same shapes. A new payload gets a new parser there, not an inline check.
+- The parsers enforce `LIMITS` in `src/validation.ts` (at most 50 sets per exercise and 50 exercises per session, 20 target sets, 1000 kg, 1000 reps, RPE 10, notes of 10 000 characters, real calendar dates and times). The tracker and Settings inputs clamp to the same `LIMITS`, so the app never sends a value the server refuses. Durations and volume have no upper limit, because a draft resumed days later records a long workout.
 - SQL lives only in `db.ts`. Routes in `api.ts` call its functions.
 - The seed routine comes from `src/data/seedData.ts`. It is inserted only when `exercise_definitions` is empty.
 - Table and column names are stored data: never rename them (see `AGENTS.md`).
@@ -29,7 +30,7 @@ Entry: `server/vitePlugin.ts`: a Vite plugin that serves `/api/*` from the dev a
 | `POST /api/exercises` | `ExerciseDefinition[]` | `{ success, count }`; inserts or replaces by `id` |
 | `POST /api/clear` | none | deletes every session, keeps exercises |
 
-Errors: 403 for a foreign `Host` or `Origin`, 415 for a POST that isn't JSON, 400 for an invalid body (the message names the first bad field, for example `session.date must be a string`), 404 for an unknown route, 413 for a body over 1 MB, 500 for a database error (logged once).
+Errors: 403 for a foreign `Host` or `Origin`, 415 for a POST that isn't JSON, 400 for an invalid body (the message names the first bad field, for example `session.date must be a string`) or a session id with broken URI encoding, 404 for an unknown route, 413 for a body over 1 MB, 500 for a database error. A 500 says only `Internal database error`; the details go to the server log once, because they can hold SQL and file paths.
 
 | Table | Key | Notes |
 |---|---|---|

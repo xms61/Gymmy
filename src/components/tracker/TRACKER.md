@@ -10,6 +10,7 @@ Entry: `src/components/tracker/LiveTracker.tsx`: the screen for logging one work
 
 ## Rules
 - Time comes from timestamps (`startTime`, `Date.now()`), never from counting timer ticks. Browsers slow down or pause timers in background tabs.
+- Weight, reps, the number of sets and note lengths are clamped to `LIMITS` in `src/validation.ts`, the bounds the server accepts. Add Set stops at 50 sets.
 - Recommendations are computed once per workout (`recommendations` map). History does not change while the tracker is open.
 - The draft is saved on every change to sets or notes. It is cleared in the same step that saves the finished session, and when the user leaves the workout. The rules for resuming and discarding live in `App.tsx`.
 - `hasFinishedRef` guards Finish. A double tap fires both clicks before React re-renders, so state alone cannot stop the second save.

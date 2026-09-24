@@ -1,5 +1,6 @@
 import { Check } from 'lucide-react';
 import type { SetLog } from '../../types/workout.ts';
+import { clampTo, LIMITS } from '../../validation.ts';
 
 export type SetChange = (set: SetLog) => SetLog;
 
@@ -35,15 +36,15 @@ export function SetRow({ set, onToggle, onChange }: SetRowProps) {
         step={0.5}
         stepTitle={`${WEIGHT_STEP_KG} kg`}
         onStep={direction => onChange(s => ({ ...s, weightKg: steppedWeight(s.weightKg, direction * WEIGHT_STEP_KG) }))}
-        onEnter={text => onChange(s => ({ ...s, weightKg: nonNegative(parseFloat(text)) }))}
+        onEnter={text => onChange(s => ({ ...s, weightKg: clampTo(LIMITS.weightKg, parseFloat(text)) }))}
       />
 
       <Stepper
         className="col-span-4"
         value={set.repsCompleted}
         inputWidth="w-12"
-        onStep={direction => onChange(s => ({ ...s, repsCompleted: Math.max(0, s.repsCompleted + direction) }))}
-        onEnter={text => onChange(s => ({ ...s, repsCompleted: nonNegative(parseInt(text)) }))}
+        onStep={direction => onChange(s => ({ ...s, repsCompleted: clampTo(LIMITS.reps, s.repsCompleted + direction) }))}
+        onEnter={text => onChange(s => ({ ...s, repsCompleted: clampTo(LIMITS.reps, parseInt(text)) }))}
       />
 
       <div className="col-span-2 flex items-center justify-center">
@@ -101,9 +102,5 @@ function StepButton({ label, title, onClick }: { label: string; title?: string; 
 }
 
 function steppedWeight(weightKg: number, deltaKg: number): number {
-  return Math.max(0, Math.round((weightKg + deltaKg) * 100) / 100);
-}
-
-function nonNegative(value: number): number {
-  return Math.max(0, isNaN(value) ? 0 : value);
+  return clampTo(LIMITS.weightKg, Math.round((weightKg + deltaKg) * 100) / 100);
 }

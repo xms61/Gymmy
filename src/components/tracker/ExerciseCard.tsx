@@ -1,6 +1,7 @@
 import { Calculator, Info, Plus, Sparkles, Trash2 } from 'lucide-react';
 import type { ExerciseDefinition, ExerciseSessionLog, ProgressRecommendation } from '../../types/workout.ts';
 import { StatusBadge } from '../ui/badges.tsx';
+import { LIMITS, MAX_NOTES_LENGTH } from '../../validation.ts';
 import { SetRow, type SetChange } from './SetRow.tsx';
 
 interface ExerciseCardProps {
@@ -91,7 +92,8 @@ export function ExerciseCard({
       <div className="flex items-center justify-between mt-4 pt-3 border-t border-line">
         <button
           onClick={onAddSet}
-          className="flex items-center space-x-1.5 text-xs font-bold text-accent-ink py-1.5 px-3 bg-accent-ink/10 hover:bg-accent-ink/20 rounded-control transition"
+          disabled={log.sets.length >= LIMITS.setNumber.max}
+          className="flex items-center space-x-1.5 text-xs font-bold text-accent-ink py-1.5 px-3 bg-accent-ink/10 hover:bg-accent-ink/20 rounded-control transition disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <Plus className="w-3.5 h-3.5" />
           <span>Add Set</span>
@@ -113,6 +115,7 @@ export function ExerciseCard({
           type="text"
           value={log.notes || ''}
           onChange={event => onNotesChange(event.target.value)}
+          maxLength={MAX_NOTES_LENGTH}
           placeholder="Notes for this exercise (e.g., grip, form cues, RPE)..."
           className="field w-full bg-inset/60 rounded-control px-3 py-1.5 text-base sm:text-xs text-ink-soft"
         />

@@ -2,12 +2,21 @@ import React, { useState } from 'react';
 import { RotateCcw, Check, Database } from 'lucide-react';
 import { StorageService, type SyncStatus } from '../../services/storage.ts';
 import type { ExerciseDefinition } from '../../types/workout.ts';
-import { hasValidRepRange } from '../../validation.ts';
+import { clampTo, hasValidRepRange, LIMITS } from '../../validation.ts';
 import { describeSyncStatus, syncLabel } from '../syncStatusText.ts';
 import { BackupSection } from './BackupSection.tsx';
 import { Dialog, DialogHeader } from '../ui/Dialog.tsx';
 
 type SettingsTab = 'data' | 'exercises';
+
+// The fallback is used when the field is cleared, and every value is clamped to the limits the server accepts.
+const TARGET_FIELDS = [
+  { field: 'targetSets', label: 'Target Sets', rule: LIMITS.targetSets, fallback: 3 },
+  { field: 'targetRepsMin', label: 'Min Reps', rule: LIMITS.repRange, fallback: 6 },
+  { field: 'targetRepsMax', label: 'Max Reps', rule: LIMITS.repRange, fallback: 12 }
+] as const;
+
+type TargetField = (typeof TARGET_FIELDS)[number]['field'];
 
 const SETTINGS_TABS: { id: SettingsTab; label: string }[] = [
   { id: 'data', label: 'Data & Backup' },
@@ -31,14 +40,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [exerciseList, setExerciseList] = useState<ExerciseDefinition[]>(exercises);
   const [savedSuccess, setSavedSuccess] = useState(false);
 
-  const handleUpdateExercise = (
-    id: string,
-    field: 'targetRepsMin' | 'targetRepsMax' | 'targetSets' | 'defaultRestSeconds',
-    val: number
-  ) => {
-    setExerciseList(prev =>
-      prev.map(ex => (ex.id === id ? { ...ex, [field]: Math.max(1, val) } : ex))
-    );
+  const handleUpdateExercise = (id: string, field: TargetField, value: number) => {
+    setExerciseList(prev => prev.map(ex => (ex.id === id ? { ...ex, [field]: value } : ex)));
   };
 
   const hasInvalidRepRange = exerciseList.some(ex => !hasValidRepRange(ex));
@@ -150,41 +153,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </div>
 
                   <div className="grid grid-cols-3 gap-2 text-xs">
-                    <div>
-                      <span className="text-[10px] text-ink-faint block mb-1">Target Sets</span>
-                      <input
-                        type="number"
-                        min="1"
-                        max="10"
-                        value={ex.targetSets}
-                        onChange={e => handleUpdateExercise(ex.id, 'targetSets', parseInt(e.target.value) || 3)}
-                        className="field w-full p-1.5 font-mono text-base sm:text-xs text-center"
-                      />
-                    </div>
-
-                    <div>
-                      <span className="text-[10px] text-ink-faint block mb-1">Min Reps</span>
-                      <input
-                        type="number"
-                        min="1"
-                        max="30"
-                        value={ex.targetRepsMin}
-                        onChange={e => handleUpdateExercise(ex.id, 'targetRepsMin', parseInt(e.target.value) || 6)}
-                        className="field w-full p-1.5 font-mono text-base sm:text-xs text-center"
-                      />
-                    </div>
-
-                    <div>
-                      <span className="text-[10px] text-ink-faint block mb-1">Max Reps</span>
-                      <input
-                        type="number"
-                        min="1"
-                        max="30"
-                        value={ex.targetRepsMax}
-                        onChange={e => handleUpdateExercise(ex.id, 'targetRepsMax', parseInt(e.target.value) || 12)}
-                        className="field w-full p-1.5 font-mono text-base sm:text-xs text-center"
-                      />
-                    </div>
+                    {TARGET_FIELDS.map(({ field, label, rule, fallback }) => (
+                      <label key={field} className="block">
+                        <span className="text-[10px] text-ink-faint block mb-1">{label}</span>
+                        <input
+                          type="number"
+                          min={rule.min}
+                          max={rule.max}
+                          value={ex[field]}
+                          onChange={e => handleUpdateExercise(ex.id, field, clampTo(rule, parseInt(e.target.value) || fallback))}
+                          className="field w-full p-1.5 font-mono text-base sm:text-xs text-center"
+                        />
+                      </label>
+                    ))}
                   </div>
 
                   {!hasValidRepRange(ex) && (
