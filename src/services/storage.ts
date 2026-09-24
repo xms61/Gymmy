@@ -4,12 +4,10 @@
 import type { ExerciseDefinition, WorkoutSession } from '../types/workout.ts';
 import { EXERCISE_DEFINITIONS } from '../data/seedData.ts';
 import type { ImportPlan } from './backup.ts';
-import { deleteLegacyDatabase, readLegacySessions } from './legacyIndexedDb.ts';
 import {
   apiCallFor,
   applyOps,
   classifyStatus,
-  isAdoptionConfirmed,
   sendInOrder,
   sessionsToAdopt,
   type PendingOp,
@@ -133,7 +131,6 @@ export class StorageService {
       if (localStorage.getItem(LOCAL_ADOPTION_KEY) === null) this.adoptLocalOnlySessions(readStoredSnapshot(), this.snapshot);
       this.persist();
     }
-    await this.retireIndexedDb();
     await this.flush();
     this.notify();
   }
@@ -166,31 +163,8 @@ export class StorageService {
   // Before the outbox existed, a session saved while the server was down stayed only in
   // localStorage. Queue those for the server once, instead of dropping them.
   private static adoptLocalOnlySessions(local: Snapshot, known: Snapshot): void {
-    const { toAdopt } = sessionsToAdopt(local.sessions, known);
-    for (const session of toAdopt) this.enqueue({ type: 'upsertSession', session });
+    for (const session of sessionsToAdopt(local.sessions, known)) this.enqueue({ type: 'upsertSession', session });
     localStorage.setItem(LOCAL_ADOPTION_KEY, new Date().toISOString());
-  }
-
-  // Deletes the 1.0.0 IndexedDB store only after its sessions are confirmed to be in
-  // localStorage and on the server. Otherwise it is kept and checked again on the next start.
-  private static async retireIndexedDb(): Promise<void> {
-    const legacySessions = await readLegacySessions();
-    if (legacySessions === null) return;
-
-    const adoption = sessionsToAdopt(legacySessions, this.snapshot);
-    for (const session of adoption.toAdopt) this.enqueue({ type: 'upsertSession', session });
-    this.persist();
-    if (this.connected) await this.flush();
-
-    if (isAdoptionConfirmed(adoption, readStoredSnapshot(), this.outbox)) {
-      await deleteLegacyDatabase();
-      console.info(`[StorageService] Moved ${adoption.validIds.length} sessions out of IndexedDB and deleted it`);
-    } else {
-      console.warn(
-        `[StorageService] Keeping IndexedDB until its sessions reach the server ` +
-          `(${adoption.invalidCount} unreadable, ${this.outbox.length} changes pending)`
-      );
-    }
   }
 
   private static record(op: PendingOp): void {

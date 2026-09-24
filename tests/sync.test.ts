@@ -4,7 +4,6 @@ import {
   apiCallFor,
   applyOps,
   classifyStatus,
-  isAdoptionConfirmed,
   sendInOrder,
   sessionsToAdopt,
   type PendingOp,
@@ -148,27 +147,6 @@ test('an operation another tab already sent is not removed twice', () => {
 });
 
 test('adopts only valid sessions that are not known yet', () => {
-  const adoption = sessionsToAdopt([session('known'), session('new'), { id: 'broken' }], serverSnapshot(session('known')));
-  assert.deepEqual(adoption.validIds, ['known', 'new']);
-  assert.equal(adoption.invalidCount, 1);
-  assert.deepEqual(adoption.toAdopt.map(s => s.id), ['new']);
-});
-
-test('confirms an adoption only when every session is stored and sent', () => {
-  const adoption = sessionsToAdopt([session('a'), session('b')], serverSnapshot());
-  const stored = serverSnapshot(session('a'), session('b'));
-  const CASES: [label: string, stored: Snapshot, outbox: PendingOp[], expected: boolean][] = [
-    ['stored and sent', stored, [], true],
-    ['unrelated change still queued', stored, [{ type: 'deleteSession', id: 'x' }], true],
-    ['still waiting for the server', stored, [{ type: 'upsertSession', session: session('b') }], false],
-    ['missing from the stored copy', serverSnapshot(session('a')), [], false]
-  ];
-  for (const [label, storedCopy, outbox, expected] of CASES) {
-    assert.equal(isAdoptionConfirmed(adoption, storedCopy, outbox), expected, label);
-  }
-});
-
-test('never confirms an adoption that had invalid sessions', () => {
-  const adoption = sessionsToAdopt([session('a'), 'not a session'], serverSnapshot());
-  assert.equal(isAdoptionConfirmed(adoption, serverSnapshot(session('a')), []), false);
+  const toAdopt = sessionsToAdopt([session('known'), session('new'), { id: 'broken' }], serverSnapshot(session('known')));
+  assert.deepEqual(toAdopt.map(s => s.id), ['new']);
 });
