@@ -4,8 +4,9 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
-import { listExercises, listSessions, openDatabase } from '../../server/db.ts';
+import { listExercises, listSessions, openDatabase, upsertExercises } from '../../server/db.ts';
 import { EXERCISE_DEFINITIONS } from '../../src/data/seedData.ts';
+import type { ExerciseDefinition } from '../../src/types/workout.ts';
 
 // The schema that Gymmy 1.0.0 created. Real databases start from this, so it must not change.
 const VERSION_0_SCHEMA = `
@@ -96,4 +97,18 @@ test('reopening a migrated database changes nothing', t => {
   const exerciseIds = listExercises(db).map(e => e.id);
   db.close();
   assert.deepEqual(exerciseIds, EXERCISE_DEFINITIONS.map(e => e.id));
+});
+
+test('saving exercises writes all of them or none', t => {
+  const dir = tempDataDir(t);
+  const db = openDatabase(dir);
+  const [first, second] = EXERCISE_DEFINITIONS;
+  const renamed = { ...first!, name: 'RENAMED' };
+  // Deliberately invalid: the database must stay consistent even if bad data gets past validation.
+  const broken = { ...second!, name: null } as unknown as ExerciseDefinition;
+
+  assert.throws(() => upsertExercises(db, [renamed, broken]), /NOT NULL/);
+  const storedName = listExercises(db).find(e => e.id === first!.id)?.name;
+  db.close();
+  assert.equal(storedName, first!.name);
 });

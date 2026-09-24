@@ -11,6 +11,7 @@ Entry: `server/vitePlugin.ts`: a Vite plugin that serves `/api/*` from the dev a
 - The seed routine comes from `src/data/seedData.ts`. It is inserted only when `exercise_definitions` is empty, and again by `/api/reset`.
 - Table and column names are stored data: never rename them (see `AGENTS.md`).
 - Schema changes go in `MIGRATIONS` in `db.ts`: append a function, never edit an old one. `PRAGMA user_version` records how many have run. Before the first pending migration on an existing file, `openDatabase` writes a copy to `data/gymmy.before-schema-v<N>.db`, and each migration runs in a transaction.
+- A write that touches more than one row runs inside `inTransaction`, so it lands completely or not at all (`upsertExercises`, `resetToSeed`, migrations).
 - Exercises are listed by `sort_order`, which `/api/exercises` sets from each item's position in the submitted list.
 
 ## Data / API
@@ -31,10 +32,9 @@ Errors: 400 for an invalid body (the message names the first bad field, for exam
 | `exercise_definitions` | `id` | `warmup_required` is 0/1; `sort_order` (schema v1) is the routine position |
 
 ## Gotchas
-- Multi-row writes (`/api/exercises`, `/api/reset`) are not yet in a transaction.
 - Any page open in the same browser can call the POST routes while the dev server runs (no origin check yet).
 
 ## Tests
-- `tests/server/db.test.ts`: migrating a 1.0.0 database (order, sessions kept, backup) and reopening it.
+- `tests/server/db.test.ts`: migrating a 1.0.0 database (order, sessions kept, backup), reopening it, and all-or-nothing exercise writes.
 - `tests/server/api.test.ts`: every route against a temp-dir database, including validation failures and reopening an existing file.
 - `tests/validation.test.ts`: which session and exercise shapes are accepted, and the error for each invalid field.

@@ -191,6 +191,18 @@ export function clearSessions(db: DatabaseSync): void {
 }
 
 export function upsertExercises(db: DatabaseSync, exercises: ExerciseDefinition[]): void {
+  inTransaction(db, () => writeExercises(db, exercises));
+}
+
+export function resetToSeed(db: DatabaseSync): void {
+  inTransaction(db, () => {
+    db.exec('DELETE FROM workout_sessions');
+    db.exec('DELETE FROM exercise_definitions');
+    writeExercises(db, EXERCISE_DEFINITIONS);
+  });
+}
+
+function writeExercises(db: DatabaseSync, exercises: ExerciseDefinition[]): void {
   const upsert = db.prepare(`
     INSERT INTO exercise_definitions (
       id, name, workout_type, target_reps_min, target_reps_max, target_sets,
@@ -228,12 +240,6 @@ export function upsertExercises(db: DatabaseSync, exercises: ExerciseDefinition[
       position
     );
   });
-}
-
-export function resetToSeed(db: DatabaseSync): void {
-  db.exec('DELETE FROM workout_sessions');
-  db.exec('DELETE FROM exercise_definitions');
-  upsertExercises(db, EXERCISE_DEFINITIONS);
 }
 
 function countExercises(db: DatabaseSync): number {
