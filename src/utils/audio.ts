@@ -11,15 +11,27 @@ export function unlockAudio(): void {
 }
 
 export function playTimerChime(): void {
-  vibrate([200, 100, 200]);
+  vibrateForChime();
+  scheduleTimerChime(0);
+}
+
+// Schedules the chime on the audio clock, which keeps time while the browser slows down or pauses
+// timers in a background tab. Returns a function that cancels it (pause, skip, a changed rest).
+export function scheduleTimerChime(secondsFromNow: number): () => void {
   const context = getAudioContext();
-  if (!context) return;
+  if (!context) return () => {};
   if (context.state === 'suspended') void context.resume().catch(() => {});
 
   // A friendly two-tone chime: A5, then E6.
-  const now = context.currentTime;
-  playTone(context, 880, now, 0.2);
-  playTone(context, 1320, now + 0.22, 0.4);
+  const start = context.currentTime + secondsFromNow;
+  const tones = [playTone(context, 880, start, 0.2), playTone(context, 1320, start + 0.22, 0.4)];
+  return () => tones.forEach(cancelTone);
+}
+
+// Android only; iOS browsers do not support vibration. Vibration cannot be scheduled ahead, so
+// the timer calls this when its countdown reaches zero.
+export function vibrateForChime(): void {
+  if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
 }
 
 function getAudioContext(): AudioContext | null {
@@ -35,7 +47,7 @@ function getAudioContext(): AudioContext | null {
   return sharedContext;
 }
 
-function playTone(context: AudioContext, frequency: number, startTime: number, duration: number): void {
+function playTone(context: AudioContext, frequency: number, startTime: number, duration: number): OscillatorNode {
   const oscillator = context.createOscillator();
   const gain = context.createGain();
   oscillator.type = 'sine';
@@ -46,9 +58,10 @@ function playTone(context: AudioContext, frequency: number, startTime: number, d
   gain.connect(context.destination);
   oscillator.start(startTime);
   oscillator.stop(startTime + duration);
+  return oscillator;
 }
 
-// Android only; iOS browsers do not support vibration.
-function vibrate(pattern: number[]): void {
-  if ('vibrate' in navigator) navigator.vibrate(pattern);
+// A disconnected tone never reaches the speakers. Unlike a second stop(), this is safe in every browser.
+function cancelTone(oscillator: OscillatorNode): void {
+  oscillator.disconnect();
 }

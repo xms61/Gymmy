@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - History is indexed by exercise once per change (`indexCompletedLogs`) instead of being filtered and sorted again for every exercise on the dashboard, in Progress and in the tracker. The results are the same.
 
 ### Fixed
+- The rest-timer chime sounds on time when the Gymmy tab is in the background or the window is minimized. It is scheduled on the audio clock when the rest starts, instead of waiting for a timer tick that browsers delay by up to a minute in background tabs. The tracker also keeps the screen on while a workout is open.
 - A restored or back-dated session takes its place by date in the local copy. It used to appear at the top of the list until the next reload. Restoring a backup applies all its sessions in one pass instead of one scan of the history per session.
 - The next workout in the rotation is picked by date and start time, so two sessions on the same day are ordered correctly, and an "Other" workout no longer resets the rotation to Push.
 - The calendar's streak counts weeks in a row with a workout ("3 weeks"). It showed "Consistent" as soon as any workout existed. The dashboard no longer mentions the removed spreadsheet ("From Sheet "List"").

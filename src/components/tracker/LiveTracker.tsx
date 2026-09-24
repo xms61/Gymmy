@@ -112,6 +112,27 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
   // A ref, not state: a double tap fires both clicks before React re-renders.
   const hasFinishedRef = useRef(false);
 
+  // Keeps the screen on during the workout (phones and laptops that sleep between sets), asking
+  // again when the tab comes back, because the browser drops the lock when the tab is hidden.
+  useEffect(() => {
+    let lock: WakeLockSentinel | null = null;
+    const requestLock = () => {
+      navigator.wakeLock
+        ?.request('screen')
+        .then(granted => (lock = granted))
+        .catch(() => {});
+    };
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') requestLock();
+    };
+    requestLock();
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible);
+      void lock?.release();
+    };
+  }, []);
+
   useEffect(() => {
     if (hasFinishedRef.current) return;
     saveDraft({ version: 1, workoutType, startTime, sessionNotes, exerciseLogs });
