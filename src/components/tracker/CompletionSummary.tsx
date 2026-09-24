@@ -1,6 +1,9 @@
 import { Trophy } from 'lucide-react';
 import type { WorkoutSession } from '../../types/workout.ts';
 import { Dialog } from '../ui/Dialog.tsx';
+import { InkStamp } from '../ui/InkStamp.tsx';
+import { useTheme } from '../../theme/ThemeProvider.tsx';
+import { formatDayMonth } from '../../utils/date.ts';
 
 interface CompletionSummaryProps {
   session: WorkoutSession;
@@ -8,13 +11,20 @@ interface CompletionSummaryProps {
 }
 
 export function CompletionSummary({ session, onDone }: CompletionSummaryProps) {
+  const { theme } = useTheme();
   return (
     <Dialog onClose={onDone} className="text-center overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-good-ink/10 rounded-pill blur-3xl pointer-events-none" />
 
-      <div className="w-16 h-16 bg-gradient-to-tr from-good to-accent rounded-panel flex items-center justify-center mx-auto mb-4 shadow-xl shadow-good/20">
-        <Trophy className="w-8 h-8 text-on-good" />
-      </div>
+      {theme.traits.celebration === 'stamp' ? (
+        <div className="py-4 mb-2">
+          <InkStamp size="lg" label={`Logged · ${formatDayMonth(session.date)}`} />
+        </div>
+      ) : (
+        <div className="w-16 h-16 bg-gradient-to-tr from-good to-accent rounded-panel flex items-center justify-center mx-auto mb-4 shadow-xl shadow-good/20">
+          <Trophy className="w-8 h-8 text-on-good" />
+        </div>
+      )}
 
       <h2 className="text-2xl font-black text-ink tracking-tight mb-1">Workout Saved</h2>
       <p className="text-sm text-ink-muted mb-6">Your sets are in your history and on the calendar.</p>

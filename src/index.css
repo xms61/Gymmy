@@ -75,11 +75,41 @@
   .field {
     @apply bg-surface border border-edge rounded-chip text-ink focus:border-accent focus:outline-none;
   }
+
+  /* InkStamp: ink pressed onto the page, so it multiplies with the paper underneath. */
+  .ink-stamp {
+    display: inline-block;
+    padding: 0.125rem 0.375rem;
+    border: 3px double rgb(var(--c-stamp));
+    border-radius: var(--radius-chip);
+    color: rgb(var(--c-stamp));
+    font-family: var(--font-data);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    line-height: 1.2;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transform: rotate(-6deg);
+    mix-blend-mode: multiply;
+    animation: stampIn var(--motion) ease-out;
+  }
+
+  .ink-stamp-lg {
+    padding: 0.25rem 0.875rem;
+    border-width: 6px;
+    font-size: 1.5rem;
+  }
 }
 
 @keyframes fadeIn {
   from { opacity: 0; transform: scale(0.98); }
   to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes stampIn {
+  from { opacity: 0; transform: rotate(-6deg) scale(1.6); }
+  to { opacity: 1; transform: rotate(-6deg) scale(1); }
 }
 
 @keyframes slideUp {
@@ -320,4 +350,118 @@
   font-size: 2.5rem;
   font-weight: 400;
   line-height: 1;
+}
+
+/*
+ * Golden Era Journal. A paper notebook: hairline page shadows instead of glows, a ruled ledger
+ * with a red margin line for the sets, and handwritten margin notes.
+ */
+[data-theme="journal"] * {
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+}
+
+[data-theme="journal"] .card {
+  box-shadow: 0 1px 0 rgb(var(--c-rule));
+}
+
+[data-theme="journal"] :is(h1, h2, h3, h4) {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+[data-theme="journal"] .exercise-name {
+  padding-bottom: 0.125rem;
+  border-bottom: 3px double rgb(var(--c-rule));
+}
+
+[data-theme="journal"] .set-list {
+  padding-left: 0.75rem;
+  border-left: 2px solid rgb(var(--c-stamp) / 0.55);
+}
+
+[data-theme="journal"] .set-list > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 0;
+}
+
+[data-theme="journal"] .set-header {
+  padding-bottom: 0.25rem;
+  border-bottom: 3px double rgb(var(--c-rule));
+}
+
+[data-theme="journal"] .set-row {
+  border-width: 0 0 1px 0;
+  border-color: rgb(var(--c-rule));
+  border-radius: 0;
+  background-color: transparent;
+}
+
+[data-theme="journal"] .set-numeral {
+  background-color: transparent;
+  color: rgb(var(--c-ink-muted));
+  font-style: italic;
+}
+
+[data-theme="journal"] .set-row .field {
+  border-width: 0 0 1px 0;
+  border-radius: 0;
+  background-color: transparent;
+}
+
+[data-theme="journal"] .set-row[data-done="true"] .set-done > button {
+  width: auto;
+  background-color: transparent;
+}
+
+[data-theme="journal"] :is(.exercise-cue, .exercise-notes textarea) {
+  border: 0;
+  background-color: transparent;
+  color: rgb(var(--c-info-ink));
+  font-family: var(--font-note);
+  font-size: 1.25rem;
+  line-height: 1.3;
+}
+
+[data-theme="journal"] .exercise-notes {
+  padding-left: 1.5rem;
+}
+
+/* A margin note grows with its text instead of scrolling inside one line. */
+[data-theme="journal"] .exercise-notes textarea {
+  field-sizing: content;
+  min-height: 2.5rem;
+  white-space: pre-wrap;
+}
+
+/* Calendar days carry a small ink dot per session instead of a labelled chip. */
+[data-theme="journal"] .session-chip {
+  width: 0.5rem;
+  height: 0.5rem;
+  padding: 0;
+  border-radius: var(--radius-pill);
+  font-size: 0;
+}
+
+/* From tablet width on, the exercise cue and the notes move into a right-hand margin. */
+@media (min-width: 768px) {
+  [data-theme="journal"] .exercise-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 14rem;
+    grid-template-areas: "head head" "guidance cue" "sets notes" "actions notes";
+    column-gap: 1.5rem;
+    align-items: start;
+  }
+
+  [data-theme="journal"] .exercise-head { grid-area: head; }
+  [data-theme="journal"] .exercise-guidance { grid-area: guidance; }
+  [data-theme="journal"] .exercise-cue { grid-area: cue; }
+  [data-theme="journal"] .set-list { grid-area: sets; }
+  [data-theme="journal"] .set-actions { grid-area: actions; }
+
+  [data-theme="journal"] .exercise-notes {
+    grid-area: notes;
+    margin-top: 0;
+    padding: 0 0 0 1rem;
+    border-left: 1px solid rgb(var(--c-rule));
+  }
 }

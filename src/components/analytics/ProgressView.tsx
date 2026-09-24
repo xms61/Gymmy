@@ -4,6 +4,8 @@ import type { ExerciseDefinition } from '../../types/workout.ts';
 import { getRecommendation } from '../../services/overloadEngine.ts';
 import { exerciseHistory } from '../../services/progress.ts';
 import { logsFor, type ExerciseLogIndex } from '../../services/exerciseLogs.ts';
+import { useTheme } from '../../theme/ThemeProvider.tsx';
+import { formatSessionDate } from '../../utils/date.ts';
 
 interface ProgressViewProps {
   exercises: ExerciseDefinition[];
@@ -16,6 +18,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
 }) => {
   const [selectedExId, setSelectedExId] = useState<string>(exercises[0]?.id || 'flat-bench');
 
+  const { theme } = useTheme();
   const selectedExercise = useMemo(() => {
     return exercises.find(e => e.id === selectedExId) || exercises[0];
   }, [exercises, selectedExId]);
@@ -130,7 +133,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                   className="bg-inset border border-line rounded-panel p-3.5 flex flex-wrap items-center justify-between gap-3 text-xs"
                 >
                   <div className="flex items-center space-x-3">
-                    <span className="font-mono text-ink-muted font-semibold">{h.date}</span>
+                    <span className="font-mono text-ink-muted font-semibold">{formatSessionDate(h.date, theme.traits.dates)}</span>
                     <span className="px-2 py-0.5 bg-control text-ink-soft rounded-chip font-semibold">
                       {h.sessionName}
                     </span>

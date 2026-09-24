@@ -41,6 +41,7 @@ function themeDeclarations(theme: Theme): string[] {
     `--font-display: ${theme.fonts.display};`,
     `--font-body: ${theme.fonts.body};`,
     `--font-data: ${theme.fonts.data};`,
+    `--font-note: ${theme.fonts.note};`,
     ...Object.entries(theme.radius).map(([name, value]) => `--radius-${name}: ${value};`),
     `--border-width: ${theme.borderWidth};`,
     `--border-style: ${theme.borderStyle};`,
