@@ -20,6 +20,9 @@ import { LiveTracker } from './components/tracker/LiveTracker.tsx';
 import { ResumeWorkoutBanner } from './components/tracker/ResumeWorkoutBanner.tsx';
 import { clearDraft, loadDraft } from './components/tracker/workoutDraft.ts';
 import { describeSyncStatus, needsAttention, syncLabel } from './components/syncStatusText.ts';
+import { isShortcutFree } from './components/keyboardShortcuts.ts';
+import { nextSplit } from './services/rotation.ts';
+import { useTheme } from './theme/ThemeProvider.tsx';
 
 type AppTab = 'dashboard' | 'calendar' | 'analytics';
 
@@ -47,6 +50,20 @@ export function App() {
   const [isFirstSyncDone, setIsFirstSyncDone] = useState(false);
 
   const logIndex = useMemo(() => indexCompletedLogs(sessions, exercises), [sessions, exercises]);
+  const { theme } = useTheme();
+
+  // Themes with a command line: 1, 2 and 3 switch tabs, and s starts the next workout in the rotation.
+  useEffect(() => {
+    if (!theme.traits.commandLine || activeWorkoutType) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!isShortcutFree(event)) return;
+      const tab = NAV_TABS[Number(event.key) - 1];
+      if (tab) setActiveTab(tab.id);
+      else if (event.key === 's' && isFirstSyncDone) handleStartWorkout(nextSplit(sessions));
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  });
 
   const refreshData = () => {
     setSessions(StorageService.getSessions());
@@ -188,7 +205,7 @@ export function App() {
 
       <nav className="fixed bottom-0 left-0 right-0 z-30 bg-inset/95 backdrop-blur-md border-t border-line py-2 px-6">
         <div className="max-w-md mx-auto flex items-center justify-around">
-          {NAV_TABS.map(({ id, label, icon: Icon }) => (
+          {NAV_TABS.map(({ id, label, icon: Icon }, index) => (
             <button
               key={id}
               onClick={() => setActiveTab(id)}
@@ -196,10 +213,16 @@ export function App() {
                 activeTab === id ? 'text-accent-ink font-bold' : 'text-ink-muted hover:text-ink-soft'
               }`}
             >
-              <Icon className="w-5 h-5" />
-              <span className="text-[11px]">{label}</span>
+              <Icon className="nav-icon w-5 h-5" />
+              <span className="text-[11px]">
+                <span className="nav-key hidden">[{index + 1}]</span>
+                {label}
+              </span>
             </button>
           ))}
+          <span className="nav-status hidden text-[11px] text-ink-muted">
+            sqlite:{syncStatus.connected ? 'ok' : 'offline'} pending:{syncStatus.pendingChanges}
+          </span>
         </div>
       </nav>
 

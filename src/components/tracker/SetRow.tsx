@@ -12,17 +12,19 @@ export type SetChange = (set: SetLog) => SetLog;
 
 interface SetRowProps {
   set: SetLog;
+  isCursor: boolean; // the set the keyboard cursor is on, in themes with a command line
   equipment: EquipmentType;
   onToggle: () => void;
   onChange: (change: SetChange) => void;
 }
 
-export function SetRow({ set, equipment, onToggle, onChange }: SetRowProps) {
+export function SetRow({ set, isCursor, equipment, onToggle, onChange }: SetRowProps) {
   const loadable = isLoadable(set.weightKg, equipment);
   const { theme } = useTheme();
   return (
     <div
       data-done={set.completed}
+      data-cursor={isCursor || undefined}
       className={`set-row grid grid-cols-12 gap-2 items-center p-2.5 rounded-panel border transition-all ${
         set.completed ? 'bg-good-ink/5 border-good-ink/40' : 'bg-inset border-line hover:border-edge'
       }`}
@@ -67,7 +69,9 @@ export function SetRow({ set, equipment, onToggle, onChange }: SetRowProps) {
             set.completed ? 'bg-good text-on-good shadow-lg shadow-good/30' : 'bg-control hover:bg-control-hover text-ink-muted hover:text-ink'
           }`}
         >
-          {set.completed && theme.traits.doneMark === 'stamp' ? (
+          {theme.traits.doneMark === 'glyph' ? (
+            <span className="font-mono font-bold">{set.completed ? '[x]' : '[ ]'}</span>
+          ) : set.completed && theme.traits.doneMark === 'stamp' ? (
             <InkStamp label="Done" />
           ) : (
             <Check className={`w-5 h-5 ${set.completed ? 'stroke-[3]' : ''}`} />
@@ -158,7 +162,7 @@ function StepButton({ label, title, onClick }: { label: string; title?: string; 
 }
 
 // Steps through the loads the home equipment makes, and stays put at the lightest and heaviest.
-function steppedWeight(weightKg: number, equipment: EquipmentType, direction: 1 | -1): number {
+export function steppedWeight(weightKg: number, equipment: EquipmentType, direction: 1 | -1): number {
   return clampTo(LIMITS.weightKg, stepLoad(weightKg, equipment, direction) ?? weightKg);
 }
 

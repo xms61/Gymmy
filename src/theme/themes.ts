@@ -2,7 +2,7 @@ import type { DateStyle } from '../utils/date.ts';
 
 // The design tokens of every theme. Components use only these (through the Tailwind classes in
 // tailwind.config.ts), never palette colors, so a theme changes the whole app.
-export const THEME_IDS = ['classic', 'brutalism', 'telemetry', 'journal'] as const;
+export const THEME_IDS = ['classic', 'brutalism', 'terminal', 'telemetry', 'journal'] as const;
 export type ThemeId = (typeof THEME_IDS)[number];
 export const DEFAULT_THEME_ID: ThemeId = 'classic';
 
@@ -61,8 +61,10 @@ export type ColorToken = (typeof COLOR_TOKENS)[number];
 // Behavior a stylesheet cannot express. Every field is read by a component.
 export interface ThemeTraits {
   celebration: 'confetti' | 'stamp' | 'none'; // what finishing a workout shows besides the summary
-  doneMark: 'check' | 'stamp'; // what a completed set's done button shows
+  doneMark: 'check' | 'stamp' | 'glyph'; // what the done button shows: a check, a "Done" stamp, or [x] and [ ]
   dates: DateStyle; // how session dates are written in lists
+  commandLine: boolean; // the tracker's command line, and single-key shortcuts
+  dialogs: 'overlay' | 'pane'; // a dialog floats over the page, or replaces it as a full-screen pane
 }
 
 export interface Theme {
@@ -139,7 +141,7 @@ const classic: Theme = {
   tapSize: '2rem',
   tapSizeLarge: '2.25rem',
   motionMs: 150,
-  traits: { celebration: 'confetti', doneMark: 'check', dates: 'numeric' }
+  traits: { celebration: 'confetti', doneMark: 'check', dates: 'numeric', commandLine: false, dialogs: 'overlay' }
 };
 
 // A garage gym under strip lights: cast iron, chalk and caution tape. Everything is big enough
@@ -203,7 +205,71 @@ const brutalism: Theme = {
   tapSize: '3.5rem',
   tapSizeLarge: '4.5rem',
   motionMs: 80,
-  traits: { celebration: 'none', doneMark: 'check', dates: 'numeric' }
+  traits: { celebration: 'none', doneMark: 'check', dates: 'numeric', commandLine: false, dialogs: 'overlay' }
+};
+
+// A green-phosphor console: logging a set is typing a command. No animation, no overlays, and
+// every action has a key.
+const terminal: Theme = {
+  id: 'terminal',
+  label: 'Terminal CLI',
+  description: 'Green phosphor console. Type 62.5x8@2 to log a set.',
+  colorScheme: 'dark',
+  colors: {
+    bg: '#050805',
+    surface: '#0A100A',
+    inset: '#030503',
+    control: '#0F1A0F',
+    'control-hover': '#173017',
+    line: '#1C3A1F',
+    edge: '#2E7A3A',
+    ink: '#C6FFD2',
+    'ink-soft': '#8CF5A6',
+    'ink-muted': '#56C274',
+    'ink-faint': '#3C8C55',
+    accent: '#33FF66',
+    'accent-hover': '#70FF94',
+    'on-accent': '#031A08',
+    'accent-ink': '#33FF66',
+    good: '#29D95A',
+    'good-hover': '#4DF07A',
+    'on-good': '#031A08',
+    'good-ink': '#5CFF85',
+    'warn-ink': '#FFB000',
+    'bad-ink': '#FF6B5E',
+    'info-ink': '#5CE1E6',
+    push: '#FFB000',
+    pull: '#33FF66',
+    legs: '#5CE1E6',
+    other: '#C3A6FF',
+    'on-split': '#031A08',
+    'plate-25': '#C42F27',
+    'plate-20': '#2B63C4',
+    'plate-15': '#F2C200',
+    'plate-10': '#1B7340',
+    'plate-5': '#E6F5E9',
+    'plate-2-5': '#2E3A2F',
+    'plate-1-25': '#5D6B5F',
+    'on-plate': '#FFFFFF',
+    'on-plate-light': '#031A08',
+    bar: '#56C274',
+    rule: '#1C3A1F',
+    stamp: '#33FF66',
+    gauge: '#FFB000'
+  },
+  fonts: {
+    display: `VT323, 'JetBrains Mono Variable', ${SYSTEM_MONO}`,
+    body: `'JetBrains Mono Variable', 'JetBrains Mono', ${SYSTEM_MONO}`,
+    data: `'JetBrains Mono Variable', 'JetBrains Mono', ${SYSTEM_MONO}`,
+    note: `'JetBrains Mono Variable', 'JetBrains Mono', ${SYSTEM_MONO}`
+  },
+  radius: { card: '0', panel: '0', control: '0', chip: '0', pill: '0' },
+  borderWidth: '1px',
+  borderStyle: 'dashed',
+  tapSize: '2.25rem',
+  tapSizeLarge: '2.75rem',
+  motionMs: 0,
+  traits: { celebration: 'none', doneMark: 'glyph', dates: 'numeric', commandLine: true, dialogs: 'pane' }
 };
 
 // A lab instrument panel: training as measured data. Loads, reps in reserve, volume and plate use
@@ -267,7 +333,7 @@ const telemetry: Theme = {
   tapSize: '2.5rem',
   tapSizeLarge: '3rem',
   motionMs: 120,
-  traits: { celebration: 'none', doneMark: 'check', dates: 'numeric' }
+  traits: { celebration: 'none', doneMark: 'check', dates: 'numeric', commandLine: false, dialogs: 'overlay' }
 };
 
 // A 1970s training log: parchment pages, ruled lines, espresso ink, a margin for how the
@@ -331,7 +397,7 @@ const journal: Theme = {
   tapSize: '2.25rem',
   tapSizeLarge: '3rem',
   motionMs: 180,
-  traits: { celebration: 'stamp', doneMark: 'stamp', dates: 'written' }
+  traits: { celebration: 'stamp', doneMark: 'stamp', dates: 'written', commandLine: false, dialogs: 'overlay' }
 };
 
-export const THEMES: Record<ThemeId, Theme> = { classic, brutalism, telemetry, journal };
+export const THEMES: Record<ThemeId, Theme> = { classic, brutalism, terminal, telemetry, journal };

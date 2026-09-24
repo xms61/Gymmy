@@ -1,6 +1,6 @@
 # Themes
 
-Entry: `src/theme/themes.ts`: every theme's name, description, design tokens (colors, fonts, corner radii, border, tap sizes, motion) and traits. The single source of truth for how the app looks. Themes: `classic` (the default), `brutalism` (Industrial Brutalism), `telemetry` (Mechanical Telemetry) and `journal` (Golden Era Journal, the only light theme).
+Entry: `src/theme/themes.ts`: every theme's name, description, design tokens (colors, fonts, corner radii, border, tap sizes, motion) and traits. The single source of truth for how the app looks. Themes: `classic` (the default), `brutalism` (Industrial Brutalism), `terminal` (Terminal CLI), `telemetry` (Mechanical Telemetry) and `journal` (Golden Era Journal, the only light theme).
 - `themeCss.ts`: turns the themes into `[data-theme="<id>"] { --c-…; --font-…; }` rules, and writes the boot script. `vite.config.ts` puts both in `<head>` of `index.html`, so the first paint has the chosen theme's colors.
 - `themePreference.ts`: reads and saves the choice on this device (`gymmy_theme_v1`, see `src/services/STORAGE.md`), and applies a theme: `data-theme` on `<html>` and the `theme-color` meta tag.
 - `ThemeProvider.tsx`: holds the current theme. Components read it with `useTheme()`. A choice made in another tab applies here too.
@@ -14,11 +14,14 @@ Entry: `src/theme/themes.ts`: every theme's name, description, design tokens (co
 
 ## How a theme changes the app
 1. **Tokens** in `themes.ts`: colors, fonts, shape, tap sizes, motion. Most of a theme is here.
-2. **Its block in `src/index.css`**, for what tokens can't express: layout and signature elements. The rules select hook classes that components carry and that have no style of their own, for example `set-row`, `set-list`, `set-number`, `stepper`, `exercise-card`, `exercise-cue`, `exercise-notes`, `rest-bar`, `rest-digits`, `rest-ring`, `split-solid`, `session-chip`, `calendar-day`, `hazard-edge` and `hazard-frame`. Some hook classes mark elements that are `hidden` unless a theme turns them on: `exercise-prescription` (Brutalism), `exercise-readouts`, `set-plates`, `rir-gauge` and `rest-gauge` (Telemetry). A block can also redefine token variables inside an element, so everything in it follows: `.rest-bar` in Brutalism sets `--c-surface` to the accent and the text tokens to `on-accent`.
+2. **Its block in `src/index.css`**, for what tokens can't express: layout and signature elements. The rules select hook classes that components carry and that have no style of their own, for example `set-row`, `set-list`, `set-number`, `stepper`, `exercise-card`, `exercise-cue`, `exercise-notes`, `rest-bar`, `rest-digits`, `rest-ring`, `split-solid`, `session-chip`, `calendar-day`, `hazard-edge` and `hazard-frame`. Some hook classes mark elements that are `hidden` unless a theme turns them on: `exercise-prescription` (Brutalism), `exercise-readouts`, `set-plates`, `rir-gauge` and `rest-gauge` (Telemetry), and `status-glyph`, `progress-text`, `plates-text`, `summary-text`, `nav-key` and `nav-status` (Terminal, which hides `status-text`, `progress-bar`, `plates-drawing` and `nav-icon` in exchange). The text drawings come from `src/components/terminalText.ts`. A block can also redefine token variables inside an element, so everything in it follows: `.rest-bar` in Brutalism sets `--c-surface` to the accent and the text tokens to `on-accent`.
 3. **Traits** in `themes.ts`, for behavior a stylesheet can't express. Each one is read by a component:
    - `celebration`: confetti on Finish (`LiveTracker.tsx`), a "Logged · 24 Sep" stamp on the summary (`CompletionSummary.tsx`), or nothing.
    - `doneMark`: a done set shows a check or a "Done" stamp (`SetRow.tsx`).
    - `dates`: session dates in lists as `2026-09-24` or "Thursday, 24 September" (`formatSessionDate` in `src/utils/date.ts`).
+   - `commandLine`: the tracker's command line and the single-key shortcuts (`src/components/tracker/TRACKER.md`), plus 1, 2, 3 and s in `App.tsx`.
+   - `dialogs`: `pane` renders every `Dialog` as a full-screen page with a `-- TITLE --` header and `[esc] close`, instead of a card over a dimmed page.
+   - `doneMark: 'glyph'` shows `[x]` and `[ ]`.
 4. **Theme variants** (`brutalism:bg-push`) for one-off class differences, such as `SPLIT_STYLE[split].solid`.
 
 ## Rules

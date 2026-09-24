@@ -4,6 +4,7 @@
 import '@fontsource/anton/400.css';
 import '@fontsource-variable/archivo/wght.css';
 import '@fontsource-variable/jetbrains-mono/wght.css';
+import '@fontsource/vt323/400.css';
 import '@fontsource/chakra-petch/500.css';
 import '@fontsource/chakra-petch/600.css';
 import '@fontsource/chakra-petch/700.css';

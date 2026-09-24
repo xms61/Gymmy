@@ -26,6 +26,9 @@ export function CompletionSummary({ session, onDone }: CompletionSummaryProps) {
         </div>
       )}
 
+      <pre className="summary-text hidden text-left text-sm text-accent-ink mb-4">
+        session saved: {session.name.toLowerCase()}, {session.durationMinutes} min, {session.totalVolumeKg.toLocaleString()} kg
+      </pre>
       <h2 className="text-2xl font-black text-ink tracking-tight mb-1">Workout Saved</h2>
       <p className="text-sm text-ink-muted mb-6">Your sets are in your history and on the calendar.</p>
 
