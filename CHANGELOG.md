@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - History is indexed by exercise once per change (`indexCompletedLogs`) instead of being filtered and sorted again for every exercise on the dashboard, in Progress and in the tracker. The results are the same.
 
 ### Fixed
+- The next workout in the rotation is picked by date and start time, so two sessions on the same day are ordered correctly, and an "Other" workout no longer resets the rotation to Push.
+- The calendar's streak counts weeks in a row with a workout ("3 weeks"). It showed "Consistent" as soon as any workout existed. The dashboard no longer mentions the removed spreadsheet ("From Sheet "List"").
 - A workout started right after opening the app no longer gets targets from an out-of-date copy. In a new or cleared browser, the tracker used to open with "first session" advice and the seeded starting loads (Flat Bench 60 kg) whatever the server's history said. The Start buttons now read "Syncing…" until the first sync finishes, for at most 5 s, and the tracker takes its history from the app like the other screens.
 
 ---

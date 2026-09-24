@@ -21,7 +21,7 @@ See the Commands table in [AGENTS.md](AGENTS.md). Every pull request and every p
   - Pull: Deadlifts, Pull-Ups, Meadows Row, Biceps Curl
   - Legs: Squats, Calf Raises, RDL
   - Equipment: a barbell, a dumbbell and bodyweight; no machines. Meadows Row is a landmine row: one end of the bar rests on the floor and only the other end carries plates.
-- **Next workout:** the dashboard picks the next split in rotation after the last logged session.
+- **Next workout:** the dashboard picks the next split in rotation after the last logged Push, Pull or Legs session. Two sessions on one day are ordered by start time, and an "Other" workout doesn't move the rotation.
 - **Load suggestions (double progression):**
   - Loads come from the home equipment in `src/data/gymInventory.ts`: a 10 kg barbell, one dumbbell (handle not counted, 25 kg at most) and 2×20, 2×15, 2×10, 6×5, 4×2.5 and 2×1.25 kg plates. The barbell makes every 2.5 kg step from 10 to 142.5 kg, the dumbbell every 2.5 kg step up to 25 kg, and the landmine row (plates on one end) every 1.25 kg step.
   - When every set reaches the top of the rep range, the next session moves to the next load the equipment makes. At the heaviest load it keeps the weight and asks for more reps.
@@ -37,7 +37,7 @@ See the Commands table in [AGENTS.md](AGENTS.md). Every pull request and every p
   - Rest timer set per exercise, with a 5-minute break between Deadlifts and Pull-Ups.
   - Chime and vibration when the rest ends.
   - Plate calculator for barbell, dumbbell and landmine lifts: which of the home plates go on each end, and the nearest loads when a weight can't be made. The weight steppers step through the loads the plates make, and a weight they can't make is marked.
-- **History:** a monthly calendar colored by split (Push orange, Pull green, Legs blue), with each day's sets, loads, volume and notes.
+- **History:** a monthly calendar colored by split (Push orange, Pull green, Legs blue), with each day's sets, loads, volume and notes, and a weekly streak: weeks in a row, Monday to Sunday, with at least one workout.
 - **Progress:** estimated 1RM (Brzycki formula), best load and volume for each exercise.
 - **Backup and restore:** a JSON file with every workout and the exercise targets. Restoring previews the changes first and never deletes anything.
 

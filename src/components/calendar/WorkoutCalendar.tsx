@@ -8,12 +8,13 @@ import {
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
-import type { SplitType, WorkoutSession } from '../../types/workout.ts';
+import type { WorkoutSession } from '../../types/workout.ts';
 import { DayDetailModal } from './DayDetailModal.tsx';
 import { toLocalDateString, getTodayDateString } from '../../utils/date.ts';
 import { SPLIT_STYLE } from '../ui/badges.tsx';
+import { ROTATION } from '../../services/rotation.ts';
+import { weeklyStreak } from '../../services/streak.ts';
 
-const LEGEND_SPLITS: SplitType[] = ['Push', 'Pull', 'Legs'];
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 interface WorkoutCalendarProps {
@@ -134,8 +135,8 @@ export const WorkoutCalendar: React.FC<WorkoutCalendarProps> = ({
         <MonthStat icon={CalendarIcon} iconClass="bg-accent-ink/10 text-accent-ink" label="Workouts">
           {workoutsThisMonth.length}
         </MonthStat>
-        <MonthStat icon={Flame} iconClass="bg-good-ink/10 text-good-ink" label="Active Streak">
-          {sessions.filter(s => s.completed).length > 0 ? 'Consistent' : '0 days'}
+        <MonthStat icon={Flame} iconClass="bg-good-ink/10 text-good-ink" label="Weekly Streak">
+          {formatWeeks(weeklyStreak(sessions, new Date()))}
         </MonthStat>
         <MonthStat icon={Award} iconClass="bg-legs/10 text-legs" label="Month Volume">
           {Math.round(totalVolumeThisMonth / 1000)}k <span className="text-xs font-normal text-ink-muted">kg</span>
@@ -162,7 +163,7 @@ export const WorkoutCalendar: React.FC<WorkoutCalendarProps> = ({
         </div>
 
         <div className="flex items-center space-x-4 mb-4 text-xs font-semibold text-ink-muted border-b border-line pb-3">
-          {LEGEND_SPLITS.map(split => (
+          {ROTATION.map(split => (
             <span key={split} className="flex items-center space-x-1.5">
               <span className={`w-2.5 h-2.5 rounded-pill inline-block ${SPLIT_STYLE[split].fill}`} />
               <span>{split}</span>
@@ -257,4 +258,8 @@ function MonthStat({ icon: Icon, iconClass, label, children }: MonthStatProps) {
       </div>
     </div>
   );
+}
+
+function formatWeeks(count: number): string {
+  return count === 1 ? '1 week' : `${count} weeks`;
 }

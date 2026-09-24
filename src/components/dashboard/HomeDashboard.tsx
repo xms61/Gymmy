@@ -10,9 +10,8 @@ import {
 import type { SplitType, WorkoutSession, ExerciseDefinition } from '../../types/workout.ts';
 import { getRecommendation } from '../../services/overloadEngine.ts';
 import { logsFor, type ExerciseLogIndex } from '../../services/exerciseLogs.ts';
+import { latestSession, nextSplit as nextInRotation, ROTATION } from '../../services/rotation.ts';
 import { SPLIT_STYLE, StatusBadge } from '../ui/badges.tsx';
-
-const ROTATION: SplitType[] = ['Push', 'Pull', 'Legs'];
 
 interface HomeDashboardProps {
   sessions: WorkoutSession[];
@@ -31,21 +30,8 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
   canStart,
   onNavigateToCalendar
 }) => {
-  // Determine next scheduled split based on last completed session (newest date first)
-  const lastSession = useMemo(() => {
-    const completed = [...sessions]
-      .filter(s => s.completed)
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    return completed.length > 0 ? completed[0] : null;
-  }, [sessions]);
-
-  const nextSplit: SplitType = useMemo(() => {
-    if (!lastSession) return 'Push';
-    if (lastSession.splitType === 'Legs') return 'Push';
-    if (lastSession.splitType === 'Push') return 'Pull';
-    if (lastSession.splitType === 'Pull') return 'Legs';
-    return 'Push';
-  }, [lastSession]);
+  const lastSession = useMemo(() => latestSession(sessions), [sessions]);
+  const nextSplit: SplitType = useMemo(() => nextInRotation(sessions), [sessions]);
 
   // Next workout exercises and overload preview
   const nextWorkoutExercises = useMemo(() => {
@@ -159,7 +145,6 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
                 <Trophy className="w-4 h-4 text-warn-ink" />
                 <span>Overall Performance</span>
               </h4>
-              <span className="text-xs text-ink-faint font-mono">From Sheet "List"</span>
             </div>
 
             <div className="grid grid-cols-2 gap-3 mb-2">
