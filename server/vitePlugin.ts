@@ -2,9 +2,10 @@
 import path from 'node:path';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { DatabaseSync } from 'node:sqlite';
-import type { Connect, Plugin } from 'vite';
-import { handleApiRequest, type ApiResponse } from './api.ts';
+import type { Connect, Plugin, PreviewServer, ViteDevServer } from 'vite';
+import { handleApiRequest, type ApiContext, type ApiResponse } from './api.ts';
 import { DATABASE_FILE_NAME, openDatabase } from './db.ts';
+import { isLoopbackAddress, loadAccessKey } from './accessKey.ts';
 
 const MAX_BODY_BYTES = 1024 * 1024;
 
@@ -17,43 +18,60 @@ class RequestBodyError extends Error {
   }
 }
 
-let database: DatabaseSync | null = null;
+let context: ApiContext | null = null;
 
 export function gymmySqlitePlugin(): Plugin {
   return {
     name: 'gymmy-sqlite-api',
     configureServer(server) {
-      server.middlewares.use(apiMiddleware(getDatabase()));
+      server.middlewares.use(apiMiddleware(getContext()));
+      printAccessLinks(server);
     },
     configurePreviewServer(server) {
-      server.middlewares.use(apiMiddleware(getDatabase()));
+      server.middlewares.use(apiMiddleware(getContext()));
+      printAccessLinks(server);
     }
   };
 }
 
 // One connection per process: Vite calls configureServer again when it restarts.
-function getDatabase(): DatabaseSync {
-  if (!database) {
+function getContext(): ApiContext {
+  if (!context) {
     const dataDir = path.join(process.cwd(), 'data');
     console.log(`[Gymmy DB] Using ${path.join(dataDir, DATABASE_FILE_NAME)}`);
-    database = openDatabase(dataDir);
+    const db: DatabaseSync = openDatabase(dataDir);
+    context = { db, accessKey: loadAccessKey(dataDir) };
   }
-  return database;
+  return context;
 }
 
-function apiMiddleware(db: DatabaseSync): Connect.NextHandleFunction {
+// With `--host`, other devices need the access key. The key rides in the #fragment, which browsers
+// never send to the server, and the app moves it into localStorage on first open.
+function printAccessLinks(server: ViteDevServer | PreviewServer): void {
+  server.httpServer?.once('listening', () => {
+    setTimeout(() => {
+      for (const url of server.resolvedUrls?.network ?? []) {
+        console.log(`[Gymmy] On another device, open ${url}#key=${getContext().accessKey}`);
+      }
+    });
+  });
+}
+
+function apiMiddleware(api: ApiContext): Connect.NextHandleFunction {
   return (req, res, next) => {
     const url = new URL(req.url ?? '', 'http://localhost');
     if (!url.pathname.startsWith('/api')) return next();
 
     readJsonBody(req)
       .then(body =>
-        handleApiRequest(db, {
+        handleApiRequest(api, {
           method: req.method?.toUpperCase() ?? 'GET',
           pathname: url.pathname,
           host: req.headers.host,
           origin: req.headers.origin,
           contentType: req.headers['content-type'],
+          fromThisMachine: isLoopbackAddress(req.socket.remoteAddress),
+          accessKey: headerValue(req.headers['x-gymmy-key']),
           body
         })
       )
@@ -87,6 +105,10 @@ function readJsonBody(req: IncomingMessage): Promise<unknown> {
     });
     req.on('error', reject);
   });
+}
+
+function headerValue(value: string | string[] | undefined): string | undefined {
+  return Array.isArray(value) ? value[0] : value;
 }
 
 function sendJson(res: ServerResponse, { status, body }: ApiResponse): void {

@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+- With `--host`, the API now asks every other device for an access key. The server creates a random key in `data/access-key` on first start and prints each network address as a link ending in `#key=…`; opening it once stores the key in that browser and removes it from the address bar. Without the key, a phone or laptop on the same network gets 401 instead of being able to read, overwrite or clear the history, and the app's badge reads "Needs access key". Use on the computer running the server needs no key.
+
 ---
 
 ## [2.1.0] - 2026-09-24

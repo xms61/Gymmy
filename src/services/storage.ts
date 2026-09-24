@@ -4,6 +4,7 @@
 import type { ExerciseDefinition, WorkoutSession } from '../types/workout.ts';
 import { EXERCISE_DEFINITIONS } from '../data/seedData.ts';
 import type { ImportPlan } from './backup.ts';
+import { accessKeyHeaders, adoptAccessKeyFromUrl } from './accessKey.ts';
 import {
   apiCallFor,
   applyOps,
@@ -28,6 +29,9 @@ const LOCAL_ADOPTION_KEY = 'gymmy_local_sessions_adopted_v1';
 const REQUEST_TIMEOUT_MS = 8000;
 const RETRY_INTERVAL_MS = 30_000;
 
+// Set by the last answer from the server: 401 means this device lacks the access key.
+let accessKeyRefused = false;
+
 export class StorageService {
   private static snapshot: Snapshot = readStoredSnapshot();
   private static outbox: PendingOp[] = readStoredList<PendingOp>(OUTBOX_KEY);
@@ -42,6 +46,7 @@ export class StorageService {
 
   static init(): Promise<void> {
     if (!this.initPromise) {
+      adoptAccessKeyFromUrl();
       this.followOtherTabs();
       this.retryWhenPossible();
       this.initPromise = this.syncWithServer();
@@ -62,7 +67,8 @@ export class StorageService {
       connected: this.connected,
       pendingChanges: this.outbox.length,
       rejectedChanges: this.rejected.length,
-      storageFailed: this.storageFailed
+      storageFailed: this.storageFailed,
+      needsAccessKey: accessKeyRefused
     };
   }
 
@@ -224,7 +230,7 @@ export class StorageService {
 
 async function fetchServerSnapshot(): Promise<Snapshot | null> {
   try {
-    const res = await fetch('/api/data', { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
+    const res = await apiFetch('/api/data');
     if (!res.ok) return null;
     // Safe: /api/data is our own server, which validates everything before storing it.
     const data = (await res.json()) as { success?: boolean; sessions: WorkoutSession[]; exercises: ExerciseDefinition[] };
@@ -239,16 +245,26 @@ async function fetchServerSnapshot(): Promise<Snapshot | null> {
 async function sendToServer(op: PendingOp): Promise<SendResult> {
   const call = apiCallFor(op);
   try {
-    const res = await fetch(call.path, {
+    const res = await apiFetch(call.path, {
       method: call.method,
-      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-      headers: call.method === 'POST' ? { 'Content-Type': 'application/json' } : undefined,
+      headers: call.method === 'POST' ? { 'Content-Type': 'application/json' } : {},
       body: call.body === undefined ? undefined : JSON.stringify(call.body)
     });
     return classifyStatus(res.status);
   } catch {
     return 'failed';
   }
+}
+
+// Every API request goes through here: it carries the access key when this browser has one.
+async function apiFetch(path: string, init: { method?: string; headers?: Record<string, string>; body?: string } = {}): Promise<Response> {
+  const res = await fetch(path, {
+    ...init,
+    headers: { ...init.headers, ...accessKeyHeaders() },
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)
+  });
+  accessKeyRefused = res.status === 401;
+  return res;
 }
 
 function readStoredSnapshot(): Snapshot {

@@ -19,6 +19,7 @@ export interface SyncStatus {
   pendingChanges: number;
   rejectedChanges: number; // refused by the server, kept in gymmy_rejected_ops_v1
   storageFailed: boolean; // the last save to localStorage failed, usually because it is full
+  needsAccessKey: boolean; // the server answered 401: this device has not opened the access link
 }
 
 export interface ApiCall {
