@@ -63,3 +63,8 @@ test('estimates 1RM from the best single set, not the heaviest weight with the m
   // 60 kg x 6 estimates 69.7 kg and 50 kg x 12 estimates 72 kg; mixing them (60 kg x 12) gave 86.4 kg.
   assert.equal(entry?.estimated1RM, 72);
 });
+
+test('session volume adds up weight times reps over the completed sets', () => {
+  const sessions = [legsSession('2026-09-01', [set(60, 8), set(70, 6), set(70, 5), set(80, 3, false)])];
+  assert.deepEqual(exerciseHistory(squats(), sessions).map(h => h.volumeKg), [60 * 8 + 70 * 6 + 70 * 5]);
+});

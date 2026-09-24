@@ -6,6 +6,7 @@ import { exerciseHistory } from '../../services/progress.ts';
 import { logsFor, type ExerciseLogIndex } from '../../services/exerciseLogs.ts';
 import { useTheme } from '../../theme/ThemeProvider.tsx';
 import { formatSessionDate } from '../../utils/date.ts';
+import { TrendChart } from './TrendChart.tsx';
 
 interface ProgressViewProps {
   exercises: ExerciseDefinition[];
@@ -112,6 +113,21 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                   Goal: {recommendation.nextStepGoal}
                 </div>
               </div>
+            </div>
+          )}
+
+          {history.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+              <TrendChart
+                title="Estimated 1RM"
+                unit="kg"
+                points={history.map(h => ({ label: formatSessionDate(h.date, theme.traits.dates), value: h.estimated1RM }))}
+              />
+              <TrendChart
+                title="Session volume"
+                unit="kg"
+                points={history.map(h => ({ label: formatSessionDate(h.date, theme.traits.dates), value: h.volumeKg }))}
+              />
             </div>
           )}
 
