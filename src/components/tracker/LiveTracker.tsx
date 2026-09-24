@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import type { ExerciseSessionLog, SetLog, SplitType, WorkoutSession } from '../../types/workout.ts';
-import { OverloadEngine } from '../../services/overloadEngine.ts';
+import { getRecommendation } from '../../services/overloadEngine.ts';
 import { StorageService } from '../../services/storage.ts';
 import { RestTimer } from './RestTimer.tsx';
 import { PlateCalculatorModal } from './PlateCalculatorModal.tsx';
@@ -48,7 +48,7 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
   // Active exercises log state
   const [exerciseLogs, setExerciseLogs] = useState<ExerciseSessionLog[]>(() => {
     return workoutExercises.map(ex => {
-      const rec = OverloadEngine.getRecommendation(ex, history);
+      const rec = getRecommendation(ex, history);
       // Pre-fill working sets
       const sets: SetLog[] = Array.from({ length: ex.targetSets }).map((_, idx) => ({
         setNumber: idx + 1,
@@ -376,7 +376,7 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
       <main className="max-w-4xl mx-auto p-4 space-y-6 mt-2">
         {exerciseLogs.map((exLog, exIdx) => {
           const exDef = workoutExercises.find(e => e.id === exLog.exerciseId);
-          const recommendation = exDef ? OverloadEngine.getRecommendation(exDef, history) : null;
+          const recommendation = exDef ? getRecommendation(exDef, history) : null;
 
           return (
             <div

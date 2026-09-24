@@ -8,7 +8,7 @@ import {
   ChevronRight 
 } from 'lucide-react';
 import type { SplitType, WorkoutSession, ExerciseDefinition } from '../../types/workout.ts';
-import { OverloadEngine } from '../../services/overloadEngine.ts';
+import { getRecommendation } from '../../services/overloadEngine.ts';
 
 interface HomeDashboardProps {
   sessions: WorkoutSession[];
@@ -47,7 +47,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
   const nextOverloadRecommendations = useMemo(() => {
     return nextWorkoutExercises.map(ex => ({
       exercise: ex,
-      rec: OverloadEngine.getRecommendation(ex, sessions)
+      rec: getRecommendation(ex, sessions)
     }));
   }, [nextWorkoutExercises, sessions]);
 

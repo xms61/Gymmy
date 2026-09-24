@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { Dumbbell, Sparkles } from 'lucide-react';
 import type { ExerciseDefinition, WorkoutSession } from '../../types/workout.ts';
-import { OverloadEngine } from '../../services/overloadEngine.ts';
+import { getRecommendation } from '../../services/overloadEngine.ts';
+import { exerciseHistory } from '../../services/progress.ts';
 
 interface ProgressViewProps {
   exercises: ExerciseDefinition[];
@@ -18,63 +19,22 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
     return exercises.find(e => e.id === selectedExId) || exercises[0];
   }, [exercises, selectedExId]);
 
-  // Extract all historical logs for selected exercise
-  const exerciseHistory = useMemo(() => {
-    if (!selectedExercise) return [];
-    const logs: Array<{
-      date: string;
-      sessionName: string;
-      weight: number;
-      repsString: string;
-      maxReps: number;
-      estimated1RM: number;
-      volume: number;
-    }> = [];
-
-    const sortedSessions = [...sessions]
-      .filter(s => s.completed)
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-    for (const session of sortedSessions) {
-      const match = session.exercises.find(
-        e => e.exerciseId === selectedExercise.id || e.exerciseName.toLowerCase() === selectedExercise.name.toLowerCase()
-      );
-      if (match && match.sets && match.sets.length > 0) {
-        const completedSets = match.sets.filter(s => s.completed && s.repsCompleted > 0);
-        if (completedSets.length > 0) {
-          const topWeight = Math.max(...completedSets.map(s => s.weightKg));
-          const topReps = Math.max(...completedSets.map(s => s.repsCompleted));
-          const est1RM = OverloadEngine.estimate1RM(topWeight, topReps);
-          const vol = completedSets.reduce((sum, s) => sum + s.weightKg * s.repsCompleted, 0);
-
-          logs.push({
-            date: session.date,
-            sessionName: session.name,
-            weight: topWeight,
-            repsString: completedSets.map(s => s.repsCompleted).join(' / '),
-            maxReps: topReps,
-            estimated1RM: est1RM,
-            volume: vol
-          });
-        }
-      }
-    }
-
-    return logs;
+  const history = useMemo(() => {
+    return selectedExercise ? exerciseHistory(selectedExercise, sessions) : [];
   }, [selectedExercise, sessions]);
 
   const recommendation = useMemo(() => {
     if (!selectedExercise) return null;
-    return OverloadEngine.getRecommendation(selectedExercise, sessions);
+    return getRecommendation(selectedExercise, sessions);
   }, [selectedExercise, sessions]);
 
   // Overall PRs
   const personalBest = useMemo(() => {
-    if (exerciseHistory.length === 0) return null;
-    const maxWeight = Math.max(...exerciseHistory.map(h => h.weight));
-    const max1RM = Math.max(...exerciseHistory.map(h => h.estimated1RM));
+    if (history.length === 0) return null;
+    const maxWeight = Math.max(...history.map(h => h.weight));
+    const max1RM = Math.max(...history.map(h => h.estimated1RM));
     return { maxWeight, max1RM };
-  }, [exerciseHistory]);
+  }, [history]);
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -153,17 +113,17 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
 
           {/* Progression History Table */}
           <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
-            Session History Log ({exerciseHistory.length} recorded)
+            Session History Log ({history.length} recorded)
           </h3>
 
-          {exerciseHistory.length === 0 ? (
+          {history.length === 0 ? (
             <div className="text-center py-8 bg-slate-950 rounded-2xl border border-slate-800/80">
               <Dumbbell className="w-8 h-8 text-slate-600 mx-auto mb-2" />
               <p className="text-xs text-slate-400">No session history yet for this exercise.</p>
             </div>
           ) : (
             <div className="space-y-2">
-              {exerciseHistory.slice().reverse().map((h, idx) => (
+              {history.slice().reverse().map((h, idx) => (
                 <div
                   key={idx}
                   className="bg-slate-950 border border-slate-800/80 rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-3 text-xs"

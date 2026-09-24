@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, Dumbbell } from 'lucide-react';
-import { OverloadEngine } from '../../services/overloadEngine.ts';
+import { calculatePlates } from '../../services/overloadEngine.ts';
 
 interface PlateCalculatorModalProps {
   initialWeightKg: number;
@@ -14,7 +14,7 @@ export const PlateCalculatorModal: React.FC<PlateCalculatorModalProps> = ({
   const [weight, setWeight] = useState(initialWeightKg);
   const [barWeight, setBarWeight] = useState(20); // 20kg standard Olympic bar
 
-  const plates = OverloadEngine.calculatePlates(weight, barWeight);
+  const plates = calculatePlates(weight, barWeight);
 
   // Colors for Olympic bumper/standard plates
   const plateColors: { [weight: number]: { bg: string; text: string; border: string } } = {
