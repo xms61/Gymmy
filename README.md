@@ -13,7 +13,7 @@ npm run dev
 The dev server opens `http://localhost:3000`. Gymmy reads no environment variables.
 
 ## Commands
-See the Commands table in [AGENTS.md](AGENTS.md).
+See the Commands table in [AGENTS.md](AGENTS.md). Every pull request and every push to `main` runs the typecheck, the tests and the production build on GitHub Actions (`.github/workflows/ci.yml`).
 
 ## What it does
 - **Routine:** the exercises from sheet "List" of the routine spreadsheet, with a target set count, rep range, starting load and rest time for each. Targets can be edited in Settings.

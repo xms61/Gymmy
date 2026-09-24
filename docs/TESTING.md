@@ -8,6 +8,8 @@ Tests use Node's built-in runner (`node:test` with `node:assert/strict`). Node r
 | `npm run test:coverage` | Tests with coverage thresholds (lines/functions ≥ 85 %, branches ≥ 75 %) | flags in `package.json` |
 | `npm run test:ci` | Typecheck, then tests with coverage | `package.json` |
 
+CI (`.github/workflows/ci.yml`) runs `npm run test:ci` and then `npm run build` on Node 22 for every pull request and every push to `main`.
+
 Coverage counts the `src/` and `server/` modules that tests import. React components have no automated tests; check UI changes in the running app (`npm run dev`).
 
 ## Writing TypeScript that Node can run

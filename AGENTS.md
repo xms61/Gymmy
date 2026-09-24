@@ -22,7 +22,7 @@ Read only the doc(s) matching your task.
 | Typecheck | `npm run typecheck` |
 | All tests | `npm test` |
 | One test file | `node --test tests/overloadEngine.test.ts` |
-| Everything CI runs (typecheck + tests with coverage thresholds) | `npm run test:ci` |
+| Typecheck + tests with coverage thresholds (CI runs this, then the build) | `npm run test:ci` |
 | Production build | `npm run build` |
 | Serve the build (with the `/api` backend) | `npm run preview` |
 
@@ -31,7 +31,7 @@ Read only the doc(s) matching your task.
 - `data/gymmy.db` and `Fundamentals Workout.xlsx` are the user's real training data. Open them read-only for analysis, and never run write or cleanup scripts against them unless asked.
 - If the user says a long-running job is running, leave every file that job loads unchanged until they say it has finished.
 - Plans and scratch notes go in `docs/plans/`, which git ignores. Never commit them.
-- Git is local only. There is no remote: never add one and never push.
+- The repository is on GitHub (`origin`, xms61/Gymmy). Push each branch and open a pull request into `main`; never push to `main` directly. CI (`.github/workflows/ci.yml`) must pass before a merge.
 - Never rename these. Stored data and saved sessions depend on them:
   - the localStorage keys listed in `src/services/STORAGE.md`;
   - the `/api/*` paths;

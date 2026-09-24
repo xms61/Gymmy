@@ -1,0 +1,15 @@
+# Weekly update pull requests for npm packages and the pinned GitHub Actions.
+# Minor and patch npm updates arrive as one grouped pull request.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      npm-minor-and-patch:
+        update-types: [minor, patch]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
