@@ -2,7 +2,7 @@
 // backup files and stored drafts) and turns it into typed values. Shared by the server and
 // the browser so both accept exactly the same shapes.
 import { EQUIPMENT_TYPES, SPLIT_TYPES } from './types/workout.ts';
-import type { ExerciseDefinition, ExerciseSessionLog, SetLog, WorkoutSession } from './types/workout.ts';
+import type { ExerciseDefinition, ExerciseSessionLog, SetLog, WorkoutDraft, WorkoutSession } from './types/workout.ts';
 
 export type ParseResult<T> = { ok: true; value: T } | { ok: false; error: string };
 
@@ -14,6 +14,21 @@ export function parseExerciseDefinitions(value: unknown): ParseResult<ExerciseDe
   return attempt(() => {
     if (!Array.isArray(value)) fail('exercises', 'must be an array');
     return value.map((item, i) => readExerciseDefinition(item, `exercises[${i}]`));
+  });
+}
+
+// Drafts from another version are refused rather than migrated: a draft only lives for one workout.
+export function parseWorkoutDraft(value: unknown): ParseResult<WorkoutDraft> {
+  return attempt(() => {
+    const fields = readRecord(value, 'draft');
+    if (fields.version !== 1) fail('draft.version', 'must be 1');
+    return {
+      version: 1,
+      workoutType: readOneOf(fields, 'workoutType', 'draft', SPLIT_TYPES),
+      startTime: readTimestamp(fields, 'startTime', 'draft'),
+      sessionNotes: readText(fields, 'sessionNotes', 'draft'),
+      exerciseLogs: readList(fields, 'exerciseLogs', 'draft', readExerciseLog)
+    };
   });
 }
 
@@ -131,6 +146,12 @@ function readOptionalText(fields: Fields, key: string, path: string): string | u
 function readCalendarDate(fields: Fields, key: string, path: string): string {
   const value = readText(fields, key, path);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) fail(`${path}.${key}`, 'must be a date in YYYY-MM-DD form');
+  return value;
+}
+
+function readTimestamp(fields: Fields, key: string, path: string): string {
+  const value = readText(fields, key, path);
+  if (Number.isNaN(Date.parse(value))) fail(`${path}.${key}`, 'must be a date and time');
   return value;
 }
 

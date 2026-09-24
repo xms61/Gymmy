@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { 
   Check, 
   Clock, 
@@ -13,23 +13,27 @@ import {
   Sparkles
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import type { ExerciseSessionLog, SetLog, SplitType, WorkoutSession } from '../../types/workout.ts';
+import type { ExerciseSessionLog, SetLog, SplitType, WorkoutDraft, WorkoutSession } from '../../types/workout.ts';
 import { getRecommendation } from '../../services/overloadEngine.ts';
 import { StorageService } from '../../services/storage.ts';
 import { RestTimer } from './RestTimer.tsx';
 import { PlateCalculatorModal } from './PlateCalculatorModal.tsx';
 import { ElapsedClock } from './ElapsedClock.tsx';
 import { workoutDurationMinutes } from './workoutTime.ts';
-import { getTodayDateString } from '../../utils/date.ts';
+import { toLocalDateString } from '../../utils/date.ts';
+import { clearDraft, saveDraft } from './workoutDraft.ts';
 
 interface LiveTrackerProps {
   workoutType: SplitType;
+  // A workout in progress from before a reload. Only read when the tracker opens.
+  resumeFrom: WorkoutDraft | null;
   onFinish: () => void;
   onCancel: () => void;
 }
 
 export const LiveTracker: React.FC<LiveTrackerProps> = ({
   workoutType,
+  resumeFrom,
   onFinish,
   onCancel
 }) => {
@@ -48,11 +52,12 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
     [workoutExercises, history]
   );
 
-  const [startTime] = useState<string>(() => new Date().toISOString());
-  const [sessionNotes, setSessionNotes] = useState('');
+  const [startTime] = useState<string>(() => resumeFrom?.startTime ?? new Date().toISOString());
+  const [sessionNotes, setSessionNotes] = useState(() => resumeFrom?.sessionNotes ?? '');
 
   // Active exercises log state
   const [exerciseLogs, setExerciseLogs] = useState<ExerciseSessionLog[]>(() => {
+    if (resumeFrom) return resumeFrom.exerciseLogs;
     return workoutExercises.map(ex => {
       // Pre-fill working sets
       const sets: SetLog[] = Array.from({ length: ex.targetSets }).map((_, idx) => ({
@@ -93,6 +98,13 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
 
   // Summary Celebration Modal State
   const [completedSummary, setCompletedSummary] = useState<WorkoutSession | null>(null);
+  // A ref, not state: a double tap fires both clicks before React re-renders.
+  const hasFinishedRef = useRef(false);
+
+  useEffect(() => {
+    if (hasFinishedRef.current) return;
+    saveDraft({ version: 1, workoutType, startTime, sessionNotes, exerciseLogs });
+  }, [workoutType, startTime, sessionNotes, exerciseLogs]);
 
   // Toggle set completion and trigger rest timer
   const toggleSetComplete = (exIdx: number, setIdx: number) => {
@@ -274,13 +286,16 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
 
   // Finish Workout
   const handleFinishWorkout = () => {
-    const sessionDate = getTodayDateString();
+    if (hasFinishedRef.current) return;
+    hasFinishedRef.current = true;
+
     const endTime = new Date().toISOString();
     const completedSession: WorkoutSession = {
       id: `session-${Date.now()}`,
       name: workoutType,
       splitType: workoutType,
-      date: sessionDate,
+      // The day the workout started, so a resumed draft or a late session past midnight keeps its day.
+      date: toLocalDateString(new Date(startTime)),
       startTime,
       endTime,
       durationMinutes: workoutDurationMinutes(startTime, endTime),
@@ -291,6 +306,7 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
     };
 
     StorageService.saveSession(completedSession);
+    clearDraft();
     setCompletedSummary(completedSession);
 
     // Fire celebratory confetti!
@@ -337,7 +353,7 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
 
           <button
             onClick={handleFinishWorkout}
-            disabled={completedSetsCount === 0}
+            disabled={completedSetsCount === 0 || completedSummary !== null}
             className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-bold shadow-lg transition active:scale-95 ${
               completedSetsCount > 0
                 ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30'

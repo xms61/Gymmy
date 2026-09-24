@@ -22,6 +22,7 @@ Entry: `src/services/storage.ts`: `StorageService` holds the app's sessions and 
 | `gymmy_exercise_definitions_v1` | Exercise definitions in routine order. |
 | `gymmy_pending_ops_v1` | The outbox: `PendingOp[]` not yet stored by the server. |
 | `gymmy_rejected_ops_v1` | Ops the server refused (400/413/415), kept so the data is not lost. |
+| `gymmy_workout_draft_v1` | The workout in progress (`WorkoutDraft`). Owned by `src/components/tracker/workoutDraft.ts`, not `StorageService`: it is never synced, and is cleared when the workout is finished or left. |
 | `gymmy_local_sessions_adopted_v1` | Timestamp. Set after the one-time check for sessions that 1.0.0 left only in localStorage. |
 
 The key names are stored data: never rename them (see `AGENTS.md`).
