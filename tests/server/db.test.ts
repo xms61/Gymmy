@@ -4,9 +4,9 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
-import { listExercises, listSessions, openDatabase, upsertExercises } from '../../server/db.ts';
+import { clearSessions, listExercises, listSessions, openDatabase, upsertExercises, upsertSession } from '../../server/db.ts';
 import { EXERCISE_DEFINITIONS } from '../../src/data/seedData.ts';
-import type { ExerciseDefinition } from '../../src/types/workout.ts';
+import type { ExerciseDefinition, WorkoutSession } from '../../src/types/workout.ts';
 
 // The schema that Gymmy 1.0.0 created. Real databases start from this, so it must not change.
 const VERSION_0_SCHEMA = `
@@ -111,4 +111,33 @@ test('saving exercises writes all of them or none', t => {
   const storedName = listExercises(db).find(e => e.id === first!.id)?.name;
   db.close();
   assert.equal(storedName, first!.name);
+});
+
+function legsSession(id: string): WorkoutSession {
+  return {
+    id,
+    name: 'Legs',
+    splitType: 'Legs',
+    date: '2026-09-22',
+    startTime: '2026-09-22T17:00:00.000Z',
+    durationMinutes: 50,
+    totalVolumeKg: 560,
+    completed: true,
+    exercises: [{ exerciseId: 'squats', exerciseName: 'SQUATS', sets: [{ setNumber: 1, weightKg: 70, repsCompleted: 8, targetReps: '5–8', completed: true }] }]
+  };
+}
+
+test('clearing sessions keeps a copy of the database from just before', t => {
+  const dir = tempDataDir(t);
+  const db = openDatabase(dir);
+  upsertSession(db, legsSession('kept-in-backup'));
+  const backupFile = clearSessions(db, new Date('2026-09-24T16:20:05.123Z'));
+  assert.deepEqual(listSessions(db), []);
+  db.close();
+
+  assert.equal(backupFile, path.join(dir, 'gymmy.before-clear-2026-09-24T16-20-05-123Z.db'));
+  const copy = new DatabaseSync(backupFile, { readOnly: true });
+  const rows = copy.prepare('SELECT id FROM workout_sessions').all();
+  copy.close();
+  assert.deepEqual(rows.map(row => row.id), ['kept-in-backup']);
 });

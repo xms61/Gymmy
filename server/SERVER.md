@@ -12,6 +12,7 @@ Entry: `server/vitePlugin.ts`: a Vite plugin that serves `/api/*` from the dev a
 - The seed routine comes from `src/data/seedData.ts`. It is inserted only when `exercise_definitions` is empty.
 - Table and column names are stored data: never rename them (see `AGENTS.md`).
 - Schema changes go in `MIGRATIONS` in `db.ts`: append a function, never edit an old one. `PRAGMA user_version` records how many have run. Before the first pending migration on an existing file, `openDatabase` writes a copy to `data/gymmy.before-schema-v<N>.db`, and each migration runs in a transaction.
+- Anything that deletes more than one row copies the database file first (`backUp`, `VACUUM INTO`): migrations and `POST /api/clear`.
 - A write that touches more than one row runs inside `inTransaction`, so it lands completely or not at all (`upsertExercises`, migrations).
 - Exercises are listed by `sort_order`, which `/api/exercises` sets from each item's position in the submitted list.
 
@@ -28,7 +29,7 @@ Entry: `server/vitePlugin.ts`: a Vite plugin that serves `/api/*` from the dev a
 | `POST /api/sessions` | one `WorkoutSession` | `{ success, session }`; inserts or replaces by `id` |
 | `DELETE /api/sessions/:id` | none | `{ success, deletedId }`; `:id` is URI-encoded |
 | `POST /api/exercises` | `ExerciseDefinition[]` | `{ success, count }`; inserts or replaces by `id` |
-| `POST /api/clear` | none | deletes every session, keeps exercises |
+| `POST /api/clear` | none | `{ success, backup }`; copies the database to `data/gymmy.before-clear-<time>.db`, then deletes every session and keeps exercises |
 
 Errors: 403 for a foreign `Host` or `Origin`, 415 for a POST that isn't JSON, 400 for an invalid body (the message names the first bad field, for example `session.date must be a string`) or a session id with broken URI encoding, 404 for an unknown route, 413 for a body over 1 MB, 500 for a database error. A 500 says only `Internal database error`; the details go to the server log once, because they can hold SQL and file paths.
 

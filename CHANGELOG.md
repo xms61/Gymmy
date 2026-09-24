@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dependabot (`.github/dependabot.yml`) proposes npm and GitHub Actions updates weekly, with minor and patch npm updates grouped into one pull request.
 
 ### Changed
+- "Clear Workout History" keeps a copy of the database first, in `data/gymmy.before-clear-<time>.db`, so a mistaken tap can be undone. It used to delete every session with nothing to restore from except a backup file downloaded earlier.
 - Sessions, exercise targets, backups and drafts are checked against upper limits: at most 50 sets per exercise and 50 exercises per session, 20 target sets, 1000 kg, 1000 reps, RPE 10 and 10 000 characters of notes. A backup with a billion target sets used to pass and would have frozen the tracker. Dates must exist (`2026-02-30` is refused), and start and end times must be real times. The tracker and Settings inputs stay inside the same limits, and Add Set stops at 50 sets.
 - `AGENTS.md` and `.github/RELEASE_PROCESS.md` describe the GitHub flow: one branch per change, merged into `main` through a pull request once CI passes. They used to say the repository had no remote.
 - Every color, corner radius and font comes from design tokens (`src/theme/themes.ts`) instead of classes repeated in each screen, in preparation for themes. The look is the same, except that the Start button on the dashboard uses the split color with dark text.

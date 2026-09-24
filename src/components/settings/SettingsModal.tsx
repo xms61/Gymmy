@@ -115,12 +115,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <h4 className="text-sm font-bold text-bad-ink">Clean Slate: Clear All Workouts</h4>
               </div>
               <p className="text-xs text-ink-muted mb-4">
-                Wipe all completed workout sessions and history for a completely fresh start. Exercise definitions and baseline targets are kept.
+                Wipe all completed workout sessions and history for a completely fresh start. Exercise definitions and baseline targets are kept, and the server saves a copy of the database in data/ just before clearing.
               </p>
 
               <button
                 onClick={() => {
-                  if (window.confirm('Clear all logged workout sessions? This will give you a clean slate for your stats.')) {
+                  if (window.confirm('Clear all logged workout sessions? The server saves a copy of the database in data/ first.')) {
                     StorageService.clearAllSessions();
                     onRefreshData();
                     alert('All workout history was cleared.');

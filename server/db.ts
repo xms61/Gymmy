@@ -115,7 +115,18 @@ function schemaVersion(db: DatabaseSync): number {
 function backUp(db: DatabaseSync, file: string): void {
   if (fs.existsSync(file)) return;
   db.exec(`VACUUM INTO '${file.replaceAll("'", "''")}'`);
-  console.log(`[Gymmy DB] Backed up the database to ${file} before updating its schema`);
+  console.log(`[Gymmy DB] Backed up the database to ${file}`);
+}
+
+function databaseFile(db: DatabaseSync): string {
+  // Safe: pragma_database_list always has a row for the main database, with its file path.
+  const row = db.prepare("SELECT file FROM pragma_database_list WHERE name = 'main'").get() as unknown as { file: string };
+  return row.file;
+}
+
+// 2026-09-24T16-20-05-123Z: sortable, and free of the colons Windows refuses in file names.
+function fileTimestamp(date: Date): string {
+  return date.toISOString().replace(/[:.]/g, '-');
 }
 
 function inTransaction(db: DatabaseSync, write: () => void): void {
@@ -186,8 +197,13 @@ export function deleteSession(db: DatabaseSync, id: string): void {
   db.prepare('DELETE FROM workout_sessions WHERE id = ?').run(id);
 }
 
-export function clearSessions(db: DatabaseSync): void {
+// Clearing is the one route that deletes more than one row, so it copies the whole file first.
+// Returns the backup's path.
+export function clearSessions(db: DatabaseSync, now = new Date()): string {
+  const backupFile = path.join(path.dirname(databaseFile(db)), `gymmy.before-clear-${fileTimestamp(now)}.db`);
+  backUp(db, backupFile);
   db.exec('DELETE FROM workout_sessions');
+  return backupFile;
 }
 
 export function upsertExercises(db: DatabaseSync, exercises: ExerciseDefinition[]): void {
