@@ -73,16 +73,68 @@ interface ExerciseRow {
   warmup_required: number | null;
   notes: string | null;
   updated_at: string;
+  sort_order: number;
 }
+
+// Each entry moves the schema up one version (PRAGMA user_version). Append only: real
+// databases have already run the earlier entries.
+const MIGRATIONS: ((db: DatabaseSync) => void)[] = [addExerciseSortOrder];
 
 export function openDatabase(dataDir: string): DatabaseSync {
   fs.mkdirSync(dataDir, { recursive: true });
-  const db = new DatabaseSync(path.join(dataDir, DATABASE_FILE_NAME));
+  const file = path.join(dataDir, DATABASE_FILE_NAME);
+  const isExistingFile = fs.existsSync(file);
+  const db = new DatabaseSync(file);
   db.exec('PRAGMA journal_mode = WAL;');
   db.exec('PRAGMA foreign_keys = ON;');
   db.exec(SCHEMA);
+  migrate(db, isExistingFile ? dataDir : null);
   if (countExercises(db) === 0) upsertExercises(db, EXERCISE_DEFINITIONS);
   return db;
+}
+
+function migrate(db: DatabaseSync, backupDir: string | null): void {
+  const current = schemaVersion(db);
+  if (current >= MIGRATIONS.length) return;
+  if (backupDir) backUp(db, path.join(backupDir, `gymmy.before-schema-v${MIGRATIONS.length}.db`));
+  for (let version = current; version < MIGRATIONS.length; version++) {
+    inTransaction(db, () => {
+      MIGRATIONS[version]!(db);
+      db.exec(`PRAGMA user_version = ${version + 1}`);
+    });
+  }
+}
+
+function schemaVersion(db: DatabaseSync): number {
+  // Safe: PRAGMA user_version always returns one row with a numeric user_version.
+  const row = db.prepare('PRAGMA user_version').get() as unknown as { user_version: number };
+  return row.user_version;
+}
+
+// A backup left by an earlier failed attempt already holds the pre-migration state.
+function backUp(db: DatabaseSync, file: string): void {
+  if (fs.existsSync(file)) return;
+  db.exec(`VACUUM INTO '${file.replaceAll("'", "''")}'`);
+  console.log(`[Gymmy DB] Backed up the database to ${file} before updating its schema`);
+}
+
+function inTransaction(db: DatabaseSync, write: () => void): void {
+  db.exec('BEGIN');
+  try {
+    write();
+    db.exec('COMMIT');
+  } catch (err) {
+    db.exec('ROLLBACK');
+    throw err;
+  }
+}
+
+// Version 1: exercises keep routine order (Squats before Calf Raises) instead of sorting by name.
+function addExerciseSortOrder(db: DatabaseSync): void {
+  db.exec('ALTER TABLE exercise_definitions ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0');
+  db.prepare('UPDATE exercise_definitions SET sort_order = ?').run(EXERCISE_DEFINITIONS.length);
+  const setOrder = db.prepare('UPDATE exercise_definitions SET sort_order = ? WHERE id = ?');
+  EXERCISE_DEFINITIONS.forEach((exercise, index) => setOrder.run(index, exercise.id));
 }
 
 export function listSessions(db: DatabaseSync): WorkoutSession[] {
@@ -93,7 +145,7 @@ export function listSessions(db: DatabaseSync): WorkoutSession[] {
 
 export function listExercises(db: DatabaseSync): ExerciseDefinition[] {
   // Safe: the schema above defines exactly these columns.
-  const rows = db.prepare('SELECT * FROM exercise_definitions ORDER BY workout_type, name').all() as unknown as ExerciseRow[];
+  const rows = db.prepare('SELECT * FROM exercise_definitions ORDER BY sort_order, name').all() as unknown as ExerciseRow[];
   return rows.map(exerciseFromRow);
 }
 
@@ -142,8 +194,8 @@ export function upsertExercises(db: DatabaseSync, exercises: ExerciseDefinition[
   const upsert = db.prepare(`
     INSERT INTO exercise_definitions (
       id, name, workout_type, target_reps_min, target_reps_max, target_sets,
-      default_weight_kg, default_rest_seconds, equipment, warmup_required, notes, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      default_weight_kg, default_rest_seconds, equipment, warmup_required, notes, updated_at, sort_order
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(id) DO UPDATE SET
       name = excluded.name,
       workout_type = excluded.workout_type,
@@ -155,10 +207,11 @@ export function upsertExercises(db: DatabaseSync, exercises: ExerciseDefinition[
       equipment = excluded.equipment,
       warmup_required = excluded.warmup_required,
       notes = excluded.notes,
-      updated_at = excluded.updated_at
+      updated_at = excluded.updated_at,
+      sort_order = excluded.sort_order
   `);
   const now = new Date().toISOString();
-  for (const exercise of exercises) {
+  exercises.forEach((exercise, position) => {
     upsert.run(
       exercise.id,
       exercise.name,
@@ -171,9 +224,10 @@ export function upsertExercises(db: DatabaseSync, exercises: ExerciseDefinition[
       exercise.equipment,
       exercise.warmupRequired ? 1 : 0,
       exercise.notes || null,
-      now
+      now,
+      position
     );
-  }
+  });
 }
 
 export function resetToSeed(db: DatabaseSync): void {

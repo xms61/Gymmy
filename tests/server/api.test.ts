@@ -78,6 +78,21 @@ test('seeds the routine into a new database', t => {
   assert.deepEqual(sortedIds(data.exercises), sortedIds(EXERCISE_DEFINITIONS));
 });
 
+test('returns exercises in routine order', t => {
+  const exercises = fetchData(emptyDatabase(t)).exercises;
+  const namesOf = (split: string) => exercises.filter(e => e.workoutType === split).map(e => e.name);
+  assert.deepEqual(namesOf('Legs'), ['SQUATS', 'CALF RAISES', 'RDL']);
+  assert.deepEqual(namesOf('Pull'), ['Deadlifts', 'Pull-Ups', 'MEADOWS ROW', 'BICEPS CURL']);
+  assert.deepEqual(namesOf('Push'), ['FLAT BENCH', 'OVERHEAD PRESS', 'INCLINE DB PRESS', 'LATERAL RAISE', 'SKULLCRUSHER']);
+});
+
+test('keeps the order in which exercises are saved', t => {
+  const db = emptyDatabase(t);
+  const reversed = [...EXERCISE_DEFINITIONS].reverse();
+  send(db, { method: 'POST', pathname: '/api/exercises', body: reversed });
+  assert.deepEqual(fetchData(db).exercises.map(e => e.id), reversed.map(e => e.id));
+});
+
 test('keeps edited exercises when an existing database is reopened', t => {
   const dir = tempDataDir(t);
   const first = openDatabase(dir);

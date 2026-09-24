@@ -10,11 +10,13 @@ Entry: `server/vitePlugin.ts`: a Vite plugin that serves `/api/*` from the dev a
 - SQL lives only in `db.ts`. Routes in `api.ts` call its functions.
 - The seed routine comes from `src/data/seedData.ts`. It is inserted only when `exercise_definitions` is empty, and again by `/api/reset`.
 - Table and column names are stored data: never rename them (see `AGENTS.md`).
+- Schema changes go in `MIGRATIONS` in `db.ts`: append a function, never edit an old one. `PRAGMA user_version` records how many have run. Before the first pending migration on an existing file, `openDatabase` writes a copy to `data/gymmy.before-schema-v<N>.db`, and each migration runs in a transaction.
+- Exercises are listed by `sort_order`, which `/api/exercises` sets from each item's position in the submitted list.
 
 ## Data / API
 | Route | Body | Response |
 |---|---|---|
-| `GET /api/data` | none | `{ success, sessions, exercises }`, sessions newest date first |
+| `GET /api/data` | none | `{ success, sessions, exercises }`, sessions newest date first, exercises in routine order |
 | `POST /api/sessions` | one `WorkoutSession` | `{ success, session }`; inserts or replaces by `id` |
 | `DELETE /api/sessions/:id` | none | `{ success, deletedId }`; `:id` is URI-encoded |
 | `POST /api/exercises` | `ExerciseDefinition[]` | `{ success, count }`; inserts or replaces by `id` |
@@ -26,13 +28,13 @@ Errors: 400 for an invalid body (the message names the first bad field, for exam
 | Table | Key | Notes |
 |---|---|---|
 | `workout_sessions` | `id` | `exercises_json` holds the session's `ExerciseSessionLog[]` as JSON |
-| `exercise_definitions` | `id` | `warmup_required` is 0/1 |
+| `exercise_definitions` | `id` | `warmup_required` is 0/1; `sort_order` (schema v1) is the routine position |
 
 ## Gotchas
-- `GET /api/data` currently orders exercises alphabetically by type and name, not in routine order. This is known bug #1, fixed by adding a `sort_order` column.
 - Multi-row writes (`/api/exercises`, `/api/reset`) are not yet in a transaction.
 - Any page open in the same browser can call the POST routes while the dev server runs (no origin check yet).
 
 ## Tests
+- `tests/server/db.test.ts`: migrating a 1.0.0 database (order, sessions kept, backup) and reopening it.
 - `tests/server/api.test.ts`: every route against a temp-dir database, including validation failures and reopening an existing file.
 - `tests/validation.test.ts`: which session and exercise shapes are accepted, and the error for each invalid field.
