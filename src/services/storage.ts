@@ -15,6 +15,7 @@ import {
   type PendingOp,
   type SendResult,
   type Snapshot,
+  type SyncStatus,
   withoutOps
 } from './sync.ts';
 
@@ -29,14 +30,11 @@ const LOCAL_ADOPTION_KEY = 'gymmy_local_sessions_adopted_v1';
 const REQUEST_TIMEOUT_MS = 8000;
 const RETRY_INTERVAL_MS = 30_000;
 
-export interface SyncStatus {
-  connected: boolean;
-  pendingChanges: number;
-}
-
 export class StorageService {
   private static snapshot: Snapshot = readStoredSnapshot();
   private static outbox: PendingOp[] = readStoredList<PendingOp>(OUTBOX_KEY);
+  private static rejected: PendingOp[] = readStoredList<PendingOp>(REJECTED_KEY);
+  private static storageFailed = false;
   private static connected = false;
   private static hasServerData = false;
   private static initPromise: Promise<void> | null = null;
@@ -62,7 +60,22 @@ export class StorageService {
   }
 
   static getSyncStatus(): SyncStatus {
-    return { connected: this.connected, pendingChanges: this.outbox.length };
+    return {
+      connected: this.connected,
+      pendingChanges: this.outbox.length,
+      rejectedChanges: this.rejected.length,
+      storageFailed: this.storageFailed
+    };
+  }
+
+  static getRejectedChanges(): PendingOp[] {
+    return this.rejected;
+  }
+
+  static dismissRejectedChanges(): void {
+    this.rejected = [];
+    writeStored(REJECTED_KEY, this.rejected);
+    this.notify();
   }
 
   // Called after the data or the sync status changes. Returns the unsubscribe function.
@@ -142,9 +155,10 @@ export class StorageService {
   // instead of overwriting it.
   private static followOtherTabs(): void {
     window.addEventListener('storage', event => {
-      if (event.key !== OUTBOX_KEY && event.key !== SESSIONS_KEY && event.key !== DEFINITIONS_KEY) return;
+      if (!event.key || ![OUTBOX_KEY, SESSIONS_KEY, DEFINITIONS_KEY, REJECTED_KEY].includes(event.key)) return;
       this.snapshot = readStoredSnapshot();
       this.outbox = readStoredList<PendingOp>(OUTBOX_KEY);
+      this.rejected = readStoredList<PendingOp>(REJECTED_KEY);
       this.notify();
     });
   }
@@ -208,15 +222,25 @@ export class StorageService {
     const finished = batch.slice(0, batch.length - remaining.length);
     this.outbox = withoutOps(this.outbox, finished);
     this.connected = remaining.length === 0;
-    if (rejected.length > 0) keepRejected(rejected);
+    if (rejected.length > 0) this.keepRejected(rejected);
     writeStored(OUTBOX_KEY, this.outbox);
     this.notify();
   }
 
+  // A refused change never reached the server. Keep it so the data can still be recovered.
+  private static keepRejected(ops: PendingOp[]): void {
+    console.error('[StorageService] The server refused these changes; kept in localStorage under', REJECTED_KEY, ops);
+    this.rejected = [...this.rejected, ...ops];
+    writeStored(REJECTED_KEY, this.rejected);
+  }
+
   private static persist(): void {
-    writeStored(SESSIONS_KEY, this.snapshot.sessions);
-    writeStored(DEFINITIONS_KEY, this.snapshot.exercises);
-    writeStored(OUTBOX_KEY, this.outbox);
+    const saved = [
+      writeStored(SESSIONS_KEY, this.snapshot.sessions),
+      writeStored(DEFINITIONS_KEY, this.snapshot.exercises),
+      writeStored(OUTBOX_KEY, this.outbox)
+    ];
+    this.storageFailed = saved.includes(false);
   }
 
   private static notify(): void {
@@ -253,12 +277,6 @@ async function sendToServer(op: PendingOp): Promise<SendResult> {
   }
 }
 
-// A rejected change never reached the server. Keep it so the data can still be recovered.
-function keepRejected(ops: PendingOp[]): void {
-  console.error('[StorageService] The server rejected these changes; kept in localStorage under', REJECTED_KEY, ops);
-  writeStored(REJECTED_KEY, [...readStoredList<PendingOp>(REJECTED_KEY), ...ops]);
-}
-
 function readStoredSnapshot(): Snapshot {
   const exercises = readStoredList<ExerciseDefinition>(DEFINITIONS_KEY);
   return {
@@ -278,10 +296,13 @@ function readStoredList<T>(key: string): T[] {
   }
 }
 
-function writeStored(key: string, value: unknown): void {
+// Returns false when the browser refused the write, usually because its storage is full.
+function writeStored(key: string, value: unknown): boolean {
   try {
     localStorage.setItem(key, JSON.stringify(value));
+    return true;
   } catch (err) {
     console.error(`[StorageService] Could not write ${key} to localStorage`, err);
+    return false;
   }
 }

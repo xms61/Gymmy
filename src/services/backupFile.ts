@@ -6,11 +6,15 @@ import { parseBackup, type ParseResult } from '../validation.ts';
 const REVOKE_DELAY_MS = 60_000;
 
 export function downloadBackup(backup: GymmyBackup): void {
-  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+  downloadJson(`gymmy-backup-${backup.exportedAt.slice(0, 10)}.json`, backup);
+}
+
+export function downloadJson(fileName: string, value: unknown): void {
+  const blob = new Blob([JSON.stringify(value, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = `gymmy-backup-${backup.exportedAt.slice(0, 10)}.json`;
+  link.download = fileName;
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), REVOKE_DELAY_MS);
 }

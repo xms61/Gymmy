@@ -14,6 +14,13 @@ export type PendingOp =
   | { type: 'saveExercises'; exercises: ExerciseDefinition[] }
   | { type: 'clearSessions' };
 
+export interface SyncStatus {
+  connected: boolean;
+  pendingChanges: number;
+  rejectedChanges: number; // refused by the server, kept in gymmy_rejected_ops_v1
+  storageFailed: boolean; // the last save to localStorage failed, usually because it is full
+}
+
 export interface ApiCall {
   method: 'POST' | 'DELETE';
   path: string;

@@ -9,6 +9,7 @@ Entry: `src/services/storage.ts`: `StorageService` holds the app's sessions and 
 - Components read through `getSessions()` / `getExerciseDefinitions()` and write through `saveSession`, `deleteSession`, `saveExerciseDefinitions`, `clearAllSessions` or `applyImport`. Never call `/api/*` or localStorage directly.
 - Every write becomes a `PendingOp`. It is applied to the local copy at once, appended to the outbox, and removed from the outbox only after the server answers 2xx.
 - The outbox is sent in order and stops at the first failure. A 400, 413 or 415 means the payload can never be stored: the op moves to `gymmy_rejected_ops_v1` (kept for recovery, logged) and the rest continue. Anything else stays queued.
+- Refused ops and failed localStorage writes are shown, not only logged: `SyncStatus` carries `rejectedChanges` and `storageFailed`, the header badge adds "N not saved" or "browser storage full" with a warning dot, and Settings offers the refused ops as a JSON download before they can be dismissed (`RefusedChanges.tsx`).
 - On start, `init()`:
   1. sends the outbox;
   2. loads `/api/data`;
@@ -24,7 +25,7 @@ Entry: `src/services/storage.ts`: `StorageService` holds the app's sessions and 
 | `gymmy_workout_sessions_v2` | Sessions, newest first. A cache of the server plus unsent changes. |
 | `gymmy_exercise_definitions_v1` | Exercise definitions in routine order. |
 | `gymmy_pending_ops_v1` | The outbox: `PendingOp[]` not yet stored by the server. |
-| `gymmy_rejected_ops_v1` | Ops the server refused (400/413/415), kept so the data is not lost. |
+| `gymmy_rejected_ops_v1` | Ops the server refused (400/413/415), kept so the data is not lost until the user downloads or dismisses them in Settings. |
 | `gymmy_workout_draft_v1` | The workout in progress (`WorkoutDraft`). Owned by `src/components/tracker/workoutDraft.ts`, not `StorageService`: it is never synced, and is cleared when the workout is finished or left. |
 | `gymmy_local_sessions_adopted_v1` | Timestamp. Set after the one-time check for sessions that 1.0.0 left only in localStorage. |
 

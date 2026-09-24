@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { RotateCcw, Check, Database } from 'lucide-react';
-import { StorageService, type SyncStatus } from '../../services/storage.ts';
+import { StorageService } from '../../services/storage.ts';
+import type { SyncStatus } from '../../services/sync.ts';
 import type { ExerciseDefinition } from '../../types/workout.ts';
 import { clampTo, hasValidRepRange, LIMITS } from '../../validation.ts';
-import { describeSyncStatus, syncLabel } from '../syncStatusText.ts';
+import { describeSyncStatus, needsAttention, syncLabel } from '../syncStatusText.ts';
 import { BackupSection } from './BackupSection.tsx';
+import { RefusedChanges } from './RefusedChanges.tsx';
 import { Dialog, DialogHeader } from '../ui/Dialog.tsx';
 
 type SettingsTab = 'data' | 'exercises';
@@ -84,16 +86,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
                 <span
                   className={`flex items-center space-x-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-pill border ${
-                    syncStatus.connected
-                      ? 'text-good-ink bg-good-ink/10 border-good-ink/40'
-                      : 'text-warn-ink bg-warn-ink/10 border-warn-ink/40'
+                    needsAttention(syncStatus)
+                      ? 'text-warn-ink bg-warn-ink/10 border-warn-ink/40'
+                      : 'text-good-ink bg-good-ink/10 border-good-ink/40'
                   }`}
                 >
-                  <span className={`w-1.5 h-1.5 rounded-pill ${syncStatus.connected ? 'bg-good-ink' : 'bg-warn-ink'}`} />
+                  <span className={`w-1.5 h-1.5 rounded-pill ${needsAttention(syncStatus) ? 'bg-warn-ink' : 'bg-good-ink'}`} />
                   <span>{syncLabel(syncStatus)}</span>
                 </span>
               </div>
               <p className="text-xs text-ink-muted mb-3">{describeSyncStatus(syncStatus)}</p>
+              {syncStatus.rejectedChanges > 0 && <RefusedChanges count={syncStatus.rejectedChanges} />}
               <div className="text-[11px] text-ink-faint space-y-1 bg-surface/50 p-2.5 rounded-control border border-line">
                 <div className="flex justify-between items-center">
                   <span>SQLite File:</span>
