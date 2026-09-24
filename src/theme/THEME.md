@@ -1,10 +1,20 @@
 # Themes
 
-Entry: `src/theme/themes.ts`: every theme's design tokens (colors, fonts, corner radii, border, tap size, motion). The single source of truth for how the app looks.
-- `themeCss.ts`: turns the themes into `[data-theme="<id>"] { --c-…; --font-…; }` rules. `vite.config.ts` puts them in `<head>` of `index.html`, so the first paint has the right colors.
-- `tailwind.config.ts`: maps the tokens to Tailwind classes (`bg-surface`, `text-ink-muted`, `rounded-card`, `font-display`, `h-tap`) and adds one variant per theme (`classic:`).
-- `src/index.css`: the base rules (body, headings, scrollbars) and the shared component classes: `card`, `panel`, `section-label`, `btn` with `btn-primary | btn-good | btn-secondary | btn-danger`, `icon-btn`, `field`.
+Entry: `src/theme/themes.ts`: every theme's name, description, design tokens (colors, fonts, corner radii, border, tap sizes, motion) and traits. The single source of truth for how the app looks. Themes: `classic` (the default) and `brutalism` (Industrial Brutalism).
+- `themeCss.ts`: turns the themes into `[data-theme="<id>"] { --c-…; --font-…; }` rules, and writes the boot script. `vite.config.ts` puts both in `<head>` of `index.html`, so the first paint has the chosen theme's colors.
+- `themePreference.ts`: reads and saves the choice on this device (`gymmy_theme_v1`, see `src/services/STORAGE.md`), and applies a theme: `data-theme` on `<html>` and the `theme-color` meta tag.
+- `ThemeProvider.tsx`: holds the current theme. Components read it with `useTheme()`. A choice made in another tab applies here too.
+- `fonts.ts`: imports the bundled `@fontsource` fonts. The browser downloads a font only when text uses it.
+- `tailwind.config.ts`: maps the tokens to Tailwind classes (`bg-surface`, `text-ink-muted`, `rounded-card`, `font-display`, `h-tap`, `min-h-tap-lg`) and adds one variant per theme (`brutalism:bg-push`).
+- `src/index.css`: the base rules (body, headings, scrollbars), the shared component classes (`card`, `panel`, `section-label`, `btn` with `btn-primary | btn-good | btn-secondary | btn-danger`, `icon-btn`, `field`), and one block per theme at the end.
+- `src/components/settings/AppearanceSection.tsx`: the Appearance tab in Settings, a radio group with a live sample of each theme.
 - `src/components/ui/`: `Dialog` and `DialogHeader` (every modal; `Dialog` takes focus when it opens, keeps Tab inside, closes on Escape and gives focus back when it closes), `SplitBadge`, `StatusBadge` and `SPLIT_STYLE` (the split and overload status colors).
+
+## How a theme changes the app
+1. **Tokens** in `themes.ts`: colors, fonts, shape, tap sizes, motion. Most of a theme is here.
+2. **Its block in `src/index.css`**, for what tokens can't express: layout and signature elements. The rules select hook classes that components carry and that have no style of their own, for example `set-row`, `set-number`, `stepper`, `exercise-card`, `rest-bar`, `rest-digits`, `split-solid`, `hazard-edge` and `hazard-frame`. A block can also redefine token variables inside an element, so everything in it follows: `.rest-bar` in Brutalism sets `--c-surface` to the accent and the text tokens to `on-accent`.
+3. **Traits** in `themes.ts`, for behavior a stylesheet can't express. Each one is read by a component: `celebration` decides whether Finish shows confetti (`LiveTracker.tsx`).
+4. **Theme variants** (`brutalism:bg-push`) for one-off class differences, such as `SPLIT_STYLE[split].solid`.
 
 ## Rules
 - Components use token classes only. No palette colors (`slate-800`, `indigo-400`), no hex values, no `rounded-xl`: use `rounded-card | panel | control | chip | pill`.
@@ -13,11 +23,18 @@ Entry: `src/theme/themes.ts`: every theme's design tokens (colors, fonts, corner
 - A new color token goes in `COLOR_TOKENS` and in every theme. Only add one when a component uses it.
 - Every theme must pass the contrast table in `tests/theme.test.ts`: 4.5:1 for text on its background (including the labels on split colors and plates), 3:1 for placeholders and for the `edge` of inputs and buttons.
 - Class names built from data are written out in full in a table (`SPLIT_STYLE`, `PLATE_STYLE`), because Tailwind only generates classes it finds as text.
+- A theme block must leave the other themes as they were. Only select `[data-theme="<id>"] …`, and add a hook class instead of restyling a shared class for everyone.
+- The samples in the Appearance tab set `data-theme` on themselves and use token classes only. A block's rules match any descendant of its theme, including a sample of another theme, so samples never carry hook classes.
+- A new theme needs: its id in `THEME_IDS`, a `Theme` with every field, its fonts in `fonts.ts` and `package.json`, its block in `index.css` if it needs one, and a pass of the contrast test.
 
 ## Gotchas
 - `--border-style` is applied to every element in `index.css`, so a theme can make all borders dashed. `border-transparent` still hides a border.
+- The theme blocks sit after the Tailwind layers, outside them, so they win over the utilities they replace, and Tailwind never drops them as unused.
+- Brutalism turns off soft shadows and blur by resetting `--tw-shadow` and `--tw-backdrop-blur` on every element. Focus rings use their own variable and stay.
+- Anton has a single weight, so Brutalism sets `font-synthesis: none`: a synthesized bold of `font-black` headings smears it.
+- The dev server serves the font files from `node_modules`. A copy of the app whose `node_modules` is a symlink to a folder outside the project gets 403 for the fonts; build it and use `vite preview` instead.
 - A theme with `motionMs: 0` gets a rule that turns off every animation and transition. `prefers-reduced-motion` does the same for every theme, and also turns off the confetti at the end of a workout.
 - Tailwind reads `tailwind.config.ts` when the dev server starts. After changing the tokens or the config, restart `npm run dev` if the page shows a CSS error.
 
 ## Tests
-`tests/theme.test.ts`: the color conversion, the generated stylesheet, and the contrast of every theme.
+`tests/theme.test.ts`: the color conversion, the generated stylesheet, theme ids, the boot script (run against a fake page), and the contrast of every theme.

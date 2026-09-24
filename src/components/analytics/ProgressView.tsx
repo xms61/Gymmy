@@ -83,11 +83,11 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
               <div className="flex items-center space-x-3">
                 <div className="bg-inset border border-line rounded-panel p-3 text-center">
                   <div className="text-[10px] uppercase font-bold text-ink-faint">Max Weight</div>
-                  <div className="text-lg font-mono font-black text-good-ink">{personalBest.maxWeight} kg</div>
+                  <div className="record-value text-lg font-mono font-black text-good-ink">{personalBest.maxWeight} kg</div>
                 </div>
                 <div className="bg-inset border border-line rounded-panel p-3 text-center">
                   <div className="text-[10px] uppercase font-bold text-ink-faint">Est. 1RM</div>
-                  <div className="text-lg font-mono font-black text-accent-ink">{personalBest.max1RM} kg</div>
+                  <div className="record-value text-lg font-mono font-black text-accent-ink">{personalBest.max1RM} kg</div>
                 </div>
               </div>
             )}

@@ -187,6 +187,8 @@ export const WorkoutCalendar: React.FC<WorkoutCalendarProps> = ({
                 key={idx}
                 onClick={() => setSelectedDayString(day.dateString)}
                 className={`min-h-[64px] md:min-h-[76px] p-2 rounded-panel flex flex-col items-center justify-between border transition-all text-left relative active:scale-95 ${
+                  hasWorkout ? `split-solid ${SPLIT_STYLE[day.sessions[0]!.splitType].solid}` : ''
+                } ${
                   day.isCurrentMonth ? 'text-ink-soft' : 'text-ink-faint bg-inset/30 border-transparent'
                 } ${
                   isToday

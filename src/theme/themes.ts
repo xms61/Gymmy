@@ -1,7 +1,16 @@
 // The design tokens of every theme. Components use only these (through the Tailwind classes in
 // tailwind.config.ts), never palette colors, so a theme changes the whole app.
-export const THEME_IDS = ['classic'] as const;
+export const THEME_IDS = ['classic', 'brutalism'] as const;
 export type ThemeId = (typeof THEME_IDS)[number];
+export const DEFAULT_THEME_ID: ThemeId = 'classic';
+
+// The localStorage key of the theme chosen on this device. Other devices keep their own.
+export const THEME_STORAGE_KEY = 'gymmy_theme_v1';
+
+// Reads a stored value. Anything that is not a theme id means "use the default".
+export function parseThemeId(value: unknown): ThemeId | null {
+  return THEME_IDS.find(id => id === value) ?? null;
+}
 
 export const COLOR_TOKENS = [
   'bg', // page background
@@ -44,8 +53,15 @@ export const COLOR_TOKENS = [
 ] as const;
 export type ColorToken = (typeof COLOR_TOKENS)[number];
 
+// Behavior a stylesheet cannot express. Every field is read by a component.
+export interface ThemeTraits {
+  celebration: 'confetti' | 'none'; // what finishing a workout shows besides the summary
+}
+
 export interface Theme {
   id: ThemeId;
+  label: string; // shown in Settings
+  description: string; // one line under the label
   colorScheme: 'dark' | 'light';
   colors: Record<ColorToken, string>; // #rrggbb
   fonts: { display: string; body: string; data: string };
@@ -53,7 +69,9 @@ export interface Theme {
   borderWidth: string;
   borderStyle: 'solid' | 'dashed';
   tapSize: string; // height of the set-row steppers and done button
+  tapSizeLarge: string; // minimum height of Start, Finish and the rest-timer buttons
   motionMs: number; // 0 turns off every transition and animation
+  traits: ThemeTraits;
 }
 
 const SYSTEM_SANS =
@@ -62,6 +80,8 @@ const SYSTEM_MONO = "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Lib
 
 const classic: Theme = {
   id: 'classic',
+  label: 'Classic',
+  description: 'Slate and indigo, rounded cards. The original look.',
   colorScheme: 'dark',
   colors: {
     bg: '#090D16',
@@ -107,7 +127,69 @@ const classic: Theme = {
   borderWidth: '1px',
   borderStyle: 'solid',
   tapSize: '2rem',
-  motionMs: 150
+  tapSizeLarge: '2.25rem',
+  motionMs: 150,
+  traits: { celebration: 'confetti' }
 };
 
-export const THEMES: Record<ThemeId, Theme> = { classic };
+// A garage gym under strip lights: cast iron, chalk and caution tape. Everything is big enough
+// to hit with shaking hands after a heavy set.
+const brutalism: Theme = {
+  id: 'brutalism',
+  label: 'Industrial Brutalism',
+  description: 'Iron, chalk and caution yellow. Square, heavy, big targets.',
+  colorScheme: 'dark',
+  colors: {
+    bg: '#0B0B0A',
+    surface: '#161614',
+    inset: '#050505',
+    control: '#26251F',
+    'control-hover': '#34322A',
+    line: '#3A382F',
+    edge: '#77725F',
+    ink: '#F5F3EA',
+    'ink-soft': '#E4E1D3',
+    'ink-muted': '#A9A493',
+    'ink-faint': '#7E7967',
+    accent: '#FFD000',
+    'accent-hover': '#FFE04D',
+    'on-accent': '#0B0B0A',
+    'accent-ink': '#FFD000',
+    good: '#F5F3EA',
+    'good-hover': '#FFFFFF',
+    'on-good': '#0B0B0A',
+    'good-ink': '#A6E35A',
+    'warn-ink': '#FF9F1A',
+    'bad-ink': '#FF5A47',
+    'info-ink': '#6CC4FF',
+    push: '#FF6A00',
+    pull: '#FFD000',
+    legs: '#E8E4D8',
+    other: '#A9A493',
+    'on-split': '#0B0B0A',
+    'plate-25': '#D7261E',
+    'plate-20': '#1F5FD1',
+    'plate-15': '#F2C200',
+    'plate-10': '#17733A',
+    'plate-5': '#EDEDED',
+    'plate-2-5': '#3A3A3A',
+    'plate-1-25': '#6E6E6E',
+    'on-plate': '#FFFFFF',
+    'on-plate-light': '#0B0B0A',
+    bar: '#8A877C'
+  },
+  fonts: {
+    display: "Anton, Impact, 'Arial Narrow Bold', sans-serif",
+    body: `'Archivo Variable', Archivo, ${SYSTEM_SANS}`,
+    data: `'JetBrains Mono Variable', 'JetBrains Mono', ${SYSTEM_MONO}`
+  },
+  radius: { card: '0', panel: '0', control: '0', chip: '0', pill: '0' },
+  borderWidth: '3px',
+  borderStyle: 'solid',
+  tapSize: '3.5rem',
+  tapSizeLarge: '4.5rem',
+  motionMs: 80,
+  traits: { celebration: 'none' }
+};
+
+export const THEMES: Record<ThemeId, Theme> = { classic, brutalism };

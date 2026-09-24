@@ -16,13 +16,14 @@ export function SetRow({ set, equipment, onToggle, onChange }: SetRowProps) {
   const loadable = isLoadable(set.weightKg, equipment);
   return (
     <div
-      className={`grid grid-cols-12 gap-2 items-center p-2.5 rounded-panel border transition-all ${
+      data-done={set.completed}
+      className={`set-row grid grid-cols-12 gap-2 items-center p-2.5 rounded-panel border transition-all ${
         set.completed ? 'bg-good-ink/5 border-good-ink/40' : 'bg-inset border-line hover:border-edge'
       }`}
     >
-      <div className="col-span-2 text-center">
+      <div className="set-number col-span-2 text-center">
         <span
-          className={`w-8 h-8 rounded-control font-mono font-bold text-sm flex items-center justify-center mx-auto ${
+          className={`set-numeral w-8 h-8 rounded-control font-mono font-bold text-sm flex items-center justify-center mx-auto ${
             set.completed ? 'bg-good text-on-good' : 'bg-control text-ink-soft'
           }`}
         >
@@ -31,7 +32,9 @@ export function SetRow({ set, equipment, onToggle, onChange }: SetRowProps) {
       </div>
 
       <Stepper
-        className="col-span-4"
+        className="set-load col-span-4"
+        unit="kg"
+        label={`Load in kg, set ${set.setNumber}`}
         value={set.weightKg}
         inputWidth="w-14"
         stepTitles={['Next lighter load', 'Next heavier load']}
@@ -41,14 +44,16 @@ export function SetRow({ set, equipment, onToggle, onChange }: SetRowProps) {
       />
 
       <Stepper
-        className="col-span-4"
+        className="set-reps col-span-4"
+        unit="reps"
+        label={`Reps, set ${set.setNumber}`}
         value={set.repsCompleted}
         inputWidth="w-12"
         onStep={direction => onChange(s => ({ ...s, repsCompleted: clampTo(LIMITS.reps, s.repsCompleted + direction) }))}
         onEnter={text => onChange(s => ({ ...s, repsCompleted: clampTo(LIMITS.reps, parseInt(text)) }))}
       />
 
-      <div className="col-span-2 flex items-center justify-center">
+      <div className="set-done col-span-2 flex items-center justify-center">
         <button
           onClick={onToggle}
           title={set.completed ? 'Mark set as not done' : 'Mark set as done'}
@@ -64,6 +69,8 @@ export function SetRow({ set, equipment, onToggle, onChange }: SetRowProps) {
 }
 
 interface StepperProps {
+  unit: string; // shown inside the field by themes that hide the column headings
+  label: string;
   value: number;
   inputWidth: string;
   stepTitles?: [lighter: string, heavier: string];
@@ -73,20 +80,24 @@ interface StepperProps {
   onEnter: (text: string) => void;
 }
 
-function Stepper({ value, inputWidth, stepTitles, warning, className, onStep, onEnter }: StepperProps) {
+function Stepper({ unit, label, value, inputWidth, stepTitles, warning, className, onStep, onEnter }: StepperProps) {
   return (
-    <div className={`flex items-center justify-center space-x-1 ${className}`}>
+    <div className={`stepper flex items-center justify-center space-x-1 ${className}`}>
       <StepButton label="-" title={stepTitles?.[0]} onClick={() => onStep(-1)} />
-      <input
-        type="number"
-        step="any"
-        value={value === 0 ? '' : value}
-        onChange={event => onEnter(event.target.value)}
-        title={warning}
-        aria-invalid={warning !== undefined}
-        className={`field ${inputWidth} h-tap text-center font-mono font-bold text-base sm:text-sm ${warning ? 'border-warn-ink text-warn-ink' : ''}`}
-        placeholder="0"
-      />
+      <span className="stepper-field relative flex">
+        <span className="stepper-unit hidden section-label text-[9px] leading-none">{unit}</span>
+        <input
+          type="number"
+          step="any"
+          value={value === 0 ? '' : value}
+          onChange={event => onEnter(event.target.value)}
+          aria-label={label}
+          title={warning}
+          aria-invalid={warning !== undefined}
+          className={`field ${inputWidth} h-tap text-center font-mono font-bold text-base sm:text-sm ${warning ? 'border-warn-ink text-warn-ink' : ''}`}
+          placeholder="0"
+        />
+      </span>
       <StepButton label="+" title={stepTitles?.[1]} onClick={() => onStep(1)} />
     </div>
   );

@@ -89,9 +89,9 @@ export const RestTimer: React.FC<RestTimerProps> = ({
 
   if (isMinimized) {
     return (
-      <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-8 md:w-96 z-50 bg-surface/95 border border-accent-ink/40 backdrop-blur-md rounded-panel p-3 shadow-2xl flex items-center justify-between animate-slide-up">
+      <div className="rest-bar fixed bottom-4 left-4 right-4 md:left-auto md:right-8 md:w-96 z-50 bg-surface/95 border border-accent-ink/40 backdrop-blur-md rounded-panel p-3 shadow-2xl flex items-center justify-between animate-slide-up">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-pill bg-accent-ink/20 border-2 border-accent-ink flex items-center justify-center font-mono font-bold text-accent-ink text-sm">
+          <div className="rest-bar-time w-10 h-10 rounded-pill bg-accent-ink/20 border-2 border-accent-ink flex items-center justify-center font-mono font-bold text-accent-ink text-sm">
             {timeFormatted}
           </div>
           <div>
@@ -119,8 +119,8 @@ export const RestTimer: React.FC<RestTimerProps> = ({
   }
 
   return (
-    <Dialog width="sm" onClose={() => setIsMinimized(true)} onBackdropClick={() => setIsMinimized(true)} className="flex flex-col items-center overflow-hidden">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-accent/10 rounded-pill blur-3xl pointer-events-none" />
+    <Dialog width="sm" onClose={() => setIsMinimized(true)} onBackdropClick={() => setIsMinimized(true)} className="hazard-frame flex flex-col items-center overflow-hidden">
+      <div className="rest-glow absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-accent/10 rounded-pill blur-3xl pointer-events-none" />
 
       <div className="w-full flex items-center justify-between mb-4 z-10">
         <div className="flex items-center space-x-2 text-accent-ink text-sm font-semibold">
@@ -138,8 +138,8 @@ export const RestTimer: React.FC<RestTimerProps> = ({
         <div className="text-sm font-medium text-accent-ink">Set {nextSetNumber}</div>
       </div>
 
-      <div className="relative w-48 h-48 flex items-center justify-center mb-6">
-        <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
+      <div className="rest-dial relative w-48 h-48 flex items-center justify-center mb-6">
+        <svg className="rest-ring w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
           <circle cx="50" cy="50" r="44" className="text-control stroke-current" strokeWidth="6" fill="transparent" />
           <circle
             cx="50"
@@ -153,8 +153,8 @@ export const RestTimer: React.FC<RestTimerProps> = ({
             fill="transparent"
           />
         </svg>
-        <div className="absolute flex flex-col items-center">
-          <span className="text-4xl font-extrabold font-mono text-ink tracking-tighter">{timeFormatted}</span>
+        <div className="rest-readout absolute flex flex-col items-center">
+          <span className="rest-digits text-4xl font-extrabold font-mono text-ink tracking-tighter">{timeFormatted}</span>
           <span className="text-xs text-ink-muted font-medium mt-1">{isActive ? 'Resting...' : 'Paused'}</span>
         </div>
       </div>
@@ -175,7 +175,7 @@ export const RestTimer: React.FC<RestTimerProps> = ({
       </div>
 
       <div className="w-full grid grid-cols-2 gap-3 z-10">
-        <button onClick={toggleTimer} className={`btn py-3 text-sm ${isActive ? 'btn-secondary' : 'btn-good'}`}>
+        <button onClick={toggleTimer} className={`btn min-h-tap-lg py-3 text-sm ${isActive ? 'btn-secondary' : 'btn-good'}`}>
           {isActive ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
           <span>{isActive ? 'Pause' : 'Resume'}</span>
         </button>
@@ -185,7 +185,7 @@ export const RestTimer: React.FC<RestTimerProps> = ({
             playTimerChime();
             onClose();
           }}
-          className="btn btn-primary py-3 text-sm shadow-lg shadow-accent/30"
+          className="btn btn-primary min-h-tap-lg py-3 text-sm shadow-lg shadow-accent/30"
         >
           <SkipForward className="w-4 h-4" />
           <span>Skip Rest</span>

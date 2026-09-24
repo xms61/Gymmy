@@ -28,7 +28,7 @@ export default {
         pill: 'var(--radius-pill)'
       },
       borderWidth: { DEFAULT: 'var(--border-width)' },
-      spacing: { tap: 'var(--tap)' },
+      spacing: { tap: 'var(--tap)', 'tap-lg': 'var(--tap-lg)' },
       transitionDuration: { DEFAULT: 'var(--motion)' }
     }
   },
