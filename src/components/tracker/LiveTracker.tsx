@@ -13,6 +13,7 @@ import type {
 import { isPlateLoaded, type PlateLoaded } from '../../services/loading.ts';
 import { getRecommendation } from '../../services/overloadEngine.ts';
 import { indexCompletedLogs, logsFor } from '../../services/exerciseLogs.ts';
+import { exerciseHistory } from '../../services/progress.ts';
 import { StorageService } from '../../services/storage.ts';
 import { RestTimer } from './RestTimer.tsx';
 import { PlateCalculatorModal } from './PlateCalculatorModal.tsx';
@@ -56,13 +57,15 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
   }, [allDefinitions, workoutType]);
 
   // History does not change during a workout, so each recommendation is computed once.
-  const recommendations = useMemo(
-    () => {
-      const logIndex = indexCompletedLogs(history, allDefinitions);
-      return new Map(workoutExercises.map(ex => [ex.id, getRecommendation(ex, logsFor(logIndex, ex))]));
-    },
-    [workoutExercises, history, allDefinitions]
-  );
+  const progress = useMemo(() => {
+    const logIndex = indexCompletedLogs(history, allDefinitions);
+    return new Map(
+      workoutExercises.map(ex => {
+        const logs = logsFor(logIndex, ex);
+        return [ex.id, { recommendation: getRecommendation(ex, logs), history: exerciseHistory(logs) }];
+      })
+    );
+  }, [workoutExercises, history, allDefinitions]);
 
   const [startTime] = useState<string>(() => resumeFrom?.startTime ?? new Date().toISOString());
   const [sessionNotes, setSessionNotes] = useState(() => resumeFrom?.sessionNotes ?? '');
@@ -74,7 +77,7 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
       // Pre-fill working sets
       const sets: SetLog[] = Array.from({ length: ex.targetSets }).map((_, idx) => ({
         setNumber: idx + 1,
-        weightKg: recommendations.get(ex.id)?.recommendedWeightKg ?? ex.defaultWeightKg,
+        weightKg: progress.get(ex.id)?.recommendation.recommendedWeightKg ?? ex.defaultWeightKg,
         repsCompleted: ex.targetRepsMin,
         targetReps: `${ex.targetRepsMin}–${ex.targetRepsMax}`,
         completed: false
@@ -315,7 +318,8 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
             key={exLog.exerciseId}
             log={exLog}
             definition={workoutExercises.find(e => e.id === exLog.exerciseId)}
-            recommendation={recommendations.get(exLog.exerciseId) ?? null}
+            recommendation={progress.get(exLog.exerciseId)?.recommendation ?? null}
+            history={progress.get(exLog.exerciseId)?.history ?? []}
             onToggleSet={setIdx => toggleSetComplete(exIdx, setIdx)}
             onChangeSet={(setIdx, change) => changeSet(exIdx, setIdx, change)}
             onAddSet={() => addSet(exIdx)}

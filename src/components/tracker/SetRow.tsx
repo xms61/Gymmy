@@ -1,10 +1,12 @@
 import { Check } from 'lucide-react';
 import type { EquipmentType, SetLog } from '../../types/workout.ts';
 import { clampTo, LIMITS } from '../../validation.ts';
-import { isLoadable, stepLoad } from '../../services/loading.ts';
+import { isLoadable, isPlateLoaded, stepLoad } from '../../services/loading.ts';
 import { useTheme } from '../../theme/ThemeProvider.tsx';
 import { InkStamp } from '../ui/InkStamp.tsx';
 import { RIR_CHOICES, rirOf, withRir } from '../../services/effort.ts';
+import { Gauge } from '../ui/Gauge.tsx';
+import { PlateStrip } from './PlateStrip.tsx';
 
 export type SetChange = (set: SetLog) => SetLog;
 
@@ -73,6 +75,8 @@ export function SetRow({ set, equipment, onToggle, onChange }: SetRowProps) {
         </button>
       </div>
 
+      {isPlateLoaded(equipment) && <PlateStrip weightKg={set.weightKg} equipment={equipment} />}
+
       {set.completed && (
         <RirPicker setNumber={set.setNumber} value={rirOf(set)} onPick={rir => onChange(s => withRir(s, rir))} />
       )}
@@ -88,6 +92,7 @@ function RirPicker({ setNumber, value, onPick }: { setNumber: number; value: num
       <span className="section-label text-[10px] w-10 flex-none" title="Reps in reserve: how many more reps you had left. 0 means you could not do another.">
         RIR
       </span>
+      <Gauge className="rir-gauge hidden flex-none" value={value} max={5} sweep={180} size={28} />
       {RIR_CHOICES.map(rir => (
         <button
           key={rir}

@@ -1,6 +1,6 @@
 # Themes
 
-Entry: `src/theme/themes.ts`: every theme's name, description, design tokens (colors, fonts, corner radii, border, tap sizes, motion) and traits. The single source of truth for how the app looks. Themes: `classic` (the default), `brutalism` (Industrial Brutalism) and `journal` (Golden Era Journal, the only light theme).
+Entry: `src/theme/themes.ts`: every theme's name, description, design tokens (colors, fonts, corner radii, border, tap sizes, motion) and traits. The single source of truth for how the app looks. Themes: `classic` (the default), `brutalism` (Industrial Brutalism), `telemetry` (Mechanical Telemetry) and `journal` (Golden Era Journal, the only light theme).
 - `themeCss.ts`: turns the themes into `[data-theme="<id>"] { --c-…; --font-…; }` rules, and writes the boot script. `vite.config.ts` puts both in `<head>` of `index.html`, so the first paint has the chosen theme's colors.
 - `themePreference.ts`: reads and saves the choice on this device (`gymmy_theme_v1`, see `src/services/STORAGE.md`), and applies a theme: `data-theme` on `<html>` and the `theme-color` meta tag.
 - `ThemeProvider.tsx`: holds the current theme. Components read it with `useTheme()`. A choice made in another tab applies here too.
@@ -8,12 +8,13 @@ Entry: `src/theme/themes.ts`: every theme's name, description, design tokens (co
 - `tailwind.config.ts`: maps the tokens to Tailwind classes (`bg-surface`, `text-ink-muted`, `rounded-card`, `font-display`, `h-tap`, `min-h-tap-lg`) and adds one variant per theme (`brutalism:bg-push`).
 - `src/index.css`: the base rules (body, headings, scrollbars), the shared component classes (`card`, `panel`, `section-label`, `btn` with `btn-primary | btn-good | btn-secondary | btn-danger`, `icon-btn`, `field`), and one block per theme at the end.
 - `src/components/settings/AppearanceSection.tsx`: the Appearance tab in Settings, a radio group with a live sample of each theme.
+- `src/components/ui/Gauge.tsx` (arc math in `gaugeGeometry.ts`) and `Sparkline.tsx`: instrument dials and a tiny trend line. Telemetry shows them for the RIR pick, the rest timer and the exercise readouts.
 - `src/components/ui/InkStamp.tsx`: a rubber-stamp mark in the `stamp` color (`.ink-stamp` in `index.css`). Journal uses it for done sets and for the finished workout.
 - `src/components/ui/`: `Dialog` and `DialogHeader` (every modal; `Dialog` takes focus when it opens, keeps Tab inside, closes on Escape and gives focus back when it closes), `SplitBadge`, `StatusBadge` and `SPLIT_STYLE` (the split and overload status colors).
 
 ## How a theme changes the app
 1. **Tokens** in `themes.ts`: colors, fonts, shape, tap sizes, motion. Most of a theme is here.
-2. **Its block in `src/index.css`**, for what tokens can't express: layout and signature elements. The rules select hook classes that components carry and that have no style of their own, for example `set-row`, `set-list`, `set-number`, `stepper`, `exercise-card`, `exercise-cue`, `exercise-notes`, `rest-bar`, `rest-digits`, `split-solid`, `session-chip`, `hazard-edge` and `hazard-frame`. A block can also redefine token variables inside an element, so everything in it follows: `.rest-bar` in Brutalism sets `--c-surface` to the accent and the text tokens to `on-accent`.
+2. **Its block in `src/index.css`**, for what tokens can't express: layout and signature elements. The rules select hook classes that components carry and that have no style of their own, for example `set-row`, `set-list`, `set-number`, `stepper`, `exercise-card`, `exercise-cue`, `exercise-notes`, `rest-bar`, `rest-digits`, `rest-ring`, `split-solid`, `session-chip`, `calendar-day`, `hazard-edge` and `hazard-frame`. Some hook classes mark elements that are `hidden` unless a theme turns them on: `exercise-prescription` (Brutalism), `exercise-readouts`, `set-plates`, `rir-gauge` and `rest-gauge` (Telemetry). A block can also redefine token variables inside an element, so everything in it follows: `.rest-bar` in Brutalism sets `--c-surface` to the accent and the text tokens to `on-accent`.
 3. **Traits** in `themes.ts`, for behavior a stylesheet can't express. Each one is read by a component:
    - `celebration`: confetti on Finish (`LiveTracker.tsx`), a "Logged · 24 Sep" stamp on the summary (`CompletionSummary.tsx`), or nothing.
    - `doneMark`: a done set shows a check or a "Done" stamp (`SetRow.tsx`).
@@ -35,6 +36,7 @@ Entry: `src/theme/themes.ts`: every theme's name, description, design tokens (co
 - `--border-style` is applied to every element in `index.css`, so a theme can make all borders dashed. `border-transparent` still hides a border.
 - The theme blocks sit after the Tailwind layers, outside them, so they win over the utilities they replace, and Tailwind never drops them as unused.
 - Brutalism turns off soft shadows and blur by resetting `--tw-shadow` and `--tw-backdrop-blur` on every element. Focus rings use their own variable and stay.
+- Calendar days carry `--heat`, their volume as a share of the month's heaviest day (0 to 1). Telemetry shades them with it; the other themes ignore it.
 - Journal is light, so it turns off the colored glows (`shadow-good/30`) the same way and gives cards a hairline `rule` line underneath instead. Test new components in Journal too: a color that only works on dark backgrounds shows there first.
 - `.ink-stamp` uses `mix-blend-mode: multiply`, like ink on paper. On a dark theme that would hide it, so a dark theme that wants stamps needs its own rule.
 - Anton has a single weight, so Brutalism sets `font-synthesis: none`: a synthesized bold of `font-black` headings smears it.

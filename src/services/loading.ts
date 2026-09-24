@@ -75,6 +75,20 @@ export function plateLayout(weightKg: number, equipment: PlateLoaded, stock = GY
   return endGrams < 0 ? null : fillEnd(endGrams, loadedEnds, stock);
 }
 
+export interface PlateUse {
+  kg: number;
+  inUse: number; // on the whole implement, every end together
+  owned: number;
+}
+
+// How much of each plate size a layout takes, so a screen can show "15 kg: 2 of 2".
+export function platesInUse(layout: number[], equipment: PlateLoaded, stock = GYM_INVENTORY.plates): PlateUse[] {
+  const ends = loadedEnds(equipment);
+  return stock
+    .map(({ kg, count }) => ({ kg, inUse: layout.filter(plate => plate === kg).length * ends, owned: count }))
+    .filter(use => use.inUse > 0);
+}
+
 export function loadedEnds(equipment: PlateLoaded): 1 | 2 {
   return IMPLEMENTS[equipment].loadedEnds;
 }

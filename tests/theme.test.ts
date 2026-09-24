@@ -100,6 +100,7 @@ const CONTRAST_RULES: [foreground: ColorToken, background: ColorToken, minimum: 
   ['bad-ink', 'surface', 4.5],
   ['info-ink', 'surface', 4.5],
   ['stamp', 'surface', 4.5],
+  ['gauge', 'surface', 3],
   ['on-accent', 'accent', 4.5],
   ['on-good', 'good', 4.5],
   ['on-split', 'push', 4.5],
