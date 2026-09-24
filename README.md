@@ -1,41 +1,40 @@
-# <Project name>
+# Gymmy
 
-<What it does, in one or two sentences.>
+A mobile-first workout tracker for one Push/Pull/Legs routine, built with React, TypeScript, Tailwind CSS and Vite. It logs each set, suggests the next load with double progression, and keeps the training history in a local SQLite database.
 
 ## Setup
+Requires Node.js 22.13 or newer (the dev server uses the built-in `node:sqlite` module).
+
 ```bash
-<npm ci>
-cp .env.example .env
-<npm run dev>
+npm ci
+npm run dev
 ```
+
+The dev server opens `http://localhost:3000`. Gymmy reads no environment variables.
 
 ## Commands
 See the Commands table in [AGENTS.md](AGENTS.md).
 
----
+## What it does
+- **Routine:** the exercises from sheet "List" of the routine spreadsheet, with a target set count, rep range, starting load and rest time for each. Targets can be edited in Settings.
+  - Push: Flat Bench, Overhead Press, Incline DB Press, Lateral Raise, Skullcrusher
+  - Pull: Deadlifts, Pull-Ups, Meadows Row, Biceps Curl
+  - Legs: Squats, Calf Raises, RDL
+- **Next workout:** the dashboard picks the next split in rotation after the last logged session.
+- **Load suggestions (double progression):**
+  - When every set reaches the top of the rep range, the next session adds 2.5 kg (barbell or machine) or 2 kg (dumbbell).
+  - Otherwise the load stays the same and the goal is more reps.
+  - Two sessions in a row below the minimum rep count suggest a 10 % deload.
+- **Live tracking:**
+  - Set logger with weight and rep steppers.
+  - Rest timer set per exercise, with a 5-minute break between Deadlifts and Pull-Ups.
+  - Chime and vibration when the rest ends.
+  - Barbell plate calculator.
+- **History:** a monthly calendar colored by split (Push orange, Pull green, Legs blue), with each day's sets, loads, volume and notes.
+- **Progress:** estimated 1RM (Brzycki formula), best load and volume for each exercise.
+- **Export:** workout history to `.xlsx`, and a full JSON backup.
 
-## Using this template (delete this section once done)
-
-Files, and what each one is for:
-
-| File | Purpose |
-| :-- | :-- |
-| `AGENTS.md` | Entry point for coding agents: a doc map (which doc to read for which task), the commands and the "Always" rules. Keep it short, because agents load it on every task. |
-| `CLAUDE.md` | Imports `AGENTS.md`, so Claude Code reads the same file as other agents. |
-| `docs/CODE_STYLE.md` | What good code looks like here, and what not to add. |
-| `docs/TESTING.md` | Test commands, isolation rules and how to write tests. |
-| `docs/AREA_DOC_TEMPLATE.md` | Copy it next to each area of code (database, API, UI…). Each copy gets a row in the doc map. |
-| `.github/RELEASE_PROCESS.md` | Branching, version bump, checklist and PR format. Agents read it before any commit. |
-| `.github/pull_request_template.md` | A PR body that states what was and wasn't checked. |
-| `.github/workflows/ci.yml` | CI that runs the same commands as `AGENTS.md`. Adapt it to your stack. |
-| `CHANGELOG.md`, `docs/CHANGELOG-archive.md` | Keep a Changelog. About 5 releases in the main file, older ones in the archive, so agents read less. |
-| `.gitignore` | Keeps secrets, data and `docs/plans/` (local plans) out of git. |
-| `.gitattributes`, `.editorconfig` | LF line endings and consistent whitespace across OSes and agents. |
-| `.env.example` | Every env var the app reads. |
-
-Checklist:
-1. Replace every `<placeholder>` (search for `<`).
-2. Fill in the Commands table in `AGENTS.md` and make CI run the same commands.
-3. Write the "Always" rules that are specific to this repo: where real data lives, names that must never change, and how tests are isolated.
-4. Add one area doc per area once the code exists, and a row for each in the doc map.
-5. Delete this section.
+## Where data lives
+- `data/gymmy.db` is the source of truth. It's a SQLite file created by the dev and preview servers, which serve it at `/api/*`.
+- The browser keeps a copy in localStorage and IndexedDB. The app falls back to that copy when the API isn't reachable, for example when the `dist/` build is served as static files.
+- `data/` holds your real training history and is never committed.

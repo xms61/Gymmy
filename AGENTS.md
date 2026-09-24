@@ -1,32 +1,33 @@
-# <Project name> — Agent Doc Map
+# Gymmy — Agent Doc Map
 
-<One sentence: what this project is and who uses it.>
+A single-user Push/Pull/Legs workout tracker (React + Vite) that stores its history in a local SQLite file through the Vite dev server.
 
 Read only the doc(s) matching your task.
 
 | Doc | Read when |
 | :-- | :-- |
-| [.github/RELEASE_PROCESS.md](.github/RELEASE_PROCESS.md) | **Before any commit, push, or PR** (branching, version bump, guardrails, checklist) |
+| [.github/RELEASE_PROCESS.md](.github/RELEASE_PROCESS.md) | **Before any commit** (branching, version bump, checklist) |
 | [docs/CODE_STYLE.md](docs/CODE_STYLE.md) | Writing or reviewing code |
 | [docs/TESTING.md](docs/TESTING.md) | Running or writing tests |
-| <path/to/AREA.md> | <Touching that area: one row per area doc, next to the code it describes> |
 
 ## Commands
 | Task | Command |
 | :-- | :-- |
-| Install | `<npm ci>` |
-| Dev server | `<npm run dev>` |
-| Lint / format | `<npm run lint>` / `<npm run format>` |
-| Typecheck | `<npm run typecheck>` |
-| All tests | `<npm test>` |
-| One test file | `<node --test path/to/file.test.ts>` |
-| Everything CI runs | `<npm run test:ci>` |
+| Install | `npm ci` |
+| Dev server (with the `/api` backend) | `npm run dev` |
+| Typecheck | `npx tsc -b` |
+| Production build | `npm run build` |
+| Serve the build (with the `/api` backend) | `npm run preview` |
 
 ## Always
-- Tests never use the network or real data. Use in-memory or temp-dir stores and the test stubs listed in `docs/TESTING.md`.
-- `<data/ or other path>` holds the user's real data. Open it read-only for analysis, and never run write or cleanup scripts against it unless asked.
+- Tests never use the network or real data. Use in-memory or temp-dir stores; see `docs/TESTING.md`.
+- `data/gymmy.db` and `Fundamentals Workout.xlsx` are the user's real training data. Open them read-only for analysis, and never run write or cleanup scripts against them unless asked.
 - If the user says a long-running job is running, leave every file that job loads unchanged until they say it has finished.
-- Plans and scratch notes go in `docs/plans/`, which git ignores. Never commit or push them.
-- Script flags go after `--`: `<npm run task -- --flag=value>`.
-- <Names that must never be renamed, and why (storage keys, env vars, volume names, public API paths).>
+- Plans and scratch notes go in `docs/plans/`, which git ignores. Never commit them.
+- Git is local only. There is no remote: never add one and never push.
+- Never rename these. Stored data and saved sessions depend on them:
+  - the localStorage keys `gymmy_workout_sessions_v2` and `gymmy_exercise_definitions_v1`;
+  - the `/api/*` paths;
+  - the exercise `id`s in `src/data/seedData.ts`, because saved sessions refer to exercises by `exerciseId`;
+  - the SQLite table and column names in `data/gymmy.db`.
 - Code style: small functions, clear names instead of comments, no speculative abstractions, no emoji or marketing words in code, logs or docs. Delete dead code instead of keeping it "for later". Update the area doc in the same change. Details: `docs/CODE_STYLE.md`.
