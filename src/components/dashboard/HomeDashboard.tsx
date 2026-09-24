@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import type { SplitType, WorkoutSession, ExerciseDefinition } from '../../types/workout.ts';
 import { getRecommendation } from '../../services/overloadEngine.ts';
+import { logsFor, type ExerciseLogIndex } from '../../services/exerciseLogs.ts';
 import { SPLIT_STYLE, StatusBadge } from '../ui/badges.tsx';
 
 const ROTATION: SplitType[] = ['Push', 'Pull', 'Legs'];
@@ -16,6 +17,7 @@ const ROTATION: SplitType[] = ['Push', 'Pull', 'Legs'];
 interface HomeDashboardProps {
   sessions: WorkoutSession[];
   exercises: ExerciseDefinition[];
+  logIndex: ExerciseLogIndex;
   onStartWorkout: (type: SplitType) => void;
   canStart: boolean; // false until the first sync, so targets come from the full history
   onNavigateToCalendar: () => void;
@@ -24,6 +26,7 @@ interface HomeDashboardProps {
 export const HomeDashboard: React.FC<HomeDashboardProps> = ({
   sessions,
   exercises,
+  logIndex,
   onStartWorkout,
   canStart,
   onNavigateToCalendar
@@ -52,9 +55,9 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
   const nextOverloadRecommendations = useMemo(() => {
     return nextWorkoutExercises.map(ex => ({
       exercise: ex,
-      rec: getRecommendation(ex, sessions)
+      rec: getRecommendation(ex, logsFor(logIndex, ex))
     }));
-  }, [nextWorkoutExercises, sessions]);
+  }, [nextWorkoutExercises, logIndex]);
 
   // Overall workout stats
   const totalWorkouts = sessions.filter(s => s.completed).length;

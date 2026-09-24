@@ -1,7 +1,7 @@
 // Progressive overload rules (double progression) and 1RM estimates. Which loads exist, and
 // which one comes next, is decided by loading.ts from the home equipment.
-import type { EquipmentType, ExerciseDefinition, ProgressRecommendation, SetLog, WorkoutSession } from '../types/workout.ts';
-import { completedExerciseLogs, workingSets, workingWeight, type CompletedExerciseLog } from './exerciseLogs.ts';
+import type { EquipmentType, ExerciseDefinition, ProgressRecommendation, SetLog } from '../types/workout.ts';
+import { workingSets, workingWeight, type CompletedExerciseLog } from './exerciseLogs.ts';
 import { lightestLoad, nearestLoad, stepLoad } from './loading.ts';
 
 const DELOAD_FACTOR = 0.9;
@@ -16,8 +16,8 @@ const REP_TARGET_CAP = 30;
 
 type Advice = Omit<ProgressRecommendation, 'exerciseId' | 'exerciseName' | 'recommendedRepRange'>;
 
-export function getRecommendation(exercise: ExerciseDefinition, history: WorkoutSession[]): ProgressRecommendation {
-  const logs = completedExerciseLogs(exercise, history);
+// logs: this exercise's completed logs, oldest first (logsFor in exerciseLogs.ts).
+export function getRecommendation(exercise: ExerciseDefinition, logs: CompletedExerciseLog[]): ProgressRecommendation {
   const advice = logs.length === 0 ? adviceForFirstSession(exercise) : adviceFromHistory(exercise, logs);
   return {
     exerciseId: exercise.id,

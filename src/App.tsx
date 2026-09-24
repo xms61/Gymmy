@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { 
   Dumbbell, 
   Calendar as CalendarIcon, 
@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import type { SplitType, WorkoutDraft, WorkoutSession, ExerciseDefinition } from './types/workout.ts';
 import { StorageService } from './services/storage.ts';
+import { indexCompletedLogs } from './services/exerciseLogs.ts';
 import type { SyncStatus } from './services/sync.ts';
 import { HomeDashboard } from './components/dashboard/HomeDashboard.tsx';
 import { WorkoutCalendar } from './components/calendar/WorkoutCalendar.tsx';
@@ -44,6 +45,8 @@ export function App() {
   const [resumeFrom, setResumeFrom] = useState<WorkoutDraft | null>(null);
   // The tracker's targets come from history, so a workout starts only after the first sync.
   const [isFirstSyncDone, setIsFirstSyncDone] = useState(false);
+
+  const logIndex = useMemo(() => indexCompletedLogs(sessions, exercises), [sessions, exercises]);
 
   const refreshData = () => {
     setSessions(StorageService.getSessions());
@@ -164,6 +167,7 @@ export function App() {
           <HomeDashboard
             sessions={sessions}
             exercises={exercises}
+            logIndex={logIndex}
             onStartWorkout={handleStartWorkout}
             canStart={isFirstSyncDone}
             onNavigateToCalendar={() => setActiveTab('calendar')}
@@ -178,10 +182,7 @@ export function App() {
         )}
 
         {activeTab === 'analytics' && (
-          <ProgressView
-            exercises={exercises}
-            sessions={sessions}
-          />
+          <ProgressView exercises={exercises} logIndex={logIndex} />
         )}
       </main>
 

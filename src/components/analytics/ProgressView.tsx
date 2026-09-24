@@ -1,17 +1,18 @@
 import React, { useState, useMemo } from 'react';
 import { Dumbbell, Sparkles } from 'lucide-react';
-import type { ExerciseDefinition, WorkoutSession } from '../../types/workout.ts';
+import type { ExerciseDefinition } from '../../types/workout.ts';
 import { getRecommendation } from '../../services/overloadEngine.ts';
 import { exerciseHistory } from '../../services/progress.ts';
+import { logsFor, type ExerciseLogIndex } from '../../services/exerciseLogs.ts';
 
 interface ProgressViewProps {
   exercises: ExerciseDefinition[];
-  sessions: WorkoutSession[];
+  logIndex: ExerciseLogIndex;
 }
 
 export const ProgressView: React.FC<ProgressViewProps> = ({
   exercises,
-  sessions
+  logIndex
 }) => {
   const [selectedExId, setSelectedExId] = useState<string>(exercises[0]?.id || 'flat-bench');
 
@@ -20,13 +21,13 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
   }, [exercises, selectedExId]);
 
   const history = useMemo(() => {
-    return selectedExercise ? exerciseHistory(selectedExercise, sessions) : [];
-  }, [selectedExercise, sessions]);
+    return selectedExercise ? exerciseHistory(logsFor(logIndex, selectedExercise)) : [];
+  }, [selectedExercise, logIndex]);
 
   const recommendation = useMemo(() => {
     if (!selectedExercise) return null;
-    return getRecommendation(selectedExercise, sessions);
-  }, [selectedExercise, sessions]);
+    return getRecommendation(selectedExercise, logsFor(logIndex, selectedExercise));
+  }, [selectedExercise, logIndex]);
 
   // Overall PRs
   const personalBest = useMemo(() => {

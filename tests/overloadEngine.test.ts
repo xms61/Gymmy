@@ -1,7 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { estimate1RM, getRecommendation } from '../src/services/overloadEngine.ts';
+import { estimate1RM, getRecommendation as recommendFromLogs } from '../src/services/overloadEngine.ts';
+import { indexCompletedLogs, logsFor } from '../src/services/exerciseLogs.ts';
 import type { EquipmentType, ExerciseDefinition, OverloadStatus, WorkoutSession } from '../src/types/workout.ts';
+
+function getRecommendation(exercise: ExerciseDefinition, sessions: WorkoutSession[]) {
+  return recommendFromLogs(exercise, logsFor(indexCompletedLogs(sessions, [exercise]), exercise));
+}
 
 function flatBench(): ExerciseDefinition {
   return {

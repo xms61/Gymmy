@@ -12,6 +12,7 @@ import type {
 } from '../../types/workout.ts';
 import { isPlateLoaded, type PlateLoaded } from '../../services/loading.ts';
 import { getRecommendation } from '../../services/overloadEngine.ts';
+import { indexCompletedLogs, logsFor } from '../../services/exerciseLogs.ts';
 import { StorageService } from '../../services/storage.ts';
 import { RestTimer } from './RestTimer.tsx';
 import { PlateCalculatorModal } from './PlateCalculatorModal.tsx';
@@ -55,8 +56,11 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
 
   // History does not change during a workout, so each recommendation is computed once.
   const recommendations = useMemo(
-    () => new Map(workoutExercises.map(ex => [ex.id, getRecommendation(ex, history)])),
-    [workoutExercises, history]
+    () => {
+      const logIndex = indexCompletedLogs(history, allDefinitions);
+      return new Map(workoutExercises.map(ex => [ex.id, getRecommendation(ex, logsFor(logIndex, ex))]));
+    },
+    [workoutExercises, history, allDefinitions]
   );
 
   const [startTime] = useState<string>(() => resumeFrom?.startTime ?? new Date().toISOString());
