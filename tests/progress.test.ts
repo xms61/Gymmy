@@ -1,8 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { exerciseHistory } from '../src/services/progress.ts';
+import { exerciseHistory as historyFromLogs } from '../src/services/progress.ts';
+import { indexCompletedLogs, logsFor } from '../src/services/exerciseLogs.ts';
 import { EXERCISE_DEFINITIONS } from '../src/data/seedData.ts';
 import type { ExerciseDefinition, SetLog, WorkoutSession } from '../src/types/workout.ts';
+
+function exerciseHistory(exercise: ExerciseDefinition, sessions: WorkoutSession[]) {
+  return historyFromLogs(logsFor(indexCompletedLogs(sessions, [exercise]), exercise));
+}
 
 function squats(): ExerciseDefinition {
   const definition = EXERCISE_DEFINITIONS.find(e => e.id === 'squats');

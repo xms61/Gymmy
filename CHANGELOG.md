@@ -9,14 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-- A workout started right after opening the app no longer gets targets from an out-of-date copy. In a new or cleared browser, the tracker used to open with "first session" advice and the seeded starting loads (Flat Bench 60 kg) whatever the server's history said. The Start buttons now read "Syncing…" until the first sync finishes, for at most 5 s, and the tracker takes its history from the app like the other screens.
-
 ### Changed
 - Suggestions judge a session by its working sets, the completed sets at its heaviest weight, instead of by its first set. A ramped Flat Bench session of 60×8 then 70×8×3 used to get "increase to 62.5 kg", below the weight actually lifted; it now gets 72.5 kg. A lighter back-off set no longer drags the trend down into a deload.
 - A dumbbell jump bigger than 15 % is earned with reps first. After a jump, double progression restarts at the bottom of the range, which fails when the next load is 25 to 50 % heavier: 15 reps at 5 kg predict only about 4 reps at 7.5 kg, so the app would have sent Lateral Raise straight back to 5 kg. The app now asks for the reps at the current weight that predict the same one-rep max as the bottom of the range at the next weight (Brzycki), at most 30, because sets of up to about 30 reps near failure build muscle about as well as heavier ones (Schoenfeld et al. 2017) and much lighter loads do less (Lasevicius et al. 2018). Lateral Raise: 19 reps at 5 kg, then 7.5 kg. Incline DB Press and Biceps Curl: 14 reps at 10 kg, then 12.5 kg.
 - Load suggestions, the weight steppers and the plate calculator use the home equipment (`src/data/gymInventory.ts`) instead of a 20 kg Olympic bar and unlimited plates. The calculator used to suggest 25 kg plates that aren't there (100 kg deadlift: 25 + 15 kg per side; now 20 + 15 + 10 kg), ignored weights it couldn't make (61 kg showed 60 kg), and only worked for barbell lifts. The empty bar is 10 kg, dumbbells move in 2.5 kg steps up to 25 kg instead of rounding odd weights up by 3 kg (5 to 8 kg), and Meadows Row moves in 1.25 kg steps. At the heaviest load the plates make, the app keeps the weight and asks for reps.
 - Exercises can use a new equipment type, `landmine`: one end of a barbell on the floor, plates on the other. Meadows Row is a landmine lift, and Calf Raises is a barbell lift instead of a machine lift, to match the home gym. A one-time database update (schema version 2) changes the stored definitions, after the usual backup copy, and leaves any definition you already changed. Backups that contain `landmine` can't be read by 1.x, so the next release is 2.0.0.
+- History is indexed by exercise once per change (`indexCompletedLogs`) instead of being filtered and sorted again for every exercise on the dashboard, in Progress and in the tracker. The results are the same.
+
+### Fixed
+- A workout started right after opening the app no longer gets targets from an out-of-date copy. In a new or cleared browser, the tracker used to open with "first session" advice and the seeded starting loads (Flat Bench 60 kg) whatever the server's history said. The Start buttons now read "Syncing…" until the first sync finishes, for at most 5 s, and the tracker takes its history from the app like the other screens.
 
 ---
 

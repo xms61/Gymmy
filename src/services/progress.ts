@@ -1,6 +1,5 @@
 // Per-exercise training history for the Progress view.
-import type { ExerciseDefinition, WorkoutSession } from '../types/workout.ts';
-import { completedExerciseLogs, workingWeight } from './exerciseLogs.ts';
+import { workingWeight, type CompletedExerciseLog } from './exerciseLogs.ts';
 import { estimate1RM } from './overloadEngine.ts';
 
 export interface ExerciseHistoryEntry {
@@ -12,8 +11,8 @@ export interface ExerciseHistoryEntry {
 }
 
 // Oldest session first. Sessions where the exercise has no completed sets are left out.
-export function exerciseHistory(exercise: ExerciseDefinition, sessions: WorkoutSession[]): ExerciseHistoryEntry[] {
-  return completedExerciseLogs(exercise, sessions).map(({ session, sets }) => ({
+export function exerciseHistory(logs: CompletedExerciseLog[]): ExerciseHistoryEntry[] {
+  return logs.map(({ session, sets }) => ({
     date: session.date,
     sessionName: session.name,
     weight: workingWeight(sets),
