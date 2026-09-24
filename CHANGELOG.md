@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Other websites can no longer read or change your data through the API. It rejects requests from other origins (403), requests addressed to a host name other than localhost or an IP address (DNS rebinding, 403), and POSTs that aren't JSON (415). Before, any page open in the same browser could wipe the history with `/api/clear`.
 
 ### Changed
+- Plainer wording in the app: "Workout Saved" instead of "Workout Crushed!", "Add Weight" instead of "Weight Up Ready!", no exclamation marks, and the browser tab is titled "Gymmy".
 - JSON backups use one versioned format (`format: "gymmy-backup"`, `version: 1`) for both export and import, validated with the same rules as the server.
 - The live tracker no longer redraws every exercise each second: only the clock ticks, and recommendations are computed once per workout.
 - The browser keeps its copy in localStorage only. Sessions from the old IndexedDB copy are moved over, and that copy is deleted once the server has confirmed them all.

@@ -32,8 +32,8 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
   }, [sessions]);
 
   const nextSplit: SplitType = useMemo(() => {
-    if (!lastSession) return 'Push'; // Clean slate: Start with Push
-    if (lastSession.splitType === 'Legs') return 'Push'; // Last one was legs -> Push today!
+    if (!lastSession) return 'Push';
+    if (lastSession.splitType === 'Legs') return 'Push';
     if (lastSession.splitType === 'Push') return 'Pull';
     if (lastSession.splitType === 'Pull') return 'Legs';
     return 'Push';
@@ -78,7 +78,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             <p className="text-sm text-slate-400 mt-1">
               {lastSession
                 ? `Following your last ${lastSession.name} session on ${lastSession.date}`
-                : 'Clean slate! Push workout is up next today.'}
+                : 'No workouts logged yet. The rotation starts with Push.'}
             </p>
           </div>
 

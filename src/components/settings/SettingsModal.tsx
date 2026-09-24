@@ -131,7 +131,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   if (window.confirm('Clear all logged workout sessions? This will give you a clean slate for your stats.')) {
                     StorageService.clearAllSessions();
                     onRefreshData();
-                    alert('All workout history cleared. Clean slate active!');
+                    alert('All workout history was cleared.');
                     onClose();
                   }
                 }}
