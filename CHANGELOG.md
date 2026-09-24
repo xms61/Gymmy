@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [1.2.0] - 2026-09-24
+
 ### Added
 - CI on GitHub Actions (`.github/workflows/ci.yml`). Every pull request and every push to `main` runs the typecheck, the tests with their coverage thresholds, and the production build. The actions are pinned to commits.
 - Dependabot (`.github/dependabot.yml`) proposes npm and GitHub Actions updates weekly, with minor and patch npm updates grouped into one pull request.
