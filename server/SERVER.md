@@ -1,9 +1,10 @@
 # Server (SQLite API)
 
 Entry: `server/vitePlugin.ts`: a Vite plugin that serves `/api/*` from the dev and preview servers, backed by `data/gymmy.db`. There is no separate backend process; a static `dist/` build has no API.
-- `server/vitePlugin.ts`: HTTP plumbing only. Reads the body (1 MB cap, JSON), calls `handleApiRequest`, writes the response. Opens one database per process.
-- `server/api.ts`: `handleApiRequest(db, { method, pathname, host, origin, contentType, body })`. Routes, validates with `src/validation.ts`, calls `db.ts`. No SQL and no HTTP objects, so tests call it directly.
+- `server/vitePlugin.ts`: HTTP plumbing only. Reads the body (1 MB cap, JSON), calls `handleApiRequest`, writes the response. Opens one database per process, loads the access key, and with `--host` prints each network address as a link with `#key=…`.
+- `server/api.ts`: `handleApiRequest({ db, accessKey }, { method, pathname, host, origin, contentType, fromThisMachine, accessKey, body })`. Routes, validates with `src/validation.ts`, calls `db.ts`. No SQL and no HTTP objects, so tests call it directly.
 - `server/db.ts`: `openDatabase(dataDir)`, the schema, seeding and every query.
+- `server/accessKey.ts`: the per-install access key in `data/access-key` (created on first start, mode 600), a constant-time comparison, and the loopback check.
 
 ## Rules
 - Every request body is checked by a parser in `src/validation.ts` before it reaches `db.ts`. The browser uses the same parsers, so the two sides accept the same shapes. A new payload gets a new parser there, not an inline check.
@@ -18,6 +19,7 @@ Entry: `server/vitePlugin.ts`: a Vite plugin that serves `/api/*` from the dev a
 
 - The API has no login, so `rejectUntrustedRequest` in `api.ts` runs before every route:
   - `Host` must be `localhost`, `*.localhost` or an IP address. This blocks DNS rebinding; Vite's own host check runs after plugin middleware, so it doesn't cover `/api`.
+  - A connection that doesn't come from this machine's loopback address must send the access key in `X-Gymmy-Key`, or gets 401. That only happens with `npm run dev -- --host` (or `preview --host`), where any device on the network could otherwise read, overwrite or clear the history. The check uses the socket's peer address, which a client can't choose the way it chooses `Host`. The browser takes the key from the printed link (`src/services/accessKey.ts`).
   - `Origin`, when sent, must equal this server.
   - A POST must be `application/json`, even without a body (`/api/clear`).
 - `vite.config.ts` denies `data/**` to Vite's file serving (`server.fs.deny`) and turns off Vite's CORS answers, so no page can download `data/gymmy.db` as a static file. Keep both when changing the config. Both servers send `X-Frame-Options: DENY`, so other sites cannot frame the app.
@@ -31,7 +33,7 @@ Entry: `server/vitePlugin.ts`: a Vite plugin that serves `/api/*` from the dev a
 | `POST /api/exercises` | `ExerciseDefinition[]` | `{ success, count }`; inserts or replaces by `id` |
 | `POST /api/clear` | none | `{ success, backup }`; copies the database to `data/gymmy.before-clear-<time>.db`, then deletes every session and keeps exercises |
 
-Errors: 403 for a foreign `Host` or `Origin`, 415 for a POST that isn't JSON, 400 for an invalid body (the message names the first bad field, for example `session.date must be a string`) or a session id with broken URI encoding, 404 for an unknown route, 413 for a body over 1 MB, 500 for a database error. A 500 says only `Internal database error`; the details go to the server log once, because they can hold SQL and file paths.
+Errors: 401 for another device without the access key, 403 for a foreign `Host` or `Origin`, 415 for a POST that isn't JSON, 400 for an invalid body (the message names the first bad field, for example `session.date must be a string`) or a session id with broken URI encoding, 404 for an unknown route, 413 for a body over 1 MB, 500 for a database error. A 500 says only `Internal database error`; the details go to the server log once, because they can hold SQL and file paths.
 
 | Table | Key | Notes |
 |---|---|---|

@@ -14,6 +14,7 @@ Entry: `src/services/storage.ts`: `StorageService` holds the app's sessions and 
   1. sends the outbox;
   2. loads `/api/data`;
   3. re-applies whatever is still queued on top of the server data. Unsynced local changes win, and offline deletes stay deleted.
+- Every request goes through `apiFetch`, which adds the access key when there is one. A 401 counts as `failed`, so changes wait in the outbox, and sets `needsAccessKey`: the badge reads "Needs access key".
 - Every request gives up after 8 s (`AbortSignal.timeout`), so an unreachable address cannot hold up the outbox.
 - While the app is open, it tries again when the browser goes back online, when the tab comes back to the front, and every 30 s: it runs the start sync again if that never reached the server, and otherwise sends whatever is queued.
 - Tabs share the stored copy. When another tab writes it (`storage` event), this tab takes the stored sessions and outbox, so its next write builds on them. After a send, the ops that went out are removed by content (`withoutOps`), because the outbox may have changed while they were in flight.
@@ -28,6 +29,7 @@ Entry: `src/services/storage.ts`: `StorageService` holds the app's sessions and 
 | `gymmy_rejected_ops_v1` | Ops the server refused (400/413/415), kept so the data is not lost until the user downloads or dismisses them in Settings. |
 | `gymmy_workout_draft_v1` | The workout in progress (`WorkoutDraft`). Owned by `src/components/tracker/workoutDraft.ts`, not `StorageService`: it is never synced, and is cleared when the workout is finished or left. |
 | `gymmy_local_sessions_adopted_v1` | Timestamp. Set after the one-time check for sessions that 1.0.0 left only in localStorage. |
+| `gymmy_access_key_v1` | The server's access key, on devices other than the one running the server. Taken from the `#key=` link the server prints (`src/services/accessKey.ts`), removed from the address bar, and sent as `X-Gymmy-Key` with every request. |
 | `gymmy_theme_v1` | The theme chosen on this device (`ThemeId`). Owned by `src/theme/themePreference.ts` and read by the boot script in `<head>`; never synced, so each device keeps its own. |
 
 The key names are stored data: never rename them (see `AGENTS.md`).

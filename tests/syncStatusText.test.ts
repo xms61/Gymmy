@@ -4,7 +4,7 @@ import { describeSyncStatus, needsAttention, syncLabel } from '../src/components
 import type { SyncStatus } from '../src/services/sync.ts';
 
 function status(overrides: Partial<SyncStatus> = {}): SyncStatus {
-  return { connected: true, pendingChanges: 0, rejectedChanges: 0, storageFailed: false, ...overrides };
+  return { connected: true, pendingChanges: 0, rejectedChanges: 0, storageFailed: false, needsAccessKey: false, ...overrides };
 }
 
 test('labels the header badge with the connection and any unsaved changes', () => {
@@ -40,4 +40,12 @@ test('asks for attention unless connected with every change saved', () => {
   for (const [label, input, expected] of CASES) {
     assert.equal(needsAttention(input), expected, label);
   }
+});
+
+test('asks for the access key instead of calling the server offline', () => {
+  const refused = status({ connected: false, needsAccessKey: true, pendingChanges: 2 });
+  assert.equal(syncLabel(refused), 'Needs access key, 2 pending');
+  assert.equal(syncLabel(status({ connected: false, needsAccessKey: true })), 'Needs access key');
+  assert.match(describeSyncStatus(refused), /#key=.*2 changes are kept/);
+  assert.equal(needsAttention(refused), true);
 });

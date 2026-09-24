@@ -12,6 +12,7 @@ import {
   upsertExercises,
   upsertSession
 } from './db.ts';
+import { keysMatch } from './accessKey.ts';
 
 export interface ApiRequest {
   method: string;
@@ -19,7 +20,15 @@ export interface ApiRequest {
   host?: string;
   origin?: string;
   contentType?: string;
+  fromThisMachine: boolean; // the connection comes from the loopback address
+  accessKey?: string; // the X-Gymmy-Key header
   body?: unknown;
+}
+
+// What the API answers with: the database, and the key other devices must send.
+export interface ApiContext {
+  db: DatabaseSync;
+  accessKey: string;
 }
 
 export interface ApiResponse {
@@ -29,9 +38,9 @@ export interface ApiResponse {
 
 const SESSION_PATH_PREFIX = '/api/sessions/';
 
-export function handleApiRequest(db: DatabaseSync, request: ApiRequest): ApiResponse {
+export function handleApiRequest({ db, accessKey }: ApiContext, request: ApiRequest): ApiResponse {
   try {
-    return rejectUntrustedRequest(request) ?? route(db, request);
+    return rejectUntrustedRequest(request, accessKey) ?? route(db, request);
   } catch (err) {
     // The details go to the server log only: they can hold SQL and file paths.
     console.error('[Gymmy DB] Request failed:', request.method, request.pathname, err);
@@ -59,11 +68,17 @@ function route(db: DatabaseSync, { method, pathname, body }: ApiRequest): ApiRes
 // The API has no login, so it only answers the app itself:
 // - Host must be localhost or an IP address. A DNS-rebinding page reaches the server under
 //   its own domain name, which this rejects. IP addresses stay allowed for `vite --host`.
+// - A client on another device (with `vite --host`) must send the access key. Clients on this
+//   machine need none.
 // - Origin, when the browser sends one, must be this server. Browsers always send it on
 //   cross-site requests, including the simple POSTs that skip CORS preflight.
 // - POST bodies must be JSON, which forces a preflight on any cross-site attempt.
-function rejectUntrustedRequest({ method, host, origin, contentType }: ApiRequest): ApiResponse | null {
+function rejectUntrustedRequest(request: ApiRequest, accessKey: string): ApiResponse | null {
+  const { method, host, origin, contentType } = request;
   if (!isLocalHost(host)) return forbidden('Host is not allowed');
+  if (!request.fromThisMachine && !keysMatch(request.accessKey, accessKey)) {
+    return { status: 401, body: { success: false, error: 'Open the link with the access key that the server printed' } };
+  }
   if (origin !== undefined && !isSameOrigin(origin, host)) return forbidden('Requests from other sites are not allowed');
   if (method === 'POST' && !isJson(contentType)) {
     return { status: 415, body: { success: false, error: 'Content-Type must be application/json' } };

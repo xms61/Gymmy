@@ -59,10 +59,11 @@ function pushSession(overrides: Partial<WorkoutSession> = {}): WorkoutSession {
 }
 
 // What the app itself sends: same-origin requests to the dev server with JSON bodies.
-const SAME_ORIGIN = { host: 'localhost:3000', origin: 'http://localhost:3000', contentType: 'application/json' };
+const ACCESS_KEY = 'test-access-key';
+const SAME_ORIGIN = { host: 'localhost:3000', origin: 'http://localhost:3000', contentType: 'application/json', fromThisMachine: true };
 
-function send(db: DatabaseSync, request: ApiRequest) {
-  return handleApiRequest(db, { ...SAME_ORIGIN, ...request });
+function send(db: DatabaseSync, request: Partial<ApiRequest> & Pick<ApiRequest, 'method' | 'pathname'>) {
+  return handleApiRequest({ db, accessKey: ACCESS_KEY }, { ...SAME_ORIGIN, ...request });
 }
 
 function fetchData(db: DatabaseSync): DataBody {
@@ -250,4 +251,21 @@ test('accepts a JSON content type with parameters', t => {
     body: pushSession()
   });
   assert.equal(response.status, 200);
+});
+
+test('another device must send the access key, and this machine needs none', t => {
+  const db = emptyDatabase(t);
+  const fromLan = { method: 'GET', pathname: '/api/data', host: '192.168.1.20:3000', origin: 'http://192.168.1.20:3000', fromThisMachine: false };
+  assert.equal(send(db, fromLan).status, 401);
+  assert.equal(send(db, { ...fromLan, accessKey: 'wrong-access-key' }).status, 401);
+  assert.equal(send(db, { ...fromLan, accessKey: ACCESS_KEY }).status, 200);
+  assert.equal(send(db, { method: 'GET', pathname: '/api/data' }).status, 200);
+});
+
+test('a request without the key cannot clear the history', t => {
+  const db = emptyDatabase(t);
+  assert.equal(send(db, { method: 'POST', pathname: '/api/sessions', body: pushSession() }).status, 200);
+  const response = send(db, { method: 'POST', pathname: '/api/clear', host: '192.168.1.20:3000', origin: undefined, fromThisMachine: false });
+  assert.equal(response.status, 401);
+  assert.equal(fetchData(db).sessions.length, 1);
 });
