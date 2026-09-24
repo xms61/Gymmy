@@ -9,7 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- CI on GitHub Actions (`.github/workflows/ci.yml`). Every pull request and every push to `main` runs the typecheck, the tests with their coverage thresholds, and the production build. The actions are pinned to commits.
+- Dependabot (`.github/dependabot.yml`) proposes npm and GitHub Actions updates weekly, with minor and patch npm updates grouped into one pull request.
+
 ### Changed
+- `AGENTS.md` and `.github/RELEASE_PROCESS.md` describe the GitHub flow: one branch per change, merged into `main` through a pull request once CI passes. They used to say the repository had no remote.
 - Every color, corner radius and font comes from design tokens (`src/theme/themes.ts`) instead of classes repeated in each screen, in preparation for themes. The look is the same, except that the Start button on the dashboard uses the split color with dark text.
 - Deloads follow the performance trend instead of the rep range. The app suggests one only when average reps drop in two sessions in a row at the same weight, the stall-or-decline signal strength coaches use (Bell et al. 2023 consensus; Rogerson et al. 2024 survey). Reps below the range that are still rising now mean "hold the weight" (Incline DB Press and Biceps Curl no longer get a deload). Three flat sessions below the range suggest a lighter working weight, shown as a new "Lighter Weight" status (Lateral Raise: 5 to 4 kg).
 
