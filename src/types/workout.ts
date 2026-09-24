@@ -68,7 +68,9 @@ export interface WorkoutDraft {
   exerciseLogs: ExerciseSessionLog[];
 }
 
-export type OverloadStatus = 'increase_load' | 'progress_reps' | 'maintain' | 'deload';
+// deload: reps are falling (fatigue), so ease off for a week.
+// reduce_load: reps are stuck below the range, so the working weight is too heavy for it.
+export type OverloadStatus = 'increase_load' | 'progress_reps' | 'maintain' | 'deload' | 'reduce_load';
 
 export interface ProgressRecommendation {
   exerciseId: string;

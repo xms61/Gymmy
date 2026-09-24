@@ -7,8 +7,16 @@ import {
   Sparkles, 
   ChevronRight 
 } from 'lucide-react';
-import type { SplitType, WorkoutSession, ExerciseDefinition } from '../../types/workout.ts';
+import type { SplitType, WorkoutSession, ExerciseDefinition, OverloadStatus } from '../../types/workout.ts';
 import { getRecommendation } from '../../services/overloadEngine.ts';
+
+const STATUS_BADGES: Record<OverloadStatus, { label: string; className: string }> = {
+  increase_load: { label: '+Weight', className: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' },
+  progress_reps: { label: '+Reps', className: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40' },
+  maintain: { label: '+Reps', className: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40' },
+  deload: { label: 'Deload', className: 'bg-amber-500/20 text-amber-300 border-amber-500/40' },
+  reduce_load: { label: 'Lighter', className: 'bg-sky-500/20 text-sky-300 border-sky-500/40' }
+};
 
 interface HomeDashboardProps {
   sessions: WorkoutSession[];
@@ -111,14 +119,8 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
                   </div>
                 </div>
 
-                <span className={`px-2 py-0.5 rounded-md font-bold text-[10px] uppercase tracking-wider ${
-                  rec.status === 'increase_load'
-                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                    : rec.status === 'deload'
-                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                    : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40'
-                }`}>
-                  {rec.status === 'increase_load' ? '+Weight' : rec.status === 'deload' ? 'Deload' : '+Reps'}
+                <span className={`px-2 py-0.5 rounded-md font-bold text-[10px] uppercase tracking-wider border ${STATUS_BADGES[rec.status].className}`}>
+                  {STATUS_BADGES[rec.status].label}
                 </span>
               </div>
             ))}
