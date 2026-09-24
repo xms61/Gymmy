@@ -38,7 +38,7 @@ See the Commands table in [AGENTS.md](AGENTS.md). Every pull request and every p
   - Chime and vibration when the rest ends.
   - Plate calculator for barbell, dumbbell and landmine lifts: which of the home plates go on each end, and the nearest loads when a weight can't be made. The weight steppers step through the loads the plates make, and a weight they can't make is marked.
 - **History:** a monthly calendar colored by split (Push orange, Pull green, Legs blue), with each day's sets, loads, volume and notes, and a weekly streak: weeks in a row, Monday to Sunday, with at least one workout.
-- **Progress:** estimated 1RM (Brzycki formula), best load and volume for each exercise.
+- **Progress:** estimated 1RM (Brzycki formula), best load and volume for each exercise, with a chart of the estimated 1RM and one of the session volume over every session. Hover a chart, or focus it and use the arrow keys, to read a session's value.
 - **Backup and restore:** a JSON file with every workout and the exercise targets. Restoring previews the changes first and never deletes anything.
 - **Themes:** the Appearance tab in Settings switches between Classic, Industrial Brutalism (iron, chalk and caution yellow, square corners, 56 px steppers, load stacked over reps, and a full-width rest timer) and Golden Era Journal (parchment, a ruled ledger for the sets, handwritten margin notes, ink stamps for done sets and finished workouts, and dates written out). The choice is stored on each device. The fonts are bundled, so they work offline.
 
