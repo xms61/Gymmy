@@ -106,10 +106,10 @@ export class StorageService {
 
   // Queues every change in the plan as one batch, so the server receives them in order.
   static applyImport(plan: ImportPlan): void {
-    for (const session of [...plan.newSessions, ...plan.replacedSessions]) {
-      this.enqueue({ type: 'upsertSession', session });
-    }
-    if (plan.exercises) this.enqueue({ type: 'saveExercises', exercises: plan.exercises });
+    const ops: PendingOp[] = [...plan.newSessions, ...plan.replacedSessions].map(session => ({ type: 'upsertSession', session }));
+    if (plan.exercises) ops.push({ type: 'saveExercises', exercises: plan.exercises });
+    this.snapshot = applyOps(this.snapshot, ops);
+    this.outbox = [...this.outbox, ...ops];
     this.persist();
     this.notify();
     void this.flush();

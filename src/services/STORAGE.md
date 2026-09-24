@@ -8,6 +8,7 @@ Entry: `src/services/storage.ts`: `StorageService` holds the app's sessions and 
 ## Rules
 - Components read through `getSessions()` / `getExerciseDefinitions()` and write through `saveSession`, `deleteSession`, `saveExerciseDefinitions`, `clearAllSessions` or `applyImport`. Never call `/api/*` or localStorage directly.
 - Every write becomes a `PendingOp`. It is applied to the local copy at once, appended to the outbox, and removed from the outbox only after the server answers 2xx.
+- `applyOps` applies a batch in one pass (a map by id, then one sort), and keeps the local copy newest first by date and start time. An import is one batch.
 - The outbox is sent in order and stops at the first failure. A 400, 413 or 415 means the payload can never be stored: the op moves to `gymmy_rejected_ops_v1` (kept for recovery, logged) and the rest continue. Anything else stays queued.
 - Refused ops and failed localStorage writes are shown, not only logged: `SyncStatus` carries `rejectedChanges` and `storageFailed`, the header badge adds "N not saved" or "browser storage full" with a warning dot, and Settings offers the refused ops as a JSON download before they can be dismissed (`RefusedChanges.tsx`).
 - On start, `init()`:
