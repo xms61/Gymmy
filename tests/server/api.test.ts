@@ -189,7 +189,9 @@ test('rejects exercise targets that are not a list', t => {
 test('clearing removes every session and keeps the exercises', t => {
   const db = emptyDatabase(t);
   send(db, { method: 'POST', pathname: '/api/sessions', body: pushSession() });
-  assert.equal(send(db, { method: 'POST', pathname: '/api/clear' }).status, 200);
+  const response = send(db, { method: 'POST', pathname: '/api/clear' });
+  assert.equal(response.status, 200);
+  assert.match((response.body as { backup: string }).backup, /^gymmy\.before-clear-[0-9T-]+Z\.db$/);
   const data = fetchData(db);
   assert.deepEqual(data.sessions, []);
   assert.equal(data.exercises.length, EXERCISE_DEFINITIONS.length);

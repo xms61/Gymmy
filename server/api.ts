@@ -1,6 +1,7 @@
 // Routes /api/* requests to the database. Kept free of HTTP plumbing so tests can call it
 // directly with a plain request object.
 import { isIP } from 'node:net';
+import path from 'node:path';
 import type { DatabaseSync } from 'node:sqlite';
 import { parseExerciseDefinitions, parseWorkoutSession } from '../src/validation.ts';
 import {
@@ -49,8 +50,8 @@ function route(db: DatabaseSync, { method, pathname, body }: ApiRequest): ApiRes
   }
   if (method === 'POST' && pathname === '/api/exercises') return saveExercises(db, body);
   if (method === 'POST' && pathname === '/api/clear') {
-    clearSessions(db);
-    return ok({ message: 'All workout sessions cleared' });
+    const backupFile = clearSessions(db);
+    return ok({ message: 'All workout sessions cleared', backup: path.basename(backupFile) });
   }
   return { status: 404, body: { success: false, error: `Not found: ${method} ${pathname}` } };
 }
