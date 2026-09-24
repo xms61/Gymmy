@@ -213,7 +213,7 @@ export const WorkoutCalendar: React.FC<WorkoutCalendarProps> = ({
                   {day.sessions.map((s, sIdx) => (
                     <span
                       key={sIdx}
-                      className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded-chip ${SPLIT_STYLE[s.splitType].fill} shadow-sm truncate max-w-full`}
+                      className={`session-chip text-[9px] font-black uppercase px-1.5 py-0.5 rounded-chip ${SPLIT_STYLE[s.splitType].fill} shadow-sm truncate max-w-full`}
                     >
                       {s.name}
                     </span>

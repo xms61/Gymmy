@@ -18,7 +18,8 @@ export default {
       fontFamily: {
         sans: 'var(--font-body)',
         mono: 'var(--font-data)',
-        display: 'var(--font-display)'
+        display: 'var(--font-display)',
+        note: 'var(--font-note)'
       },
       borderRadius: {
         card: 'var(--radius-card)',

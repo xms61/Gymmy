@@ -1,6 +1,8 @@
+import type { DateStyle } from '../utils/date.ts';
+
 // The design tokens of every theme. Components use only these (through the Tailwind classes in
 // tailwind.config.ts), never palette colors, so a theme changes the whole app.
-export const THEME_IDS = ['classic', 'brutalism'] as const;
+export const THEME_IDS = ['classic', 'brutalism', 'journal'] as const;
 export type ThemeId = (typeof THEME_IDS)[number];
 export const DEFAULT_THEME_ID: ThemeId = 'classic';
 
@@ -49,13 +51,17 @@ export const COLOR_TOKENS = [
   'plate-1-25',
   'on-plate', // text on the dark plates
   'on-plate-light', // text on the 15 and 5 kg plates
-  'bar'
+  'bar',
+  'rule', // ledger lines and the double rule under headings
+  'stamp' // ink stamps and the ledger's margin line
 ] as const;
 export type ColorToken = (typeof COLOR_TOKENS)[number];
 
 // Behavior a stylesheet cannot express. Every field is read by a component.
 export interface ThemeTraits {
-  celebration: 'confetti' | 'none'; // what finishing a workout shows besides the summary
+  celebration: 'confetti' | 'stamp' | 'none'; // what finishing a workout shows besides the summary
+  doneMark: 'check' | 'stamp'; // what a completed set's done button shows
+  dates: DateStyle; // how session dates are written in lists
 }
 
 export interface Theme {
@@ -64,7 +70,7 @@ export interface Theme {
   description: string; // one line under the label
   colorScheme: 'dark' | 'light';
   colors: Record<ColorToken, string>; // #rrggbb
-  fonts: { display: string; body: string; data: string };
+  fonts: { display: string; body: string; data: string; note: string }; // note: handwritten notes
   radius: { card: string; panel: string; control: string; chip: string; pill: string };
   borderWidth: string;
   borderStyle: 'solid' | 'dashed';
@@ -120,16 +126,18 @@ const classic: Theme = {
     'plate-1-25': '#27272A',
     'on-plate': '#FFFFFF',
     'on-plate-light': '#0F172A',
-    bar: '#94A3B8'
+    bar: '#94A3B8',
+    rule: '#1E293B',
+    stamp: '#FB7185'
   },
-  fonts: { display: SYSTEM_SANS, body: SYSTEM_SANS, data: SYSTEM_MONO },
+  fonts: { display: SYSTEM_SANS, body: SYSTEM_SANS, data: SYSTEM_MONO, note: SYSTEM_SANS },
   radius: { card: '1.5rem', panel: '1rem', control: '0.75rem', chip: '0.5rem', pill: '9999px' },
   borderWidth: '1px',
   borderStyle: 'solid',
   tapSize: '2rem',
   tapSizeLarge: '2.25rem',
   motionMs: 150,
-  traits: { celebration: 'confetti' }
+  traits: { celebration: 'confetti', doneMark: 'check', dates: 'numeric' }
 };
 
 // A garage gym under strip lights: cast iron, chalk and caution tape. Everything is big enough
@@ -176,12 +184,15 @@ const brutalism: Theme = {
     'plate-1-25': '#6E6E6E',
     'on-plate': '#FFFFFF',
     'on-plate-light': '#0B0B0A',
-    bar: '#8A877C'
+    bar: '#8A877C',
+    rule: '#26251F',
+    stamp: '#FFD000'
   },
   fonts: {
     display: "Anton, Impact, 'Arial Narrow Bold', sans-serif",
     body: `'Archivo Variable', Archivo, ${SYSTEM_SANS}`,
-    data: `'JetBrains Mono Variable', 'JetBrains Mono', ${SYSTEM_MONO}`
+    data: `'JetBrains Mono Variable', 'JetBrains Mono', ${SYSTEM_MONO}`,
+    note: `'Archivo Variable', Archivo, ${SYSTEM_SANS}`
   },
   radius: { card: '0', panel: '0', control: '0', chip: '0', pill: '0' },
   borderWidth: '3px',
@@ -189,7 +200,70 @@ const brutalism: Theme = {
   tapSize: '3.5rem',
   tapSizeLarge: '4.5rem',
   motionMs: 80,
-  traits: { celebration: 'none' }
+  traits: { celebration: 'none', doneMark: 'check', dates: 'numeric' }
 };
 
-export const THEMES: Record<ThemeId, Theme> = { classic, brutalism };
+// A 1970s training log: parchment pages, ruled lines, espresso ink, a margin for how the
+// session felt, and a stamp when the work is done. The only light theme.
+const journal: Theme = {
+  id: 'journal',
+  label: 'Golden Era Journal',
+  description: 'Parchment, ruled ledger, margin notes and ink stamps.',
+  colorScheme: 'light',
+  colors: {
+    bg: '#EFE6D2',
+    surface: '#FBF6EA',
+    inset: '#F4ECDA',
+    control: '#E6DAC0',
+    'control-hover': '#DBCBAA',
+    line: '#D6C7A6',
+    edge: '#9C8762',
+    ink: '#2A1C12',
+    'ink-soft': '#3D2B1E',
+    'ink-muted': '#65503D',
+    'ink-faint': '#8A7560',
+    accent: '#1F4D3A',
+    'accent-hover': '#2A6149',
+    'on-accent': '#FBF6EA',
+    'accent-ink': '#1F4D3A',
+    good: '#3B5E2B',
+    'good-hover': '#4A7236',
+    'on-good': '#FBF6EA',
+    'good-ink': '#3B5E2B',
+    'warn-ink': '#8A5A00',
+    'bad-ink': '#8E2A22',
+    'info-ink': '#2B4C7E',
+    push: '#9C3D1B',
+    pull: '#1F4D3A',
+    legs: '#2B4C7E',
+    other: '#6B4E7A',
+    'on-split': '#FBF6EA',
+    'plate-25': '#9E2B25',
+    'plate-20': '#2B4C7E',
+    'plate-15': '#C39A2E',
+    'plate-10': '#3B6B45',
+    'plate-5': '#E9E0CC',
+    'plate-2-5': '#4A3B2E',
+    'plate-1-25': '#7A6A58',
+    'on-plate': '#FBF6EA',
+    'on-plate-light': '#2A1C12',
+    bar: '#7A6A58',
+    rule: '#D9C9A6',
+    stamp: '#8E2A22'
+  },
+  fonts: {
+    display: "'Playfair Display Variable', 'Playfair Display', Georgia, serif",
+    body: "'Source Serif 4 Variable', 'Source Serif 4', Georgia, serif",
+    data: "'Courier Prime', 'Courier New', monospace",
+    note: "'Caveat Variable', Caveat, 'Segoe Print', cursive"
+  },
+  radius: { card: '2px', panel: '2px', control: '2px', chip: '2px', pill: '9999px' },
+  borderWidth: '1px',
+  borderStyle: 'solid',
+  tapSize: '2.25rem',
+  tapSizeLarge: '3rem',
+  motionMs: 180,
+  traits: { celebration: 'stamp', doneMark: 'stamp', dates: 'written' }
+};
+
+export const THEMES: Record<ThemeId, Theme> = { classic, brutalism, journal };

@@ -2,6 +2,8 @@ import { Check } from 'lucide-react';
 import type { EquipmentType, SetLog } from '../../types/workout.ts';
 import { clampTo, LIMITS } from '../../validation.ts';
 import { isLoadable, stepLoad } from '../../services/loading.ts';
+import { useTheme } from '../../theme/ThemeProvider.tsx';
+import { InkStamp } from '../ui/InkStamp.tsx';
 
 export type SetChange = (set: SetLog) => SetLog;
 
@@ -14,6 +16,7 @@ interface SetRowProps {
 
 export function SetRow({ set, equipment, onToggle, onChange }: SetRowProps) {
   const loadable = isLoadable(set.weightKg, equipment);
+  const { theme } = useTheme();
   return (
     <div
       data-done={set.completed}
@@ -61,7 +64,11 @@ export function SetRow({ set, equipment, onToggle, onChange }: SetRowProps) {
             set.completed ? 'bg-good text-on-good shadow-lg shadow-good/30' : 'bg-control hover:bg-control-hover text-ink-muted hover:text-ink'
           }`}
         >
-          <Check className={`w-5 h-5 ${set.completed ? 'stroke-[3]' : ''}`} />
+          {set.completed && theme.traits.doneMark === 'stamp' ? (
+            <InkStamp label="Done" />
+          ) : (
+            <Check className={`w-5 h-5 ${set.completed ? 'stroke-[3]' : ''}`} />
+          )}
         </button>
       </div>
     </div>

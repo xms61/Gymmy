@@ -21,7 +21,8 @@ Entry: `src/components/tracker/LiveTracker.tsx`: the screen for logging one work
 - The rest timer schedules its chime on the audio clock when it starts (`scheduleTimerChime`), and reschedules or cancels it on pause, +/- time and skip, because browsers slow down or pause timers in background tabs. The countdown's own tick only updates the display and vibrates.
 - The tracker holds a screen wake lock while it is open, and asks again when the tab comes back to the front.
 - `SetRow`, `ExerciseCard` and `RestTimer` carry hook classes (`set-row`, `set-number`, `set-load`, `set-reps`, `set-done`, `stepper`, `exercise-card`, `rest-bar`, `rest-digits`, ...) that theme blocks in `src/index.css` use to rearrange them. Keep them when restructuring these components (`src/theme/THEME.md`).
-- Finish shows confetti only for themes whose `celebration` trait is `confetti`.
+- Finish shows confetti only for themes whose `celebration` trait is `confetti`; `stamp` puts a "Logged" stamp on the summary instead. A done set shows a check, or a "Done" stamp for themes whose `doneMark` is `stamp`.
+- The exercise note is a one-row textarea that stays on one line, so Journal can let it wrap and grow in the margin.
 
 ## Data
 A finished session stores every exercise of the split, including sets that were never ticked (`completed: false`). History readers must go through `indexCompletedLogs` and `logsFor` (`src/services/exerciseLogs.ts`), which skip them.

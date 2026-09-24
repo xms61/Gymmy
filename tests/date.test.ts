@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { formatDisplayDate, toLocalDateString } from '../src/utils/date.ts';
+import { formatDayMonth, formatDisplayDate, formatSessionDate, toLocalDateString } from '../src/utils/date.ts';
 
 test('formats a local date as YYYY-MM-DD without shifting to UTC', () => {
   const CASES: [date: Date, expected: string][] = [
@@ -16,4 +16,14 @@ test('formats a local date as YYYY-MM-DD without shifting to UTC', () => {
 
 test('shows a stored date as the same calendar day', () => {
   assert.equal(formatDisplayDate('2026-09-07'), 'Monday, Sep 7, 2026');
+});
+
+test('writes a session date out only for themes that ask for it', () => {
+  assert.equal(formatSessionDate('2026-09-24', 'numeric'), '2026-09-24');
+  assert.equal(formatSessionDate('2026-09-24', 'written'), 'Thursday, 24 September');
+  assert.equal(formatSessionDate('2026-01-01', 'written'), 'Thursday, 1 January');
+});
+
+test('shortens a date to day and month for a stamp', () => {
+  assert.equal(formatDayMonth('2026-09-24'), '24 Sep');
 });

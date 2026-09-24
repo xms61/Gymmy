@@ -10,11 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Golden Era Journal theme, the first light one: parchment pages, espresso ink, Playfair Display headings, Source Serif 4 text, Courier Prime numbers and Caveat handwriting. The sets are a ruled ledger with a red margin line, a done set is stamped "Done" in oxblood ink, and a finished workout is stamped "Logged · 24 Sep" instead of confetti. On a tablet or wider screen, the exercise cue and your notes sit in a right-hand margin in handwriting; on a phone they sit under the ledger. Session dates read "Thursday, 24 September", and calendar days show an ink dot per session. The fonts are bundled.
 - An Appearance tab in Settings switches the theme, with a live sample of each. The choice is stored on this device (`gymmy_theme_v1`), applies before the first paint, updates the browser's toolbar color, and follows to other open tabs.
 - Industrial Brutalism theme: near-black iron, chalk-white text and caution yellow, Anton headings, square corners and 3 px borders, no blur or soft shadows. Set rows stack the load over the reps with 56 px steppers and a done button the height of both, the exercise header reads "4 × 6–8 @ 62.5 kg", a hazard stripe runs under the tracker header and around the rest timer, and the rest timer's digits fill the dialog. Split tiles and training days in the calendar are solid blocks of the split color. Finishing a workout shows no confetti. Its fonts (Anton, Archivo, JetBrains Mono) are bundled, so they work offline and make no requests to font services.
 
 ### Fixed
-- The weight and rep inputs of each set have labels for screen readers ("Load in kg, set 1", "Reps, set 1").
+- The weight and rep inputs of each set, and each exercise's notes, have labels for screen readers ("Load in kg, set 1", "Reps, set 1", "Notes for Squats").
 - Every dialog works from the keyboard: Escape closes it (the expanded rest timer shrinks back to its bar), Tab stays inside it, and focus goes back to the button that opened it. The confetti at the end of a workout is skipped when the system asks for reduced motion.
 - Text on the Finish and Save buttons, labels on the 10 kg plate and the borders of inputs are easier to read: the green goes from 3.8:1 to 5.5:1 contrast with white, and input borders from 1.7:1 to 3.3:1 against cards. A new test checks the contrast of every theme.
 

@@ -12,6 +12,8 @@ import { getRecommendation } from '../../services/overloadEngine.ts';
 import { logsFor, type ExerciseLogIndex } from '../../services/exerciseLogs.ts';
 import { latestSession, nextSplit as nextInRotation, ROTATION } from '../../services/rotation.ts';
 import { SPLIT_STYLE, StatusBadge } from '../ui/badges.tsx';
+import { useTheme } from '../../theme/ThemeProvider.tsx';
+import { formatSessionDate } from '../../utils/date.ts';
 
 interface HomeDashboardProps {
   sessions: WorkoutSession[];
@@ -50,6 +52,8 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
   const totalVolumeKg = sessions.reduce((acc, s) => acc + (s.completed ? s.totalVolumeKg : 0), 0);
 
   const nextStyle = SPLIT_STYLE[nextSplit];
+  const { theme } = useTheme();
+  const lastDate = lastSession && formatSessionDate(lastSession.date, theme.traits.dates);
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -66,7 +70,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             </h1>
             <p className="text-sm text-ink-muted mt-1">
               {lastSession
-                ? `Following your last ${lastSession.name} session on ${lastSession.date}`
+                ? `Following your last ${lastSession.name} session on ${lastDate}`
                 : 'No workouts logged yet. The rotation starts with Push.'}
             </p>
           </div>
@@ -190,7 +194,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
           <div className="panel p-3 w-full flex items-center justify-between">
             <span className="text-xs text-ink-soft font-semibold">Latest Workout:</span>
             <span className="text-xs font-mono font-bold text-good-ink">
-              {lastSession ? `${lastSession.name} (${lastSession.date})` : 'None yet'}
+              {lastSession ? `${lastSession.name} (${lastDate})` : 'None yet'}
             </span>
           </div>
         </button>

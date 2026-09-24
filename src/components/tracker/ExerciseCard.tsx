@@ -32,7 +32,7 @@ export function ExerciseCard({
   const equipment = definition?.equipment ?? log.equipment ?? 'barbell';
   return (
     <div className="exercise-card card p-5 shadow-xl transition hover:border-edge relative overflow-hidden">
-      <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
+      <div className="exercise-head flex flex-wrap items-start justify-between gap-3 mb-4">
         <div>
           <div className="flex items-center space-x-2">
             <h3 className="exercise-name text-xl font-black text-ink tracking-tight">{log.exerciseName}</h3>
@@ -70,13 +70,13 @@ export function ExerciseCard({
       {recommendation && <OverloadGuidance recommendation={recommendation} />}
 
       {definition?.notes && (
-        <div className="mb-4 text-xs font-medium text-warn-ink bg-warn-ink/10 border border-warn-ink/20 rounded-control px-3 py-2 flex items-center space-x-2">
+        <div className="exercise-cue mb-4 text-xs font-medium text-warn-ink bg-warn-ink/10 border border-warn-ink/20 rounded-control px-3 py-2 flex items-center space-x-2">
           <Info className="w-4 h-4 flex-shrink-0" />
           <span>{definition.notes}</span>
         </div>
       )}
 
-      <div className="space-y-3">
+      <div className="set-list space-y-3">
         <div className="set-header grid grid-cols-12 gap-2 section-label text-ink-faint px-2">
           <div className="col-span-2 text-center">Set</div>
           <div className="col-span-4 text-center">Load (kg)</div>
@@ -95,7 +95,7 @@ export function ExerciseCard({
         ))}
       </div>
 
-      <div className="flex items-center justify-between mt-4 pt-3 border-t border-line">
+      <div className="set-actions flex items-center justify-between mt-4 pt-3 border-t border-line">
         <button
           onClick={onAddSet}
           disabled={log.sets.length >= LIMITS.setNumber.max}
@@ -116,14 +116,15 @@ export function ExerciseCard({
         )}
       </div>
 
-      <div className="mt-3 pt-2">
-        <input
-          type="text"
+      <div className="exercise-notes mt-3 pt-2">
+        <textarea
+          rows={1}
           value={log.notes || ''}
           onChange={event => onNotesChange(event.target.value)}
           maxLength={MAX_NOTES_LENGTH}
+          aria-label={`Notes for ${log.exerciseName}`}
           placeholder="Notes for this exercise (e.g., grip, form cues, RPE)..."
-          className="field w-full bg-inset/60 rounded-control px-3 py-1.5 text-base sm:text-xs text-ink-soft"
+          className="field block w-full resize-none whitespace-nowrap overflow-hidden bg-inset/60 rounded-control px-3 py-1.5 text-base sm:text-xs text-ink-soft"
         />
       </div>
     </div>
@@ -143,7 +144,7 @@ function Prescription({ definition, weightKg }: { definition: ExerciseDefinition
 
 function OverloadGuidance({ recommendation }: { recommendation: ProgressRecommendation }) {
   return (
-    <div className="panel bg-inset/70 p-3.5 mb-5 flex items-start space-x-3">
+    <div className="exercise-guidance panel bg-inset/70 p-3.5 mb-5 flex items-start space-x-3">
       <div className="p-2 bg-accent-ink/10 rounded-control text-accent-ink mt-0.5">
         <Sparkles className="w-4 h-4" />
       </div>
