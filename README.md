@@ -30,6 +30,7 @@ See the Commands table in [AGENTS.md](AGENTS.md). Every pull request and every p
   - If average reps drop in two sessions in a row at the same weight, the app suggests a deload: about 10 % lighter for a week, rounded to a loadable weight.
   - If average reps stay below the range for three sessions at the same weight without improving, the app suggests a lighter working weight, one loading step down.
   - Neither goes below the empty 10 kg bar for barbell lifts, or below the lightest plate for dumbbell and landmine lifts.
+  - A session is judged by its working sets, the completed sets at its heaviest weight. Lighter ramp-up and back-off sets don't count.
   - A skipped exercise, meaning no completed sets, is ignored.
 - **Live tracking:**
   - Set logger with weight and rep steppers.

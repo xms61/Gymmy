@@ -262,3 +262,30 @@ test('never asks for more than 30 reps before a jump', () => {
   const rec = getRecommendation(dumbbellLift(25, 28), [liftSession('2026-09-01', 2.5, [28, 28, 28])]);
   assert.equal(rec.nextStepGoal, 'Build to 30 reps on every set at 2.5 kg, then move to 5 kg for 25 reps.');
 });
+
+function mixedBenchSession(date: string, sets: [weightKg: number, reps: number][]): WorkoutSession {
+  const session = benchSession(date, 0, []);
+  session.exercises[0]!.sets = sets.map(([weightKg, repsCompleted], i) => ({
+    setNumber: i + 1,
+    weightKg,
+    repsCompleted,
+    targetReps: '6-8',
+    completed: true
+  }));
+  return session;
+}
+
+test('judges a ramped session by its working sets, not its first set', () => {
+  const rec = getRecommendation(flatBench(), [mixedBenchSession('2026-09-01', [[60, 8], [70, 8], [70, 8], [70, 8]])]);
+  assert.deepEqual([rec.status, rec.currentWeightKg, rec.recommendedWeightKg], ['increase_load', 70, 72.5]);
+  assert.equal(rec.lastRepsSummary, '8 / 8 / 8');
+});
+
+test('a lighter back-off set does not drag the trend down', () => {
+  const history = [
+    mixedBenchSession('2026-09-01', [[80, 7], [80, 7], [80, 7], [70, 3]]),
+    mixedBenchSession('2026-09-03', [[80, 7], [80, 7], [80, 7], [70, 2]]),
+    mixedBenchSession('2026-09-05', [[80, 7], [80, 7], [80, 7], [70, 1]])
+  ];
+  assert.equal(getRecommendation(flatBench(), history).status, 'progress_reps');
+});
