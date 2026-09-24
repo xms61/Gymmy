@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, Check, Clock } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import type { ExerciseSessionLog, SetLog, SplitType, WorkoutDraft, WorkoutSession } from '../../types/workout.ts';
+import type { EquipmentType, ExerciseSessionLog, SetLog, SplitType, WorkoutDraft, WorkoutSession } from '../../types/workout.ts';
+import { isPlateLoaded, type PlateLoaded } from '../../services/loading.ts';
 import { getRecommendation } from '../../services/overloadEngine.ts';
 import { StorageService } from '../../services/storage.ts';
 import { RestTimer } from './RestTimer.tsx';
@@ -88,7 +89,7 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
   });
 
   // Plate Calculator Modal State
-  const [plateCalcWeight, setPlateCalcWeight] = useState<number | null>(null);
+  const [plateCalc, setPlateCalc] = useState<{ weightKg: number; equipment: PlateLoaded } | null>(null);
 
   // Summary Celebration Modal State
   const [completedSummary, setCompletedSummary] = useState<WorkoutSession | null>(null);
@@ -278,7 +279,9 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
             onAddSet={() => addSet(exIdx)}
             onRemoveLastSet={() => removeLastSet(exIdx)}
             onNotesChange={notes => updateExercise(exIdx, ex => ({ ...ex, notes }))}
-            onOpenPlates={setPlateCalcWeight}
+            onOpenPlates={(weightKg: number, equipment: EquipmentType) => {
+              if (isPlateLoaded(equipment)) setPlateCalc({ weightKg, equipment });
+            }}
           />
         ))}
 
@@ -306,10 +309,11 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
         />
       )}
 
-      {plateCalcWeight !== null && (
+      {plateCalc !== null && (
         <PlateCalculatorModal
-          initialWeightKg={plateCalcWeight}
-          onClose={() => setPlateCalcWeight(null)}
+          initialWeightKg={plateCalc.weightKg}
+          equipment={plateCalc.equipment}
+          onClose={() => setPlateCalc(null)}
         />
       )}
 

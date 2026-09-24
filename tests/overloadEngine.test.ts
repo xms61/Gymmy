@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculatePlates, estimate1RM, getRecommendation } from '../src/services/overloadEngine.ts';
+import { estimate1RM, getRecommendation } from '../src/services/overloadEngine.ts';
 import type { EquipmentType, ExerciseDefinition, OverloadStatus, WorkoutSession } from '../src/types/workout.ts';
 
 function flatBench(): ExerciseDefinition {
@@ -115,18 +115,6 @@ test('compares only sessions at the current weight', () => {
   assert.equal(getRecommendation(flatBench(), history).status, 'progress_reps');
 });
 
-test('splits a barbell load into plates per side', () => {
-  const CASES: [targetKg: number, expected: Record<number, number>][] = [
-    [20, {}],
-    [62.5, { 20: 1, 1.25: 1 }],
-    [100, { 25: 1, 15: 1 }],
-    [140, { 25: 2, 10: 1 }]
-  ];
-  for (const [targetKg, expected] of CASES) {
-    assert.deepEqual(calculatePlates(targetKg), expected, `${targetKg} kg`);
-  }
-});
-
 test('estimates 1RM with the Brzycki formula', () => {
   const CASES: [weightKg: number, reps: number, expected: number][] = [
     [100, 0, 0],
@@ -176,9 +164,11 @@ test('a skipped exercise does not count toward a deload', () => {
 test('deloads by about 10 % in loadable steps, never below the lowest load', () => {
   const CASES: [equipment: EquipmentType, weightKg: number, status: OverloadStatus, recommendedKg: number][] = [
     ['barbell', 80, 'deload', 72.5],
-    ['barbell', 20, 'progress_reps', 20],
-    ['dumbbell', 10, 'deload', 8],
-    ['dumbbell', 2, 'progress_reps', 2],
+    ['barbell', 20, 'deload', 17.5],
+    ['barbell', 10, 'progress_reps', 10],
+    ['dumbbell', 10, 'deload', 7.5],
+    ['dumbbell', 2.5, 'progress_reps', 2.5],
+    ['landmine', 20, 'deload', 17.5],
     ['machine', 60, 'deload', 55],
     ['bodyweight', 10, 'deload', 7.5],
     ['bodyweight', 0, 'progress_reps', 0]
@@ -196,10 +186,11 @@ test('deloads by about 10 % in loadable steps, never below the lowest load', () 
 
 test('suggests one loading step lighter after three flat sessions below the range', () => {
   const CASES: [equipment: EquipmentType, weightKg: number, status: OverloadStatus, recommendedKg: number][] = [
-    ['dumbbell', 5, 'reduce_load', 4],
-    ['dumbbell', 10, 'reduce_load', 8],
+    ['dumbbell', 5, 'reduce_load', 2.5],
+    ['dumbbell', 10, 'reduce_load', 7.5],
     ['barbell', 30, 'reduce_load', 27.5],
-    ['barbell', 20, 'progress_reps', 20],
+    ['barbell', 10, 'progress_reps', 10],
+    ['landmine', 20, 'reduce_load', 18.75],
     ['bodyweight', 0, 'progress_reps', 0]
   ];
   for (const [equipment, weightKg, status, recommendedKg] of CASES) {
@@ -216,7 +207,9 @@ test('suggests one loading step lighter after three flat sessions below the rang
 test('adds one loading step when every set reaches the top of the range', () => {
   const CASES: [equipment: EquipmentType, weightKg: number, recommendedKg: number][] = [
     ['barbell', 60, 62.5],
-    ['dumbbell', 10, 12],
+    ['dumbbell', 10, 12.5],
+    ['dumbbell', 5, 7.5],
+    ['landmine', 20, 21.25],
     ['machine', 60, 62.5],
     ['bodyweight', 0, 2.5]
   ];
@@ -224,4 +217,20 @@ test('adds one loading step when every set reaches the top of the range', () => 
     const rec = getRecommendation(lift(equipment), [liftSession('2026-09-01', weightKg, [8, 8, 8])]);
     assert.deepEqual([rec.status, rec.recommendedWeightKg], ['increase_load', recommendedKg], `${equipment} ${weightKg} kg`);
   }
+});
+
+test('holds at the heaviest load the equipment makes', () => {
+  const CASES: [equipment: EquipmentType, weightKg: number][] = [
+    ['barbell', 142.5],
+    ['dumbbell', 25]
+  ];
+  for (const [equipment, weightKg] of CASES) {
+    const rec = getRecommendation(lift(equipment), [liftSession('2026-09-01', weightKg, [8, 8, 8])]);
+    assert.deepEqual([rec.status, rec.recommendedWeightKg], ['progress_reps', weightKg], `${equipment} ${weightKg} kg`);
+  }
+});
+
+test('says how much weight to add', () => {
+  const rec = getRecommendation(lift('landmine'), [liftSession('2026-09-01', 20, [8, 8, 8])]);
+  assert.equal(rec.reason, 'Every set reached the top of the range (8 reps). Add 1.25 kg.');
 });

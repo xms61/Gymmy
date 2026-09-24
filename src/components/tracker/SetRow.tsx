@@ -1,18 +1,19 @@
 import { Check } from 'lucide-react';
-import type { SetLog } from '../../types/workout.ts';
+import type { EquipmentType, SetLog } from '../../types/workout.ts';
 import { clampTo, LIMITS } from '../../validation.ts';
+import { isLoadable, stepLoad } from '../../services/loading.ts';
 
 export type SetChange = (set: SetLog) => SetLog;
 
 interface SetRowProps {
   set: SetLog;
+  equipment: EquipmentType;
   onToggle: () => void;
   onChange: (change: SetChange) => void;
 }
 
-const WEIGHT_STEP_KG = 2.5;
-
-export function SetRow({ set, onToggle, onChange }: SetRowProps) {
+export function SetRow({ set, equipment, onToggle, onChange }: SetRowProps) {
+  const loadable = isLoadable(set.weightKg, equipment);
   return (
     <div
       className={`grid grid-cols-12 gap-2 items-center p-2.5 rounded-panel border transition-all ${
@@ -33,9 +34,9 @@ export function SetRow({ set, onToggle, onChange }: SetRowProps) {
         className="col-span-4"
         value={set.weightKg}
         inputWidth="w-14"
-        step={0.5}
-        stepTitle={`${WEIGHT_STEP_KG} kg`}
-        onStep={direction => onChange(s => ({ ...s, weightKg: steppedWeight(s.weightKg, direction * WEIGHT_STEP_KG) }))}
+        stepTitles={['Next lighter load', 'Next heavier load']}
+        warning={loadable ? undefined : unloadableHint(set.weightKg, equipment)}
+        onStep={direction => onChange(s => ({ ...s, weightKg: steppedWeight(s.weightKg, equipment, direction) }))}
         onEnter={text => onChange(s => ({ ...s, weightKg: clampTo(LIMITS.weightKg, parseFloat(text)) }))}
       />
 
@@ -65,26 +66,28 @@ export function SetRow({ set, onToggle, onChange }: SetRowProps) {
 interface StepperProps {
   value: number;
   inputWidth: string;
-  step?: number;
-  stepTitle?: string;
+  stepTitles?: [lighter: string, heavier: string];
+  warning?: string;
   className: string;
   onStep: (direction: 1 | -1) => void;
   onEnter: (text: string) => void;
 }
 
-function Stepper({ value, inputWidth, step, stepTitle, className, onStep, onEnter }: StepperProps) {
+function Stepper({ value, inputWidth, stepTitles, warning, className, onStep, onEnter }: StepperProps) {
   return (
     <div className={`flex items-center justify-center space-x-1 ${className}`}>
-      <StepButton label="-" title={stepTitle && `-${stepTitle}`} onClick={() => onStep(-1)} />
+      <StepButton label="-" title={stepTitles?.[0]} onClick={() => onStep(-1)} />
       <input
         type="number"
-        step={step}
+        step="any"
         value={value === 0 ? '' : value}
         onChange={event => onEnter(event.target.value)}
-        className={`field ${inputWidth} h-tap text-center font-mono font-bold text-base sm:text-sm`}
+        title={warning}
+        aria-invalid={warning !== undefined}
+        className={`field ${inputWidth} h-tap text-center font-mono font-bold text-base sm:text-sm ${warning ? 'border-warn-ink text-warn-ink' : ''}`}
         placeholder="0"
       />
-      <StepButton label="+" title={stepTitle && `+${stepTitle}`} onClick={() => onStep(1)} />
+      <StepButton label="+" title={stepTitles?.[1]} onClick={() => onStep(1)} />
     </div>
   );
 }
@@ -101,6 +104,12 @@ function StepButton({ label, title, onClick }: { label: string; title?: string; 
   );
 }
 
-function steppedWeight(weightKg: number, deltaKg: number): number {
-  return clampTo(LIMITS.weightKg, Math.round((weightKg + deltaKg) * 100) / 100);
+// Steps through the loads the home equipment makes, and stays put at the lightest and heaviest.
+function steppedWeight(weightKg: number, equipment: EquipmentType, direction: 1 | -1): number {
+  return clampTo(LIMITS.weightKg, stepLoad(weightKg, equipment, direction) ?? weightKg);
+}
+
+function unloadableHint(weightKg: number, equipment: EquipmentType): string {
+  const neighbours = [stepLoad(weightKg, equipment, -1), stepLoad(weightKg, equipment, 1)].filter(w => w !== null);
+  return `Your plates can't make ${weightKg} kg. Nearest: ${neighbours.join(' or ')} kg.`;
 }

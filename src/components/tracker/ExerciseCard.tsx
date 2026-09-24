@@ -1,5 +1,6 @@
 import { Calculator, Info, Plus, Sparkles, Trash2 } from 'lucide-react';
-import type { ExerciseDefinition, ExerciseSessionLog, ProgressRecommendation } from '../../types/workout.ts';
+import type { EquipmentType, ExerciseDefinition, ExerciseSessionLog, ProgressRecommendation } from '../../types/workout.ts';
+import { isPlateLoaded } from '../../services/loading.ts';
 import { StatusBadge } from '../ui/badges.tsx';
 import { LIMITS, MAX_NOTES_LENGTH } from '../../validation.ts';
 import { SetRow, type SetChange } from './SetRow.tsx';
@@ -13,7 +14,7 @@ interface ExerciseCardProps {
   onAddSet: () => void;
   onRemoveLastSet: () => void;
   onNotesChange: (notes: string) => void;
-  onOpenPlates: (weightKg: number) => void;
+  onOpenPlates: (weightKg: number, equipment: EquipmentType) => void;
 }
 
 export function ExerciseCard({
@@ -27,17 +28,19 @@ export function ExerciseCard({
   onNotesChange,
   onOpenPlates
 }: ExerciseCardProps) {
+  // Every log the tracker creates records its equipment; the fallback covers older drafts.
+  const equipment = definition?.equipment ?? log.equipment ?? 'barbell';
   return (
     <div className="card p-5 shadow-xl transition hover:border-edge relative overflow-hidden">
       <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
         <div>
           <div className="flex items-center space-x-2">
             <h3 className="text-xl font-black text-ink tracking-tight">{log.exerciseName}</h3>
-            {definition?.equipment === 'barbell' && (
+            {isPlateLoaded(equipment) && (
               <button
-                onClick={() => onOpenPlates(log.sets[0]?.weightKg || definition.defaultWeightKg || 60)}
+                onClick={() => onOpenPlates(log.sets[0]?.weightKg ?? definition?.defaultWeightKg ?? 0, equipment)}
                 className="p-1.5 bg-control hover:bg-control-hover text-accent-ink rounded-chip text-xs font-semibold flex items-center space-x-1 transition"
-                title="Calculate Barbell Plates"
+                title="Show the plates for this load"
               >
                 <Calculator className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Plates</span>
@@ -83,6 +86,7 @@ export function ExerciseCard({
           <SetRow
             key={set.setNumber}
             set={set}
+            equipment={equipment}
             onToggle={() => onToggleSet(setIdx)}
             onChange={change => onChangeSet(setIdx, change)}
           />

@@ -1,18 +1,8 @@
-// Progressive overload rules (double progression), 1RM estimates and plate maths.
+// Progressive overload rules (double progression) and 1RM estimates. Which loads exist, and
+// which one comes next, is decided by loading.ts from the home equipment.
 import type { EquipmentType, ExerciseDefinition, ProgressRecommendation, SetLog, WorkoutSession } from '../types/workout.ts';
 import { completedExerciseLogs, type CompletedExerciseLog } from './exerciseLogs.ts';
-
-// stepKg is the smallest load change to suggest. minKg is the lowest load a deload may
-// suggest: an empty Olympic bar, or no added weight for bodyweight lifts.
-const LOADING: Record<EquipmentType, { stepKg: number; minKg: number }> = {
-  barbell: { stepKg: 2.5, minKg: 20 },
-  dumbbell: { stepKg: 2, minKg: 2 },
-  machine: { stepKg: 2.5, minKg: 2.5 },
-  cable: { stepKg: 2.5, minKg: 2.5 },
-  bodyweight: { stepKg: 2.5, minKg: 0 },
-  // One stack of plates on the free end, so the smallest plate is the smallest step.
-  landmine: { stepKg: 1.25, minKg: 0 }
-};
+import { lightestLoad, nearestLoad, stepLoad } from './loading.ts';
 
 const DELOAD_FACTOR = 0.9;
 
@@ -57,14 +47,19 @@ function adviceFromHistory(exercise: ExerciseDefinition, logs: CompletedExercise
   });
 
   if (sets.length >= targetSets && sets.every(s => s.repsCompleted >= max)) {
-    const { stepKg } = LOADING[equipment];
-    const next = roundToStep(weight + stepKg, stepKg);
+    const next = stepLoad(weight, equipment, 1);
+    if (next === null) {
+      return hold(
+        `Every set reached the top of the range (${max} reps), and ${weight} kg is the heaviest load your equipment makes.`,
+        `Stay at ${weight} kg and add reps beyond ${max}.`
+      );
+    }
     return {
       status: 'increase_load',
       currentWeightKg: weight,
       recommendedWeightKg: next,
       lastRepsSummary: summary,
-      reason: `Every set reached the top of the range (${max} reps). Add ${stepKg} kg.`,
+      reason: `Every set reached the top of the range (${max} reps). Add ${formatKg(next - weight)} kg.`,
       nextStepGoal: `Increase the load to ${next} kg and aim for at least ${min} reps on every set.`
     };
   }
@@ -94,8 +89,8 @@ function adviceFromHistory(exercise: ExerciseDefinition, logs: CompletedExercise
   }
 
   if (isStuckBelowRange(averages, min)) {
-    const lighter = oneStepLighter(weight, equipment);
-    if (lighter < weight) {
+    const lighter = stepLoad(weight, equipment, -1);
+    if (lighter !== null) {
       return {
         status: 'reduce_load',
         currentWeightKg: weight,
@@ -156,21 +151,17 @@ function formatAverage(average: number): string {
   return String(Math.round(average * 10) / 10);
 }
 
-function oneStepLighter(weightKg: number, equipment: EquipmentType): number {
-  const { stepKg, minKg } = LOADING[equipment];
-  return Math.max(minKg, roundToStep(weightKg - stepKg, stepKg));
+function formatKg(weightKg: number): string {
+  return String(Math.round(weightKg * 100) / 100);
 }
 
-// About 10 % lighter, at least one step lighter, never below the equipment's lowest load.
+// About 10 % lighter, at least one step lighter, never below the equipment's lightest load.
+// Returns weightKg itself when nothing lighter can be made.
 function deloadWeight(weightKg: number, equipment: EquipmentType): number {
-  const { stepKg, minKg } = LOADING[equipment];
-  const tenPercentLighter = roundToStep(weightKg * DELOAD_FACTOR, stepKg);
-  return Math.max(minKg, Math.min(tenPercentLighter, oneStepLighter(weightKg, equipment)));
-}
-
-// Rounds to the nearest loadable weight, then to 0.01 kg to drop floating-point noise.
-function roundToStep(weightKg: number, stepKg: number): number {
-  return Math.round(Math.round(weightKg / stepKg) * stepKg * 100) / 100;
+  const oneStepLighter = stepLoad(weightKg, equipment, -1);
+  if (oneStepLighter === null) return weightKg;
+  const tenPercentLighter = nearestLoad(weightKg * DELOAD_FACTOR, equipment);
+  return Math.max(lightestLoad(equipment), Math.min(tenPercentLighter, oneStepLighter));
 }
 
 // Brzycki formula.
@@ -179,22 +170,4 @@ export function estimate1RM(weightKg: number, reps: number): number {
   if (reps === 1) return weightKg;
   if (reps >= 37) return Math.round(weightKg * 1.5);
   return Math.round(weightKg * (36 / (37 - reps)) * 10) / 10;
-}
-
-// Plates per side of a barbell, heaviest first.
-export function calculatePlates(targetWeightKg: number, barWeightKg = 20): { [plate: number]: number } {
-  if (targetWeightKg <= barWeightKg) return {};
-  let weightPerSide = (targetWeightKg - barWeightKg) / 2;
-  const availablePlates = [25, 20, 15, 10, 5, 2.5, 1.25];
-  const platesUsed: { [plate: number]: number } = {};
-
-  for (const plate of availablePlates) {
-    if (weightPerSide >= plate) {
-      const count = Math.floor(weightPerSide / plate);
-      platesUsed[plate] = count;
-      weightPerSide -= count * plate;
-    }
-  }
-
-  return platesUsed;
 }

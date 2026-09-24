@@ -23,17 +23,18 @@ See the Commands table in [AGENTS.md](AGENTS.md). Every pull request and every p
   - Equipment: a barbell, a dumbbell and bodyweight; no machines. Meadows Row is a landmine row: one end of the bar rests on the floor and only the other end carries plates.
 - **Next workout:** the dashboard picks the next split in rotation after the last logged session.
 - **Load suggestions (double progression):**
-  - When every set reaches the top of the rep range, the next session adds one loading step: 2 kg for dumbbells, 2.5 kg for everything else.
+  - Loads come from the home equipment in `src/data/gymInventory.ts`: a 10 kg barbell, one dumbbell (handle not counted, 25 kg at most) and 2×20, 2×15, 2×10, 6×5, 4×2.5 and 2×1.25 kg plates. The barbell makes every 2.5 kg step from 10 to 142.5 kg, the dumbbell every 2.5 kg step up to 25 kg, and the landmine row (plates on one end) every 1.25 kg step.
+  - When every set reaches the top of the rep range, the next session moves to the next load the equipment makes. At the heaviest load it keeps the weight and asks for more reps.
   - Otherwise the load stays the same and the goal is more reps, including while reps are still climbing toward the range.
   - If average reps drop in two sessions in a row at the same weight, the app suggests a deload: about 10 % lighter for a week, rounded to a loadable weight.
   - If average reps stay below the range for three sessions at the same weight without improving, the app suggests a lighter working weight, one loading step down.
-  - Neither goes below an empty 20 kg bar for barbell lifts.
+  - Neither goes below the empty 10 kg bar for barbell lifts, or below the lightest plate for dumbbell and landmine lifts.
   - A skipped exercise, meaning no completed sets, is ignored.
 - **Live tracking:**
   - Set logger with weight and rep steppers.
   - Rest timer set per exercise, with a 5-minute break between Deadlifts and Pull-Ups.
   - Chime and vibration when the rest ends.
-  - Barbell plate calculator.
+  - Plate calculator for barbell, dumbbell and landmine lifts: which of the home plates go on each end, and the nearest loads when a weight can't be made. The weight steppers step through the loads the plates make, and a weight they can't make is marked.
 - **History:** a monthly calendar colored by split (Push orange, Pull green, Legs blue), with each day's sets, loads, volume and notes.
 - **Progress:** estimated 1RM (Brzycki formula), best load and volume for each exercise.
 - **Backup and restore:** a JSON file with every workout and the exercise targets. Restoring previews the changes first and never deletes anything.
