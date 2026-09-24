@@ -6,6 +6,7 @@ Entry: `src/components/tracker/LiveTracker.tsx`: the screen for logging one work
 - `workoutDraft.ts`: saves, loads and clears the workout in progress (`gymmy_workout_draft_v1`).
 - `ResumeWorkoutBanner.tsx`: the "Unfinished … workout" banner with Resume and Discard.
 - `RestTimer.tsx`: the rest countdown after each completed set. It plays `playTimerChime` from `src/utils/audio.ts`.
+- `CommandLine.tsx` and `setCommand.ts`: the prompt at the bottom of the tracker for themes with the `commandLine` trait (Terminal), and the pure parser and set lookups behind it. `COMMAND_HELP` in `setCommand.ts` lists the commands; `?` prints it.
 - `PlateStrip.tsx`: one end's plates under each set and how much of each plate size the load takes ("15 kg 2/2", from `platesInUse`). Hidden unless the theme shows it (Telemetry). `plateStyle.ts` holds the plate colors it shares with the calculator.
 - `PlateCalculatorModal.tsx`: the home plates on each end for barbell, dumbbell and landmine lifts (`plateLayout` in `src/services/loading.ts`).
 
@@ -24,6 +25,8 @@ Entry: `src/components/tracker/LiveTracker.tsx`: the screen for logging one work
 - `SetRow`, `ExerciseCard` and `RestTimer` carry hook classes (`set-row`, `set-number`, `set-load`, `set-reps`, `set-done`, `stepper`, `exercise-card`, `rest-bar`, `rest-digits`, ...) that theme blocks in `src/index.css` use to rearrange them. Keep them when restructuring these components (`src/theme/THEME.md`).
 - Finish shows confetti only for themes whose `celebration` trait is `confetti`; `stamp` puts a "Logged" stamp on the summary instead. A done set shows a check, or a "Done" stamp for themes whose `doneMark` is `stamp`.
 - Reps in reserve (RIR) is optional. Once a set is done, a 0–5 picker appears under it; picking the chosen value again clears it. It is stored in `SetLog.rpe` as 10 − RIR (`src/services/effort.ts`), so the stored format is unchanged, and history shows it as "8 @ RIR 2". Nothing in the load suggestions reads it yet.
+- Commands act on the next open set, starting at the exercise under the cursor: `62.5x8@2` sets load, reps and RIR and marks the set done (which starts the rest timer like a tap), `x9` and `65x` change one value, `+` and `-` step the load through `stepLoad`, `d` and `u` mark done and undo. `fin` asks before saving, and `q` goes through the same confirmation as the back button.
+- With a command line, the tracker keeps a set cursor: `j` and `k` move it, Space ticks the set under it, `n` and `p` jump between exercises, and `/` or `:` focuses the prompt. Shortcuts are ignored while a text field has focus, a modifier is held, or a dialog is open (`isShortcutFree` in `src/components/keyboardShortcuts.ts`).
 - The exercise note is a one-row textarea that stays on one line, so Journal can let it wrap and grow in the margin.
 
 ## Data

@@ -70,6 +70,7 @@ export function SplitBadge({ split, label }: { split: SplitType; label: string }
 interface StatusStyle {
   label: string;
   shortLabel: string;
+  glyph: string; // for console themes
   icon: LucideIcon;
   className: string;
 }
@@ -78,30 +79,35 @@ const STATUS_STYLE: Record<OverloadStatus, StatusStyle> = {
   increase_load: {
     label: 'Add Weight',
     shortLabel: '+Weight',
+    glyph: '[+W]',
     icon: TrendingUp,
     className: 'bg-good-ink/15 text-good-ink border-good-ink/40'
   },
   progress_reps: {
     label: 'Rep Goal Active',
     shortLabel: '+Reps',
+    glyph: '[+R]',
     icon: Flame,
     className: 'bg-accent-ink/15 text-accent-ink border-accent-ink/40'
   },
   maintain: {
     label: 'Rep Goal Active',
     shortLabel: '+Reps',
+    glyph: '[+R]',
     icon: Flame,
     className: 'bg-accent-ink/15 text-accent-ink border-accent-ink/40'
   },
   deload: {
     label: 'Deload Advised',
     shortLabel: 'Deload',
+    glyph: '[DL]',
     icon: Info,
     className: 'bg-warn-ink/15 text-warn-ink border-warn-ink/40'
   },
   reduce_load: {
     label: 'Lighter Weight',
     shortLabel: 'Lighter',
+    glyph: '[-W]',
     icon: TrendingDown,
     className: 'bg-info-ink/15 text-info-ink border-info-ink/40'
   }
@@ -113,15 +119,17 @@ export function StatusBadge({ status, short = false }: { status: OverloadStatus;
   if (short) {
     return (
       <span className={`px-2 py-0.5 rounded-chip font-bold text-[10px] uppercase tracking-wider border ${style.className}`}>
-        {style.shortLabel}
+        <span className="status-text">{style.shortLabel}</span>
+        <span className="status-glyph hidden">{style.glyph}</span>
       </span>
     );
   }
   const Icon = style.icon;
   return (
     <span className={`px-3 py-1 rounded-pill text-xs font-bold flex items-center space-x-1 border ${style.className}`}>
-      <Icon className="w-3.5 h-3.5" />
-      <span>{style.label}</span>
+      <Icon className="status-text w-3.5 h-3.5" />
+      <span className="status-text">{style.label}</span>
+      <span className="status-glyph hidden">{style.glyph}</span>
     </span>
   );
 }

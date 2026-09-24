@@ -12,6 +12,7 @@ interface ExerciseCardProps {
   definition: ExerciseDefinition | undefined;
   recommendation: ProgressRecommendation | null;
   history: ExerciseHistoryEntry[]; // oldest first
+  cursorSetIndex: number | null;
   onToggleSet: (setIdx: number) => void;
   onChangeSet: (setIdx: number, change: SetChange) => void;
   onAddSet: () => void;
@@ -25,6 +26,7 @@ export function ExerciseCard({
   definition,
   recommendation,
   history,
+  cursorSetIndex,
   onToggleSet,
   onChangeSet,
   onAddSet,
@@ -94,6 +96,7 @@ export function ExerciseCard({
           <SetRow
             key={set.setNumber}
             set={set}
+            isCursor={setIdx === cursorSetIndex}
             equipment={equipment}
             onToggle={() => onToggleSet(setIdx)}
             onChange={change => onChangeSet(setIdx, change)}

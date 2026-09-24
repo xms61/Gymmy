@@ -354,6 +354,63 @@
 }
 
 /*
+ * Terminal CLI. A green-phosphor console: dashed borders from the tokens, no motion, a faint glow
+ * on headings, text glyphs in place of badges, bars and drawings, and a status line for a nav bar.
+ */
+[data-theme="terminal"] * {
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+  --tw-backdrop-blur: ;
+}
+
+[data-theme="terminal"] :is(h1, h2, h3, h4) {
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 6px rgb(var(--c-accent) / 0.45);
+}
+
+[data-theme="terminal"] :is(.status-text, .progress-bar, .plates-drawing, .nav-icon) {
+  display: none;
+}
+
+[data-theme="terminal"] :is(.status-glyph, .progress-text, .plates-text, .summary-text, .nav-key) {
+  display: inline;
+}
+
+[data-theme="terminal"] :is(.progress-text, .plates-text, .summary-text) {
+  display: block;
+}
+
+[data-theme="terminal"] .nav-status {
+  display: inline;
+  align-self: center;
+}
+
+[data-theme="terminal"] nav button {
+  flex-direction: row;
+  text-transform: lowercase;
+}
+
+[data-theme="terminal"] .set-done > button {
+  width: auto;
+  background-color: transparent;
+  color: rgb(var(--c-accent-ink));
+}
+
+[data-theme="terminal"] .set-row[data-cursor] {
+  outline: 1px solid rgb(var(--c-accent));
+  outline-offset: 2px;
+}
+
+/* The command line owns the bottom of the screen, so the running rest timer moves to the top. */
+[data-theme="terminal"] .rest-bar {
+  inset: 0 0 auto 0;
+  width: auto;
+  border-width: 0 0 1px 0;
+}
+
+/*
  * Mechanical Telemetry. An instrument panel: technical uppercase labels, tabular figures, panels on
  * a faint 16 px grid, corner brackets on cards, and the gauges, readouts, plate strips and heat
  * map that the other themes keep hidden.

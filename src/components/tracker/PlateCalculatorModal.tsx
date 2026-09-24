@@ -3,6 +3,7 @@ import { Dumbbell } from 'lucide-react';
 import { emptyWeightKg, loadedEnds, plateLayout, stepLoad, type PlateLoaded } from '../../services/loading.ts';
 import { Dialog, DialogHeader } from '../ui/Dialog.tsx';
 import { PLATE_STYLE } from './plateStyle.ts';
+import { plateBarText } from '../terminalText.ts';
 
 interface PlateCalculatorModalProps {
   initialWeightKg: number;
@@ -58,6 +59,7 @@ export function PlateCalculatorModal({ initialWeightKg, equipment, onClose }: Pl
         <UnloadableWeight weight={weight} lighter={lighter} heavier={heavier} onPick={setWeight} />
       ) : (
         <>
+          <pre className="plates-text hidden panel p-4 mb-5 text-sm text-accent-ink overflow-x-auto">{plateBarText(plates, weight, ends)}</pre>
           <PlateDrawing plates={plates} equipment={equipment} />
           <PlateList plates={plates} ends={ends} />
         </>
@@ -104,7 +106,7 @@ function PlateDrawing({ plates, equipment }: { plates: number[]; equipment: Plat
     ));
   const oneEnd = equipment === 'landmine';
   return (
-    <div className="panel bg-inset/60 p-4 mb-5">
+    <div className="plates-drawing panel bg-inset/60 p-4 mb-5">
       <div className="w-full flex items-center justify-center space-x-1.5 py-4 overflow-x-auto">
         {oneEnd ? (
           <div className="w-16 h-2 bg-bar/60 rounded-l-sm" title="End on the floor" />

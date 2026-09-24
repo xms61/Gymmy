@@ -20,7 +20,12 @@ import { PlateCalculatorModal } from './PlateCalculatorModal.tsx';
 import { ElapsedClock } from './ElapsedClock.tsx';
 import { ExerciseCard } from './ExerciseCard.tsx';
 import { CompletionSummary } from './CompletionSummary.tsx';
-import type { SetChange } from './SetRow.tsx';
+import { steppedWeight, type SetChange } from './SetRow.tsx';
+import { CommandLine } from './CommandLine.tsx';
+import { COMMAND_HELP, lastDoneSet, moveCursor, nextOpenSet, parseSetCommand, type SetCommand, type SetPosition } from './setCommand.ts';
+import { formatReps, withRir } from '../../services/effort.ts';
+import { isShortcutFree } from '../keyboardShortcuts.ts';
+import { progressBarText } from '../terminalText.ts';
 import { workoutDurationMinutes } from './workoutTime.ts';
 import { toLocalDateString } from '../../utils/date.ts';
 import { unlockAudio } from '../../utils/audio.ts';
@@ -219,6 +224,102 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
     updateExercise(exIdx, ex => (ex.sets.length <= 1 ? ex : { ...ex, sets: ex.sets.slice(0, -1) }));
   };
 
+  // The command line and single-key shortcuts, for themes that have them.
+  const commandInputRef = useRef<HTMLInputElement>(null);
+  const [cursor, setCursor] = useState<SetPosition>({ exerciseIndex: 0, setIndex: 0 });
+  const [commandOutput, setCommandOutput] = useState<string[]>([]);
+
+  const equipmentOf = (log: ExerciseSessionLog): EquipmentType =>
+    workoutExercises.find(e => e.id === log.exerciseId)?.equipment ?? log.equipment ?? 'barbell';
+
+  const runCommand = (text: string) => {
+    const parsed = parseSetCommand(text);
+    setCommandOutput([`> ${text.trim()}`, ...(parsed.ok ? applyCommand(parsed.command) : [parsed.message])]);
+  };
+
+  const applyCommand = (command: SetCommand): string[] => {
+    const focused = exerciseLogs[cursor.exerciseIndex];
+    switch (command.kind) {
+      case 'log':
+      case 'step':
+      case 'done':
+        return applyToOpenSet(command);
+      case 'undo': {
+        const target = lastDoneSet(exerciseLogs, cursor.exerciseIndex);
+        if (!target) return ['no done set to undo'];
+        toggleSetComplete(target.exerciseIndex, target.setIndex);
+        setCursor(target);
+        return [`${exerciseLogs[target.exerciseIndex]?.exerciseName} set ${target.setIndex + 1} not done`];
+      }
+      case 'focus': {
+        const exerciseIndex = Math.min(exerciseLogs.length - 1, Math.max(0, cursor.exerciseIndex + command.direction));
+        setCursor({ exerciseIndex, setIndex: 0 });
+        return [exerciseLogs[exerciseIndex]?.exerciseName ?? ''];
+      }
+      case 'rest':
+        setActiveTimer({ id: Date.now(), show: true, seconds: command.seconds, exerciseName: focused?.exerciseName ?? '', nextSetNumber: cursor.setIndex + 1 });
+        return [`rest ${command.seconds} s`];
+      case 'skipRest':
+        setActiveTimer(prev => ({ ...prev, show: false }));
+        return ['rest skipped'];
+      case 'plates': {
+        const equipment = focused && equipmentOf(focused);
+        if (!focused || !equipment || !isPlateLoaded(equipment)) return ['no plates for this exercise'];
+        setPlateCalc({ weightKg: focused.sets[0]?.weightKg ?? 0, equipment });
+        return [];
+      }
+      case 'note':
+        updateExercise(cursor.exerciseIndex, ex => ({ ...ex, notes: command.text.slice(0, MAX_NOTES_LENGTH) }));
+        return [`note saved for ${focused?.exerciseName}`];
+      case 'finish':
+        if (completedSetsCount === 0) return ['log a set first'];
+        if (window.confirm('Finish this workout and save it?')) handleFinishWorkout();
+        return [];
+      case 'leave':
+        onCancel();
+        return [];
+      case 'help':
+        return COMMAND_HELP.map(([example, does]) => `${example.padEnd(18)} ${does}`);
+    }
+  };
+
+  const applyToOpenSet = (command: Extract<SetCommand, { kind: 'log' | 'step' | 'done' }>): string[] => {
+    const target = nextOpenSet(exerciseLogs, cursor.exerciseIndex);
+    if (!target) return ['every set is done'];
+    const log = exerciseLogs[target.exerciseIndex];
+    const current = log?.sets[target.setIndex];
+    if (!log || !current) return ['every set is done'];
+    const updated = updatedSet(current, command, equipmentOf(log));
+    changeSet(target.exerciseIndex, target.setIndex, () => updated);
+    const markDone = command.kind === 'done' || (command.kind === 'log' && command.markDone);
+    if (markDone) toggleSetComplete(target.exerciseIndex, target.setIndex);
+    setCursor(target);
+    return [`${log.exerciseName} set ${target.setIndex + 1}: ${updated.weightKg} kg × ${formatReps(updated)}${markDone ? ', done' : ''}`];
+  };
+
+  // "/" or ":" jumps to the prompt, j and k move the set cursor, and Space ticks the set under it.
+  useEffect(() => {
+    if (!theme.traits.commandLine) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!isShortcutFree(event)) return;
+      if (event.key === '/' || event.key === ':') {
+        event.preventDefault();
+        commandInputRef.current?.focus();
+      } else if (event.key === 'j' || event.key === 'k') {
+        setCursor(moveCursor(exerciseLogs, cursor, event.key === 'j' ? 1 : -1));
+      } else if (event.key === ' ') {
+        event.preventDefault();
+        toggleSetComplete(cursor.exerciseIndex, cursor.setIndex);
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  });
+
+  useEffect(() => {
+    if (theme.traits.commandLine) document.querySelector('.set-row[data-cursor]')?.scrollIntoView({ block: 'nearest' });
+  }, [cursor, theme]);
+
   // Calculate volume & progress stats
   const totalSetsCount = exerciseLogs.reduce((acc, ex) => acc + ex.sets.length, 0);
   const completedSetsCount = exerciseLogs.reduce(
@@ -303,7 +404,8 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
             <span>Progress: {completedSetsCount} / {totalSetsCount} sets</span>
             <span className="font-mono font-semibold text-accent-ink">{progressPercent}%</span>
           </div>
-          <div className="w-full h-1.5 bg-control rounded-pill overflow-hidden">
+          <div className="progress-text hidden font-mono text-sm text-accent-ink">{progressBarText(progressPercent, 20)}</div>
+          <div className="progress-bar w-full h-1.5 bg-control rounded-pill overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-accent-hover to-good-hover transition-all duration-300 rounded-pill"
               style={{ width: `${progressPercent}%` }}
@@ -320,6 +422,7 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
             definition={workoutExercises.find(e => e.id === exLog.exerciseId)}
             recommendation={progress.get(exLog.exerciseId)?.recommendation ?? null}
             history={progress.get(exLog.exerciseId)?.history ?? []}
+            cursorSetIndex={theme.traits.commandLine && cursor.exerciseIndex === exIdx ? cursor.setIndex : null}
             onToggleSet={setIdx => toggleSetComplete(exIdx, setIdx)}
             onChangeSet={(setIdx, change) => changeSet(exIdx, setIdx, change)}
             onAddSet={() => addSet(exIdx)}
@@ -363,7 +466,18 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
         />
       )}
 
+      {theme.traits.commandLine && (
+        <CommandLine prompt={`gymmy/${workoutType.toLowerCase()}$`} output={commandOutput} inputRef={commandInputRef} onSubmit={runCommand} />
+      )}
+
       {completedSummary && <CompletionSummary session={completedSummary} onDone={onFinish} />}
     </div>
   );
 };
+
+function updatedSet(set: SetLog, command: Extract<SetCommand, { kind: 'log' | 'step' | 'done' }>, equipment: EquipmentType): SetLog {
+  if (command.kind === 'done') return set;
+  if (command.kind === 'step') return { ...set, weightKg: steppedWeight(set.weightKg, equipment, command.direction) };
+  const changed = { ...set, weightKg: command.weightKg ?? set.weightKg, repsCompleted: command.reps ?? set.repsCompleted };
+  return command.rir === undefined ? changed : withRir(changed, command.rir);
+}
