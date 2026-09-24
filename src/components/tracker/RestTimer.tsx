@@ -119,7 +119,7 @@ export const RestTimer: React.FC<RestTimerProps> = ({
   }
 
   return (
-    <Dialog width="sm" onBackdropClick={() => setIsMinimized(true)} className="flex flex-col items-center overflow-hidden">
+    <Dialog width="sm" onClose={() => setIsMinimized(true)} onBackdropClick={() => setIsMinimized(true)} className="flex flex-col items-center overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-accent/10 rounded-pill blur-3xl pointer-events-none" />
 
       <div className="w-full flex items-center justify-between mb-4 z-10">

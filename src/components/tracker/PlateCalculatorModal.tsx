@@ -35,7 +35,7 @@ export function PlateCalculatorModal({ initialWeightKg, equipment, onClose }: Pl
   const ends = loadedEnds(equipment);
 
   return (
-    <Dialog>
+    <Dialog onClose={onClose}>
       <DialogHeader icon={Dumbbell} title="Plate Calculator" subtitle={SUBTITLE[equipment]} onClose={onClose} />
 
       <div className="panel p-4 mb-5">

@@ -259,7 +259,8 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
     confetti({
       particleCount: 80,
       spread: 70,
-      origin: { y: 0.6 }
+      origin: { y: 0.6 },
+      disableForReducedMotion: true
     });
   };
 

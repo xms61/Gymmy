@@ -9,7 +9,7 @@ interface CompletionSummaryProps {
 
 export function CompletionSummary({ session, onDone }: CompletionSummaryProps) {
   return (
-    <Dialog className="text-center overflow-hidden">
+    <Dialog onClose={onDone} className="text-center overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-good-ink/10 rounded-pill blur-3xl pointer-events-none" />
 
       <div className="w-16 h-16 bg-gradient-to-tr from-good to-accent rounded-panel flex items-center justify-center mx-auto mb-4 shadow-xl shadow-good/20">
