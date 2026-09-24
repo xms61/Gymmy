@@ -1,4 +1,4 @@
-import { ExerciseDefinition, WorkoutSession } from '../types/workout';
+import type { ExerciseDefinition, WorkoutSession } from '../types/workout.ts';
 
 const DB_NAME = 'gymmy_idb';
 const DB_VERSION = 1;

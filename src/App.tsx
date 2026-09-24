@@ -7,13 +7,13 @@ import {
   Flame,
   Database
 } from 'lucide-react';
-import { SplitType, WorkoutSession, ExerciseDefinition } from './types/workout';
-import { StorageService } from './services/storage';
-import { HomeDashboard } from './components/dashboard/HomeDashboard';
-import { WorkoutCalendar } from './components/calendar/WorkoutCalendar';
-import { ProgressView } from './components/analytics/ProgressView';
-import { SettingsModal } from './components/settings/SettingsModal';
-import { LiveTracker } from './components/tracker/LiveTracker';
+import type { SplitType, WorkoutSession, ExerciseDefinition } from './types/workout.ts';
+import { StorageService } from './services/storage.ts';
+import { HomeDashboard } from './components/dashboard/HomeDashboard.tsx';
+import { WorkoutCalendar } from './components/calendar/WorkoutCalendar.tsx';
+import { ProgressView } from './components/analytics/ProgressView.tsx';
+import { SettingsModal } from './components/settings/SettingsModal.tsx';
+import { LiveTracker } from './components/tracker/LiveTracker.tsx';
 
 export function App() {
   const [sessions, setSessions] = useState<WorkoutSession[]>([]);

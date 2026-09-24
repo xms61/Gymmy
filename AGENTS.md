@@ -15,7 +15,10 @@ Read only the doc(s) matching your task.
 | :-- | :-- |
 | Install | `npm ci` |
 | Dev server (with the `/api` backend) | `npm run dev` |
-| Typecheck | `npx tsc -b` |
+| Typecheck | `npm run typecheck` |
+| All tests | `npm test` |
+| One test file | `node --test tests/overloadEngine.test.ts` |
+| Everything CI runs (typecheck + tests with coverage thresholds) | `npm run test:ci` |
 | Production build | `npm run build` |
 | Serve the build (with the `/api` backend) | `npm run preview` |
 

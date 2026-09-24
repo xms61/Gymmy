@@ -7,8 +7,8 @@ import {
   Sparkles, 
   ChevronRight 
 } from 'lucide-react';
-import { SplitType, WorkoutSession, ExerciseDefinition } from '../../types/workout';
-import { OverloadEngine } from '../../services/overloadEngine';
+import type { SplitType, WorkoutSession, ExerciseDefinition } from '../../types/workout.ts';
+import { OverloadEngine } from '../../services/overloadEngine.ts';
 
 interface HomeDashboardProps {
   sessions: WorkoutSession[];

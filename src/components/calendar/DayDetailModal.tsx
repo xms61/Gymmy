@@ -1,7 +1,7 @@
 import React from 'react';
 import { X, Calendar, Clock, Dumbbell, Trash2 } from 'lucide-react';
-import { WorkoutSession } from '../../types/workout';
-import { formatDisplayDate } from '../../utils/date';
+import type { WorkoutSession } from '../../types/workout.ts';
+import { formatDisplayDate } from '../../utils/date.ts';
 
 interface DayDetailModalProps {
   dateString: string;

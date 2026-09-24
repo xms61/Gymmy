@@ -1,14 +1,21 @@
 # Testing
 
-There is no automated test suite yet. Tests will use Node's built-in runner (`node:test` with `node:assert/strict`) on TypeScript files, with no test framework dependency.
+Tests use Node's built-in runner (`node:test` with `node:assert/strict`). Node runs the `.ts` files directly by stripping types, so there is no test framework or build step.
 
 | Command | What | Where |
 | :-- | :-- | :-- |
-| _none yet_ | Unit and integration tests | `tests/**/*.test.ts` |
+| `npm test` | Unit and integration tests | `tests/**/*.test.ts` |
+| `npm run test:coverage` | Tests with coverage thresholds (lines/functions ≥ 85 %, branches ≥ 75 %) | flags in `package.json` |
+| `npm run test:ci` | Typecheck, then tests with coverage | `package.json` |
 
-Coverage thresholds, once coverage runs: lines and functions ≥ 85 %, branches ≥ 75 %.
+Coverage counts the `src/` modules that tests import. React components have no automated tests; check UI changes in the running app (`npm run dev`).
 
-Until the suite exists, check a change by running `npx tsc -b`, `npm run build`, and the app itself with `npm run dev`.
+## Writing TypeScript that Node can run
+Type stripping only removes type syntax. `tsconfig` enforces the rules it needs, so `npm run typecheck` catches any break:
+- Relative imports name the real file: `import { x } from './date.ts'` (`allowImportingTsExtensions`).
+- Type-only imports use `import type` (`verbatimModuleSyntax`).
+- No `enum`, `namespace` or constructor parameter properties (`erasableSyntaxOnly`).
+- Tests import pure modules only. A module that touches `window`, `localStorage` or `fetch` needs its logic moved into a pure function before it can be tested.
 
 ## Isolation
 - Tests never touch the network or the real data directory.

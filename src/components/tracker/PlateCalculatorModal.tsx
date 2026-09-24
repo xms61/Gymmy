@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, Dumbbell } from 'lucide-react';
-import { OverloadEngine } from '../../services/overloadEngine';
+import { OverloadEngine } from '../../services/overloadEngine.ts';
 
 interface PlateCalculatorModalProps {
   initialWeightKg: number;

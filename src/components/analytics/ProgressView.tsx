@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Dumbbell, Sparkles } from 'lucide-react';
-import { ExerciseDefinition, WorkoutSession } from '../../types/workout';
-import { OverloadEngine } from '../../services/overloadEngine';
+import type { ExerciseDefinition, WorkoutSession } from '../../types/workout.ts';
+import { OverloadEngine } from '../../services/overloadEngine.ts';
 
 interface ProgressViewProps {
   exercises: ExerciseDefinition[];
