@@ -194,14 +194,6 @@ export function upsertExercises(db: DatabaseSync, exercises: ExerciseDefinition[
   inTransaction(db, () => writeExercises(db, exercises));
 }
 
-export function resetToSeed(db: DatabaseSync): void {
-  inTransaction(db, () => {
-    db.exec('DELETE FROM workout_sessions');
-    db.exec('DELETE FROM exercise_definitions');
-    writeExercises(db, EXERCISE_DEFINITIONS);
-  });
-}
-
 function writeExercises(db: DatabaseSync, exercises: ExerciseDefinition[]): void {
   const upsert = db.prepare(`
     INSERT INTO exercise_definitions (

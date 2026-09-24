@@ -8,7 +8,6 @@ import {
   deleteSession,
   listExercises,
   listSessions,
-  resetToSeed,
   upsertExercises,
   upsertSession
 } from './db.ts';
@@ -50,10 +49,6 @@ function route(db: DatabaseSync, { method, pathname, body }: ApiRequest): ApiRes
   if (method === 'POST' && pathname === '/api/clear') {
     clearSessions(db);
     return ok({ message: 'All workout sessions cleared' });
-  }
-  if (method === 'POST' && pathname === '/api/reset') {
-    resetToSeed(db);
-    return ok({ message: 'Reset to factory seed' });
   }
   return { status: 404, body: { success: false, error: `Not found: ${method} ${pathname}` } };
 }

@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Exercises appear in routine order again (Squats first on leg day, Deadlifts then Pull-Ups on pull day) instead of alphabetically. The database gets a `sort_order` column the first time the server starts; it backs the file up to `data/gymmy.before-schema-v1.db` first.
 
 ### Removed
+- The `POST /api/reset` route. Nothing in the app called it; clearing workouts (`/api/clear`) and restoring a backup cover the same needs.
 - Excel import and export, and the `xlsx` dependency. The import only checked for a sheet named "List" and then reported success without importing anything. The `xlsx` package on npm (0.18.5) has two high-severity advisories with no fixed release (GHSA-4r6h-8v6p-xvw6, GHSA-5pgg-2g8v-p4x9). JSON backup and restore replaces both, and the app bundle drops from 677 kB to 258 kB.
 
 ### Security
