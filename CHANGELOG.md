@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- Load suggestions, the weight steppers and the plate calculator use the home equipment (`src/data/gymInventory.ts`) instead of a 20 kg Olympic bar and unlimited plates. The calculator used to suggest 25 kg plates that aren't there (100 kg deadlift: 25 + 15 kg per side; now 20 + 15 + 10 kg), ignored weights it couldn't make (61 kg showed 60 kg), and only worked for barbell lifts. The empty bar is 10 kg, dumbbells move in 2.5 kg steps up to 25 kg instead of rounding odd weights up by 3 kg (5 to 8 kg), and Meadows Row moves in 1.25 kg steps. At the heaviest load the plates make, the app keeps the weight and asks for reps.
 - Exercises can use a new equipment type, `landmine`: one end of a barbell on the floor, plates on the other. Meadows Row is a landmine lift, and Calf Raises is a barbell lift instead of a machine lift, to match the home gym. A one-time database update (schema version 2) changes the stored definitions, after the usual backup copy, and leaves any definition you already changed. Backups that contain `landmine` can't be read by 1.x, so the next release is 2.0.0.
 
 ---
