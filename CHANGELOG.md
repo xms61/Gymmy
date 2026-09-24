@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Text on the Finish and Save buttons, labels on the 10 kg plate and the borders of inputs are easier to read: the green goes from 3.8:1 to 5.5:1 contrast with white, and input borders from 1.7:1 to 3.3:1 against cards. A new test checks the contrast of every theme.
+
 ---
 
 ## [2.0.0] - 2026-09-24

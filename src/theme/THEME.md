@@ -11,6 +11,7 @@ Entry: `src/theme/themes.ts`: every theme's design tokens (colors, fonts, corner
 - Text comes in four levels: `ink` (headings, values), `ink-soft` (body), `ink-muted` (secondary), `ink-faint` (placeholders). Colored text uses the `*-ink` tokens (`accent-ink`, `good-ink`, `warn-ink`, `bad-ink`, `info-ink`); fills use `accent`, `good`, `control` with their `on-*` text token.
 - `line` is for decorative dividers and card borders. Inputs, steppers and buttons that need a visible edge use `edge`.
 - A new color token goes in `COLOR_TOKENS` and in every theme. Only add one when a component uses it.
+- Every theme must pass the contrast table in `tests/theme.test.ts`: 4.5:1 for text on its background (including the labels on split colors and plates), 3:1 for placeholders and for the `edge` of inputs and buttons.
 - Class names built from data are written out in full in a table (`SPLIT_STYLE`, `PLATE_STYLE`), because Tailwind only generates classes it finds as text.
 
 ## Gotchas
@@ -19,4 +20,4 @@ Entry: `src/theme/themes.ts`: every theme's design tokens (colors, fonts, corner
 - Tailwind reads `tailwind.config.ts` when the dev server starts. After changing the tokens or the config, restart `npm run dev` if the page shows a CSS error.
 
 ## Tests
-`tests/theme.test.ts`: the color conversion and the generated stylesheet.
+`tests/theme.test.ts`: the color conversion, the generated stylesheet, and the contrast of every theme.
