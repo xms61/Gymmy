@@ -9,6 +9,7 @@ Read only the doc(s) matching your task.
 | [.github/RELEASE_PROCESS.md](.github/RELEASE_PROCESS.md) | **Before any commit** (branching, version bump, checklist) |
 | [docs/CODE_STYLE.md](docs/CODE_STYLE.md) | Writing or reviewing code |
 | [docs/TESTING.md](docs/TESTING.md) | Running or writing tests |
+| [src/components/tracker/TRACKER.md](src/components/tracker/TRACKER.md) | Touching the live workout screen, drafts, the rest timer or its chime |
 | [src/services/STORAGE.md](src/services/STORAGE.md) | Touching browser storage, the outbox or `StorageService` |
 | [server/SERVER.md](server/SERVER.md) | Touching the `/api` routes, the SQLite schema or `src/validation.ts` |
 
