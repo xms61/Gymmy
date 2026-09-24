@@ -17,6 +17,10 @@ export function parseExerciseDefinitions(value: unknown): ParseResult<ExerciseDe
   });
 }
 
+export function hasValidRepRange(exercise: Pick<ExerciseDefinition, 'targetRepsMin' | 'targetRepsMax'>): boolean {
+  return exercise.targetRepsMin <= exercise.targetRepsMax;
+}
+
 class InvalidInput extends Error {}
 
 type Fields = Record<string, unknown>;
@@ -96,7 +100,7 @@ function readExerciseDefinition(value: unknown, path: string): ExerciseDefinitio
     ...(notes !== undefined && { notes }),
     ...(warmupRequired !== undefined && { warmupRequired })
   };
-  if (definition.targetRepsMin > definition.targetRepsMax) {
+  if (!hasValidRepRange(definition)) {
     fail(`${path}.targetRepsMin`, 'must not be greater than targetRepsMax');
   }
   return definition;

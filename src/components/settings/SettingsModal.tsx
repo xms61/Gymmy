@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Download, FileSpreadsheet, RotateCcw, Check, Database } from 'lucide-react';
 import { StorageService } from '../../services/storage.ts';
 import type { ExerciseDefinition } from '../../types/workout.ts';
+import { hasValidRepRange } from '../../validation.ts';
 import * as XLSX from 'xlsx';
 
 interface SettingsModalProps {
@@ -56,7 +57,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     );
   };
 
+  const hasInvalidRepRange = exerciseList.some(ex => !hasValidRepRange(ex));
+
   const saveExerciseAdjustments = () => {
+    if (hasInvalidRepRange) return;
     StorageService.saveExerciseDefinitions(exerciseList);
     setSavedSuccess(true);
     setTimeout(() => setSavedSuccess(false), 2000);
@@ -261,21 +265,32 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       />
                     </div>
                   </div>
+
+                  {!hasValidRepRange(ex) && (
+                    <p role="alert" className="text-[11px] font-semibold text-rose-400">
+                      Min reps ({ex.targetRepsMin}) is higher than max reps ({ex.targetRepsMax}).
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
 
             <button
               onClick={saveExerciseAdjustments}
-              className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-sm flex items-center justify-center space-x-2 transition"
+              disabled={hasInvalidRepRange}
+              className={`w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center space-x-2 transition ${
+                hasInvalidRepRange
+                  ? 'bg-slate-800 text-slate-500 cursor-not-allowed'
+                  : 'bg-emerald-600 hover:bg-emerald-500 text-white'
+              }`}
             >
               {savedSuccess ? (
                 <>
                   <Check className="w-4 h-4" />
-                  <span>Saved Successfully!</span>
+                  <span>Saved</span>
                 </>
               ) : (
-                <span>Save Target Adjustments</span>
+                <span>{hasInvalidRepRange ? 'Fix the rep ranges to save' : 'Save Target Adjustments'}</span>
               )}
             </button>
           </div>

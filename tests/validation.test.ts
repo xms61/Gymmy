@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseExerciseDefinitions, parseWorkoutSession } from '../src/validation.ts';
+import { hasValidRepRange, parseExerciseDefinitions, parseWorkoutSession } from '../src/validation.ts';
 import { EXERCISE_DEFINITIONS } from '../src/data/seedData.ts';
 import type { WorkoutSession } from '../src/types/workout.ts';
 
@@ -85,5 +85,16 @@ test('names the first invalid exercise definition field', () => {
   ];
   for (const [input, error] of CASES) {
     assert.deepEqual(parseExerciseDefinitions(input), { ok: false, error });
+  }
+});
+
+test('a rep range is valid when min is not above max', () => {
+  const CASES: [min: number, max: number, expected: boolean][] = [
+    [6, 8, true],
+    [8, 8, true],
+    [9, 8, false]
+  ];
+  for (const [targetRepsMin, targetRepsMax, expected] of CASES) {
+    assert.equal(hasValidRepRange({ targetRepsMin, targetRepsMax }), expected, `${targetRepsMin}-${targetRepsMax}`);
   }
 });

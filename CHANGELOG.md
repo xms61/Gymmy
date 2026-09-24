@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Local git repository, release process (`.github/RELEASE_PROCESS.md`), agent doc map (`AGENTS.md`), code style and testing docs.
 
 ### Fixed
+- Settings no longer lets you save a min rep count above the max. The exercise shows a warning and Save is disabled until it is fixed.
 - Skipping an exercise no longer resets its suggested load to the starting weight, or counts as a failed session toward a deload.
 - The estimated 1RM uses the best single set. Before, it combined the heaviest weight with the most reps, even when they came from different sets (60 kg x 6 and 50 kg x 12 gave 86.4 kg instead of 72 kg).
 - Deloads round to the equipment's loading step and are only suggested when they actually lower the load. Meadows Row at 20 kg showed a "deload" to 20 kg. Deloads now also apply below 15 kg, which the old rule skipped.
