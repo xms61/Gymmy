@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Pinch-zoom works on phones again. Form fields use 16 px text on small screens, so focusing one no longer makes iOS Safari zoom in, which the page used to prevent by disabling zoom altogether.
+
 ---
 
 ## [1.1.0] - 2026-09-24

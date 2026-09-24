@@ -169,7 +169,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         max="10"
                         value={ex.targetSets}
                         onChange={e => handleUpdateExercise(ex.id, 'targetSets', parseInt(e.target.value) || 3)}
-                        className="w-full bg-slate-900 border border-slate-800 rounded-lg p-1.5 font-mono text-center text-white"
+                        className="w-full bg-slate-900 border border-slate-800 rounded-lg p-1.5 font-mono text-base sm:text-xs text-center text-white"
                       />
                     </div>
 
@@ -181,7 +181,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         max="30"
                         value={ex.targetRepsMin}
                         onChange={e => handleUpdateExercise(ex.id, 'targetRepsMin', parseInt(e.target.value) || 6)}
-                        className="w-full bg-slate-900 border border-slate-800 rounded-lg p-1.5 font-mono text-center text-white"
+                        className="w-full bg-slate-900 border border-slate-800 rounded-lg p-1.5 font-mono text-base sm:text-xs text-center text-white"
                       />
                     </div>
 
@@ -193,7 +193,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         max="30"
                         value={ex.targetRepsMax}
                         onChange={e => handleUpdateExercise(ex.id, 'targetRepsMax', parseInt(e.target.value) || 12)}
-                        className="w-full bg-slate-900 border border-slate-800 rounded-lg p-1.5 font-mono text-center text-white"
+                        className="w-full bg-slate-900 border border-slate-800 rounded-lg p-1.5 font-mono text-base sm:text-xs text-center text-white"
                       />
                     </div>
                   </div>
