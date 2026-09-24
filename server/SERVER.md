@@ -1,0 +1,38 @@
+# Server (SQLite API)
+
+Entry: `server/vitePlugin.ts`: a Vite plugin that serves `/api/*` from the dev and preview servers, backed by `data/gymmy.db`. There is no separate backend process; a static `dist/` build has no API.
+- `server/vitePlugin.ts`: HTTP plumbing only. Reads the body (1 MB cap, JSON), calls `handleApiRequest`, writes the response. Opens one database per process.
+- `server/api.ts`: `handleApiRequest(db, { method, pathname, body })`. Routes, validates with `src/validation.ts`, calls `db.ts`. No SQL and no HTTP objects, so tests call it directly.
+- `server/db.ts`: `openDatabase(dataDir)`, the schema, seeding and every query.
+
+## Rules
+- Every request body is checked by a parser in `src/validation.ts` before it reaches `db.ts`. The browser uses the same parsers, so the two sides accept the same shapes. A new payload gets a new parser there, not an inline check.
+- SQL lives only in `db.ts`. Routes in `api.ts` call its functions.
+- The seed routine comes from `src/data/seedData.ts`. It is inserted only when `exercise_definitions` is empty, and again by `/api/reset`.
+- Table and column names are stored data: never rename them (see `AGENTS.md`).
+
+## Data / API
+| Route | Body | Response |
+|---|---|---|
+| `GET /api/data` | none | `{ success, sessions, exercises }`, sessions newest date first |
+| `POST /api/sessions` | one `WorkoutSession` | `{ success, session }`; inserts or replaces by `id` |
+| `DELETE /api/sessions/:id` | none | `{ success, deletedId }`; `:id` is URI-encoded |
+| `POST /api/exercises` | `ExerciseDefinition[]` | `{ success, count }`; inserts or replaces by `id` |
+| `POST /api/clear` | none | deletes every session, keeps exercises |
+| `POST /api/reset` | none | deletes every session, restores the seed exercises |
+
+Errors: 400 for an invalid body (the message names the first bad field, for example `session.date must be a string`), 404 for an unknown route, 413 for a body over 1 MB, 500 for a database error (logged once).
+
+| Table | Key | Notes |
+|---|---|---|
+| `workout_sessions` | `id` | `exercises_json` holds the session's `ExerciseSessionLog[]` as JSON |
+| `exercise_definitions` | `id` | `warmup_required` is 0/1 |
+
+## Gotchas
+- `GET /api/data` currently orders exercises alphabetically by type and name, not in routine order. This is known bug #1, fixed by adding a `sort_order` column.
+- Multi-row writes (`/api/exercises`, `/api/reset`) are not yet in a transaction.
+- Any page open in the same browser can call the POST routes while the dev server runs (no origin check yet).
+
+## Tests
+- `tests/server/api.test.ts`: every route against a temp-dir database, including validation failures and reopening an existing file.
+- `tests/validation.test.ts`: which session and exercise shapes are accepted, and the error for each invalid field.
