@@ -20,6 +20,7 @@ See the Commands table in [AGENTS.md](AGENTS.md). Every pull request and every p
   - Push: Flat Bench, Overhead Press, Incline DB Press, Lateral Raise, Skullcrusher
   - Pull: Deadlifts, Pull-Ups, Meadows Row, Biceps Curl
   - Legs: Squats, Calf Raises, RDL
+  - Equipment: a barbell, a dumbbell and bodyweight; no machines. Meadows Row is a landmine row: one end of the bar rests on the floor and only the other end carries plates.
 - **Next workout:** the dashboard picks the next split in rotation after the last logged session.
 - **Load suggestions (double progression):**
   - When every set reaches the top of the rep range, the next session adds one loading step: 2 kg for dumbbells, 2.5 kg for everything else.

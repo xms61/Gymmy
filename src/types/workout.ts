@@ -1,7 +1,8 @@
 export const SPLIT_TYPES = ['Push', 'Pull', 'Legs', 'Other'] as const;
 export type SplitType = (typeof SPLIT_TYPES)[number];
 
-export const EQUIPMENT_TYPES = ['barbell', 'dumbbell', 'cable', 'bodyweight', 'machine'] as const;
+// landmine: one end of a barbell rests on the floor and only the other end carries plates.
+export const EQUIPMENT_TYPES = ['barbell', 'dumbbell', 'cable', 'bodyweight', 'machine', 'landmine'] as const;
 export type EquipmentType = (typeof EQUIPMENT_TYPES)[number];
 
 export interface ExerciseDefinition {

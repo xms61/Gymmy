@@ -9,7 +9,9 @@ const LOADING: Record<EquipmentType, { stepKg: number; minKg: number }> = {
   dumbbell: { stepKg: 2, minKg: 2 },
   machine: { stepKg: 2.5, minKg: 2.5 },
   cable: { stepKg: 2.5, minKg: 2.5 },
-  bodyweight: { stepKg: 2.5, minKg: 0 }
+  bodyweight: { stepKg: 2.5, minKg: 0 },
+  // One stack of plates on the free end, so the smallest plate is the smallest step.
+  landmine: { stepKg: 1.25, minKg: 0 }
 };
 
 const DELOAD_FACTOR = 0.9;
