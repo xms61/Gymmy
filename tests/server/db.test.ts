@@ -77,9 +77,9 @@ test('backs up a database before migrating it', t => {
 
   openDatabase(dir).close();
 
-  const backup = path.join(dir, 'gymmy.before-schema-v1.db');
+  const backup = path.join(dir, 'gymmy.before-schema-v2.db');
   assert.equal(userVersion(backup), 0);
-  assert.equal(userVersion(path.join(dir, 'gymmy.db')), 1);
+  assert.equal(userVersion(path.join(dir, 'gymmy.db')), 2);
 });
 
 test('does not back up a new database', t => {
@@ -140,4 +140,39 @@ test('clearing sessions keeps a copy of the database from just before', t => {
   const rows = copy.prepare('SELECT id FROM workout_sessions').all();
   copy.close();
   assert.deepEqual(rows.map(row => row.id), ['kept-in-backup']);
+});
+
+// Stored definitions as 1.x wrote them, before the seed matched the home equipment.
+function setStoredEquipment(dataDir: string, equipmentById: Record<string, string>): void {
+  const db = new DatabaseSync(path.join(dataDir, 'gymmy.db'));
+  const update = db.prepare('UPDATE exercise_definitions SET equipment = ? WHERE id = ?');
+  for (const [id, equipment] of Object.entries(equipmentById)) update.run(equipment, id);
+  db.close();
+}
+
+function storedEquipment(dataDir: string): Record<string, string> {
+  const db = openDatabase(dataDir);
+  const equipment = Object.fromEntries(listExercises(db).map(e => [e.id, e.equipment]));
+  db.close();
+  return equipment;
+}
+
+test('moves Calf Raises to the barbell and Meadows Row to the landmine', t => {
+  const dir = tempDataDir(t);
+  createVersion0Database(dir);
+  setStoredEquipment(dir, { 'calf-raises': 'machine', 'meadows-row': 'barbell' });
+
+  const equipment = storedEquipment(dir);
+  assert.equal(equipment['calf-raises'], 'barbell');
+  assert.equal(equipment['meadows-row'], 'landmine');
+});
+
+test('leaves equipment the user already changed', t => {
+  const dir = tempDataDir(t);
+  createVersion0Database(dir);
+  setStoredEquipment(dir, { 'calf-raises': 'dumbbell', 'meadows-row': 'bodyweight' });
+
+  const equipment = storedEquipment(dir);
+  assert.equal(equipment['calf-raises'], 'dumbbell');
+  assert.equal(equipment['meadows-row'], 'bodyweight');
 });

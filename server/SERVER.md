@@ -11,7 +11,7 @@ Entry: `server/vitePlugin.ts`: a Vite plugin that serves `/api/*` from the dev a
 - SQL lives only in `db.ts`. Routes in `api.ts` call its functions.
 - The seed routine comes from `src/data/seedData.ts`. It is inserted only when `exercise_definitions` is empty.
 - Table and column names are stored data: never rename them (see `AGENTS.md`).
-- Schema changes go in `MIGRATIONS` in `db.ts`: append a function, never edit an old one. `PRAGMA user_version` records how many have run. Before the first pending migration on an existing file, `openDatabase` writes a copy to `data/gymmy.before-schema-v<N>.db`, and each migration runs in a transaction.
+- Schema changes, and one-time fixes to stored rows, go in `MIGRATIONS` in `db.ts`: append a function, never edit an old one. Version 2 (`matchHomeEquipment`) moved Calf Raises to `barbell` and Meadows Row to `landmine`, leaving definitions the user had changed. `PRAGMA user_version` records how many have run. Before the first pending migration on an existing file, `openDatabase` writes a copy to `data/gymmy.before-schema-v<N>.db`, and each migration runs in a transaction.
 - Anything that deletes more than one row copies the database file first (`backUp`, `VACUUM INTO`): migrations and `POST /api/clear`.
 - A write that touches more than one row runs inside `inTransaction`, so it lands completely or not at all (`upsertExercises`, migrations).
 - Exercises are listed by `sort_order`, which `/api/exercises` sets from each item's position in the submitted list.

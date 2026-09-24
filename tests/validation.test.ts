@@ -66,7 +66,7 @@ test('names the first invalid session field', () => {
     [withField(['completed'], 'yes'), 'session.completed must be true or false'],
     [withField(['notes'], 5), 'session.notes must be a string'],
     [withField(['exercises'], {}), 'session.exercises must be an array'],
-    [withField(['exercises', 0, 'equipment'], 'kettlebell'), 'session.exercises[0].equipment must be one of barbell, dumbbell, cable, bodyweight, machine'],
+    [withField(['exercises', 0, 'equipment'], 'kettlebell'), 'session.exercises[0].equipment must be one of barbell, dumbbell, cable, bodyweight, machine, landmine'],
     [withField(['exercises', 0, 'sets', 0, 'setNumber'], 0), 'session.exercises[0].sets[0].setNumber must be a whole number from 1 to 50'],
     [withField(['exercises', 0, 'sets', 0, 'repsCompleted'], '8'), 'session.exercises[0].sets[0].repsCompleted must be a whole number from 0 to 1000'],
     [withField(['exercises', 0, 'sets', 0, 'rpe'], -2), 'session.exercises[0].sets[0].rpe must be a number from 0 to 10']

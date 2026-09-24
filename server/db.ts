@@ -78,7 +78,7 @@ interface ExerciseRow {
 
 // Each entry moves the schema up one version (PRAGMA user_version). Append only: real
 // databases have already run the earlier entries.
-const MIGRATIONS: ((db: DatabaseSync) => void)[] = [addExerciseSortOrder];
+const MIGRATIONS: ((db: DatabaseSync) => void)[] = [addExerciseSortOrder, matchHomeEquipment];
 
 export function openDatabase(dataDir: string): DatabaseSync {
   fs.mkdirSync(dataDir, { recursive: true });
@@ -146,6 +146,14 @@ function addExerciseSortOrder(db: DatabaseSync): void {
   db.prepare('UPDATE exercise_definitions SET sort_order = ?').run(EXERCISE_DEFINITIONS.length);
   const setOrder = db.prepare('UPDATE exercise_definitions SET sort_order = ? WHERE id = ?');
   EXERCISE_DEFINITIONS.forEach((exercise, index) => setOrder.run(index, exercise.id));
+}
+
+// Version 2: the home gym has no machines (Calf Raises uses the barbell), and Meadows Row is
+// loaded on one end of the bar. A definition the user already changed is left alone.
+function matchHomeEquipment(db: DatabaseSync): void {
+  const setEquipment = db.prepare('UPDATE exercise_definitions SET equipment = ? WHERE id = ? AND equipment = ?');
+  setEquipment.run('barbell', 'calf-raises', 'machine');
+  setEquipment.run('landmine', 'meadows-row', 'barbell');
 }
 
 export function listSessions(db: DatabaseSync): WorkoutSession[] {

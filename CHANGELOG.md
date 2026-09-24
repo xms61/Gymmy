@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Exercises can use a new equipment type, `landmine`: one end of a barbell on the floor, plates on the other. Meadows Row is a landmine lift, and Calf Raises is a barbell lift instead of a machine lift, to match the home gym. A one-time database update (schema version 2) changes the stored definitions, after the usual backup copy, and leaves any definition you already changed. Backups that contain `landmine` can't be read by 1.x, so the next release is 2.0.0.
+
 ---
 
 ## [1.2.0] - 2026-09-24

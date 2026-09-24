@@ -100,7 +100,7 @@ export const EXERCISE_DEFINITIONS: ExerciseDefinition[] = [
     targetSets: 3,
     defaultWeightKg: 20,
     defaultRestSeconds: 90,
-    equipment: 'barbell',
+    equipment: 'landmine',
     notes: 'Staggered stance. Pull elbow back toward hip for maximum lat activation.'
   },
   {
@@ -139,7 +139,7 @@ export const EXERCISE_DEFINITIONS: ExerciseDefinition[] = [
     targetSets: 3,
     defaultWeightKg: 60,
     defaultRestSeconds: 75,
-    equipment: 'machine',
+    equipment: 'barbell',
     notes: '2-second dead pause at deepest stretch, explosive contraction at peak.'
   },
   {
