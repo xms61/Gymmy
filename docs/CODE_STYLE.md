@@ -4,8 +4,8 @@ Code should read like the code around it. When this file and the surrounding cod
 
 ## Shape
 - Small functions that each do one thing. A function that needs a comment to explain its sections should be split into named functions instead.
-- Names say what a thing is or does (`recentTrackIds`, `isAbovePopularityFloor`). Avoid `data`, `info`, `helper`, `utils`, `manager`, `handle2`.
-- One source of truth per concept (one list of themes, one validator per payload, one place that reads env vars). Import it; don't copy it.
+- Names say what a thing is or does (`completedExerciseLogs`, `hasValidRepRange`). Avoid `data`, `info`, `helper`, `utils`, `manager`, `handle2`.
+- One source of truth per concept (one list of split types in `SPLIT_TYPES`, one parser per payload in `src/validation.ts`, one table of loading steps in `LOADING`). Import it; don't copy it.
 - Keep modules at one level of abstraction: an HTTP route validates, calls a service and responds. It doesn't build SQL.
 - Prefer plain data and functions. Add a class only when it owns state or a lifecycle (a database handle, a connection).
 

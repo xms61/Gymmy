@@ -2,7 +2,7 @@
 
 Entry: `server/vitePlugin.ts`: a Vite plugin that serves `/api/*` from the dev and preview servers, backed by `data/gymmy.db`. There is no separate backend process; a static `dist/` build has no API.
 - `server/vitePlugin.ts`: HTTP plumbing only. Reads the body (1 MB cap, JSON), calls `handleApiRequest`, writes the response. Opens one database per process.
-- `server/api.ts`: `handleApiRequest(db, { method, pathname, body })`. Routes, validates with `src/validation.ts`, calls `db.ts`. No SQL and no HTTP objects, so tests call it directly.
+- `server/api.ts`: `handleApiRequest(db, { method, pathname, host, origin, contentType, body })`. Routes, validates with `src/validation.ts`, calls `db.ts`. No SQL and no HTTP objects, so tests call it directly.
 - `server/db.ts`: `openDatabase(dataDir)`, the schema, seeding and every query.
 
 ## Rules
