@@ -354,6 +354,77 @@
 }
 
 /*
+ * Mechanical Telemetry. An instrument panel: technical uppercase labels, tabular figures, panels on
+ * a faint 16 px grid, corner brackets on cards, and the gauges, readouts, plate strips and heat
+ * map that the other themes keep hidden.
+ */
+[data-theme="telemetry"] :is(h1, h2, h3, h4) {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+[data-theme="telemetry"] .font-mono {
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="telemetry"] .panel {
+  background-image:
+    linear-gradient(rgb(var(--c-rule)) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--c-rule)) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+[data-theme="telemetry"] .card {
+  position: relative;
+}
+
+[data-theme="telemetry"] .card::before,
+[data-theme="telemetry"] .card::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 0 solid rgb(var(--c-accent-ink));
+  pointer-events: none;
+}
+
+[data-theme="telemetry"] .card::before {
+  top: 0;
+  left: 0;
+  border-top-width: 2px;
+  border-left-width: 2px;
+}
+
+[data-theme="telemetry"] .card::after {
+  right: 0;
+  bottom: 0;
+  border-right-width: 2px;
+  border-bottom-width: 2px;
+}
+
+[data-theme="telemetry"] .exercise-readouts {
+  display: grid;
+}
+
+[data-theme="telemetry"] .set-plates {
+  display: flex;
+}
+
+[data-theme="telemetry"] :is(.rir-gauge, .rest-gauge) {
+  display: block;
+}
+
+[data-theme="telemetry"] .rest-ring {
+  display: none;
+}
+
+/* Training days glow amber in proportion to their volume, the month's heaviest day brightest. */
+[data-theme="telemetry"] .calendar-day {
+  background-color: rgb(var(--c-gauge) / calc(var(--heat, 0) * 0.45));
+}
+
+/*
  * Golden Era Journal. A paper notebook: hairline page shadows instead of glows, a ruled ledger
  * with a red margin line for the sets, and handwritten margin notes.
  */

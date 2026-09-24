@@ -2,7 +2,7 @@ import type { DateStyle } from '../utils/date.ts';
 
 // The design tokens of every theme. Components use only these (through the Tailwind classes in
 // tailwind.config.ts), never palette colors, so a theme changes the whole app.
-export const THEME_IDS = ['classic', 'brutalism', 'journal'] as const;
+export const THEME_IDS = ['classic', 'brutalism', 'telemetry', 'journal'] as const;
 export type ThemeId = (typeof THEME_IDS)[number];
 export const DEFAULT_THEME_ID: ThemeId = 'classic';
 
@@ -53,7 +53,8 @@ export const COLOR_TOKENS = [
   'on-plate-light', // text on the 15 and 5 kg plates
   'bar',
   'rule', // ledger lines and the double rule under headings
-  'stamp' // ink stamps and the ledger's margin line
+  'stamp', // ink stamps and the ledger's margin line
+  'gauge' // gauge arcs, plate-stock warnings and the calendar heat map
 ] as const;
 export type ColorToken = (typeof COLOR_TOKENS)[number];
 
@@ -128,7 +129,8 @@ const classic: Theme = {
     'on-plate-light': '#0F172A',
     bar: '#94A3B8',
     rule: '#1E293B',
-    stamp: '#FB7185'
+    stamp: '#FB7185',
+    gauge: '#FCD34D'
   },
   fonts: { display: SYSTEM_SANS, body: SYSTEM_SANS, data: SYSTEM_MONO, note: SYSTEM_SANS },
   radius: { card: '1.5rem', panel: '1rem', control: '0.75rem', chip: '0.5rem', pill: '9999px' },
@@ -186,7 +188,8 @@ const brutalism: Theme = {
     'on-plate-light': '#0B0B0A',
     bar: '#8A877C',
     rule: '#26251F',
-    stamp: '#FFD000'
+    stamp: '#FFD000',
+    gauge: '#FFD000'
   },
   fonts: {
     display: "Anton, Impact, 'Arial Narrow Bold', sans-serif",
@@ -200,6 +203,70 @@ const brutalism: Theme = {
   tapSize: '3.5rem',
   tapSizeLarge: '4.5rem',
   motionMs: 80,
+  traits: { celebration: 'none', doneMark: 'check', dates: 'numeric' }
+};
+
+// A lab instrument panel: training as measured data. Loads, reps in reserve, volume and plate use
+// read like gauges, on a faint instrument grid.
+const telemetry: Theme = {
+  id: 'telemetry',
+  label: 'Mechanical Telemetry',
+  description: 'Slate, cyan and amber gauges. Readouts, plate strips, heat map.',
+  colorScheme: 'dark',
+  colors: {
+    bg: '#0A0F17',
+    surface: '#0F1622',
+    inset: '#070B12',
+    control: '#172233',
+    'control-hover': '#213049',
+    line: '#1B283A',
+    edge: '#4A6689',
+    ink: '#E6EEF7',
+    'ink-soft': '#C3D0DE',
+    'ink-muted': '#8B9DB3',
+    'ink-faint': '#66788E',
+    accent: '#22D3EE',
+    'accent-hover': '#67E8F9',
+    'on-accent': '#04141A',
+    'accent-ink': '#38D9F0',
+    good: '#3DDC97',
+    'good-hover': '#6BE7B2',
+    'on-good': '#04130C',
+    'good-ink': '#5BE3A8',
+    'warn-ink': '#F5A524',
+    'bad-ink': '#FF6B6B',
+    'info-ink': '#8AAEFF',
+    push: '#FF8A4C',
+    pull: '#3DDC97',
+    legs: '#8AAEFF',
+    other: '#C79BFF',
+    'on-split': '#04141A',
+    'plate-25': '#D9362C',
+    'plate-20': '#2F6FDB',
+    'plate-15': '#F2C200',
+    'plate-10': '#17733F',
+    'plate-5': '#E6EEF7',
+    'plate-2-5': '#344A68',
+    'plate-1-25': '#5A6B80',
+    'on-plate': '#FFFFFF',
+    'on-plate-light': '#04141A',
+    bar: '#8B9DB3',
+    rule: '#152235',
+    stamp: '#38D9F0',
+    gauge: '#F5A524'
+  },
+  fonts: {
+    display: "'Chakra Petch', 'Segoe UI', sans-serif",
+    body: `'IBM Plex Sans Variable', 'IBM Plex Sans', ${SYSTEM_SANS}`,
+    data: `'IBM Plex Mono', ${SYSTEM_MONO}`,
+    note: `'IBM Plex Sans Variable', 'IBM Plex Sans', ${SYSTEM_SANS}`
+  },
+  radius: { card: '4px', panel: '4px', control: '2px', chip: '2px', pill: '9999px' },
+  borderWidth: '1px',
+  borderStyle: 'solid',
+  tapSize: '2.5rem',
+  tapSizeLarge: '3rem',
+  motionMs: 120,
   traits: { celebration: 'none', doneMark: 'check', dates: 'numeric' }
 };
 
@@ -249,7 +316,8 @@ const journal: Theme = {
     'on-plate-light': '#2A1C12',
     bar: '#7A6A58',
     rule: '#D9C9A6',
-    stamp: '#8E2A22'
+    stamp: '#8E2A22',
+    gauge: '#8A5A00'
   },
   fonts: {
     display: "'Playfair Display Variable', 'Playfair Display', Georgia, serif",
@@ -266,4 +334,4 @@ const journal: Theme = {
   traits: { celebration: 'stamp', doneMark: 'stamp', dates: 'written' }
 };
 
-export const THEMES: Record<ThemeId, Theme> = { classic, brutalism, journal };
+export const THEMES: Record<ThemeId, Theme> = { classic, brutalism, telemetry, journal };

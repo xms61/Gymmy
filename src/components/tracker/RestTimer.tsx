@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Play, Pause, SkipForward, Plus, Minus, Volume2, Maximize2, Minimize2 } from 'lucide-react';
 import { playTimerChime, scheduleTimerChime, vibrateForChime } from '../../utils/audio.ts';
 import { Dialog } from '../ui/Dialog.tsx';
+import { Gauge } from '../ui/Gauge.tsx';
 
 interface RestTimerProps {
   initialSeconds: number;
@@ -153,6 +154,7 @@ export const RestTimer: React.FC<RestTimerProps> = ({
             fill="transparent"
           />
         </svg>
+        <Gauge className="rest-gauge hidden w-full h-full" value={secondsLeft} max={initialSeconds} sweep={270} size={192} needle />
         <div className="rest-readout absolute flex flex-col items-center">
           <span className="rest-digits text-4xl font-extrabold font-mono text-ink tracking-tighter">{timeFormatted}</span>
           <span className="text-xs text-ink-muted font-medium mt-1">{isActive ? 'Resting...' : 'Paused'}</span>

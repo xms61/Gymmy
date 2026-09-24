@@ -6,6 +6,7 @@ Entry: `src/components/tracker/LiveTracker.tsx`: the screen for logging one work
 - `workoutDraft.ts`: saves, loads and clears the workout in progress (`gymmy_workout_draft_v1`).
 - `ResumeWorkoutBanner.tsx`: the "Unfinished … workout" banner with Resume and Discard.
 - `RestTimer.tsx`: the rest countdown after each completed set. It plays `playTimerChime` from `src/utils/audio.ts`.
+- `PlateStrip.tsx`: one end's plates under each set and how much of each plate size the load takes ("15 kg 2/2", from `platesInUse`). Hidden unless the theme shows it (Telemetry). `plateStyle.ts` holds the plate colors it shares with the calculator.
 - `PlateCalculatorModal.tsx`: the home plates on each end for barbell, dumbbell and landmine lifts (`plateLayout` in `src/services/loading.ts`).
 
 ## Rules

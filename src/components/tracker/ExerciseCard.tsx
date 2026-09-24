@@ -1,6 +1,8 @@
 import { Calculator, Info, Plus, Sparkles, Trash2 } from 'lucide-react';
 import type { EquipmentType, ExerciseDefinition, ExerciseSessionLog, ProgressRecommendation } from '../../types/workout.ts';
 import { isPlateLoaded } from '../../services/loading.ts';
+import type { ExerciseHistoryEntry } from '../../services/progress.ts';
+import { Sparkline } from '../ui/Sparkline.tsx';
 import { StatusBadge } from '../ui/badges.tsx';
 import { LIMITS, MAX_NOTES_LENGTH } from '../../validation.ts';
 import { SetRow, type SetChange } from './SetRow.tsx';
@@ -9,6 +11,7 @@ interface ExerciseCardProps {
   log: ExerciseSessionLog;
   definition: ExerciseDefinition | undefined;
   recommendation: ProgressRecommendation | null;
+  history: ExerciseHistoryEntry[]; // oldest first
   onToggleSet: (setIdx: number) => void;
   onChangeSet: (setIdx: number, change: SetChange) => void;
   onAddSet: () => void;
@@ -21,6 +24,7 @@ export function ExerciseCard({
   log,
   definition,
   recommendation,
+  history,
   onToggleSet,
   onChangeSet,
   onAddSet,
@@ -66,6 +70,8 @@ export function ExerciseCard({
         {/* The first session has no history, so no status is shown for it. */}
         {recommendation && recommendation.status !== 'maintain' && <StatusBadge status={recommendation.status} />}
       </div>
+
+      {recommendation && <Readouts recommendation={recommendation} history={history} />}
 
       {recommendation && <OverloadGuidance recommendation={recommendation} />}
 
@@ -139,6 +145,40 @@ function Prescription({ definition, weightKg }: { definition: ExerciseDefinition
       {definition.targetSets} × {definition.targetRepsMin}–{definition.targetRepsMax}
       {weightKg > 0 && ` @ ${weightKg} kg`}
     </p>
+  );
+}
+
+const SPARKLINE_SESSIONS = 8;
+
+// The last session and the target as instrument readouts, with the volume trend of recent
+// sessions. Only themes that read training as measured data show them.
+function Readouts({ recommendation, history }: { recommendation: ProgressRecommendation; history: ExerciseHistoryEntry[] }) {
+  const last = history[history.length - 1];
+  if (!last) return null;
+  const delta = recommendation.recommendedWeightKg - last.weight;
+  return (
+    <dl className="exercise-readouts hidden grid-cols-2 sm:grid-cols-5 gap-2 mb-4">
+      <Readout label="Last kg" value={String(last.weight)} detail={last.repsString} />
+      <Readout label="Target kg" value={String(recommendation.recommendedWeightKg)} />
+      <Readout label="Δ load kg" value={delta === 0 ? '±0' : `${delta > 0 ? '+' : '−'}${Math.abs(delta)}`} />
+      <Readout label="e1RM kg" value={String(last.estimated1RM)} />
+      <div className="panel px-2.5 py-2 col-span-2 sm:col-span-1">
+        <dt className="section-label text-[10px]">Volume</dt>
+        <dd className="mt-1">
+          <Sparkline values={history.slice(-SPARKLINE_SESSIONS).map(h => h.volumeKg)} />
+        </dd>
+      </div>
+    </dl>
+  );
+}
+
+function Readout({ label, value, detail }: { label: string; value: string; detail?: string }) {
+  return (
+    <div className="panel px-2.5 py-2">
+      <dt className="section-label text-[10px]">{label}</dt>
+      <dd className="font-mono text-lg font-semibold text-ink leading-tight">{value}</dd>
+      {detail && <dd className="font-mono text-[10px] text-ink-muted truncate">{detail}</dd>}
+    </div>
   );
 }
 
