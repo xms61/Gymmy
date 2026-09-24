@@ -152,6 +152,21 @@ test('rejects an invalid session without saving it', t => {
   assert.deepEqual(fetchData(db).sessions, []);
 });
 
+test('rejects a delete whose id is not valid URI encoding', t => {
+  const response = send(emptyDatabase(t), { method: 'DELETE', pathname: '/api/sessions/%E0%A4%A' });
+  assert.equal(response.status, 400);
+  assert.deepEqual(response.body, { success: false, error: 'Session ID is not valid URI encoding' });
+});
+
+test('answers a database failure with 500 and no internal details', t => {
+  const dir = tempDataDir(t);
+  const db = openDatabase(dir);
+  db.close();
+  const response = send(db, { method: 'GET', pathname: '/api/data' });
+  assert.equal(response.status, 500);
+  assert.deepEqual(response.body, { success: false, error: 'Internal database error' });
+});
+
 test('rejects a delete without a session id', t => {
   const response = send(emptyDatabase(t), { method: 'DELETE', pathname: '/api/sessions/' });
   assert.equal(response.status, 400);

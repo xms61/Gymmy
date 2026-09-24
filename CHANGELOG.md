@@ -14,12 +14,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dependabot (`.github/dependabot.yml`) proposes npm and GitHub Actions updates weekly, with minor and patch npm updates grouped into one pull request.
 
 ### Changed
+- Sessions, exercise targets, backups and drafts are checked against upper limits: at most 50 sets per exercise and 50 exercises per session, 20 target sets, 1000 kg, 1000 reps, RPE 10 and 10 000 characters of notes. A backup with a billion target sets used to pass and would have frozen the tracker. Dates must exist (`2026-02-30` is refused), and start and end times must be real times. The tracker and Settings inputs stay inside the same limits, and Add Set stops at 50 sets.
 - `AGENTS.md` and `.github/RELEASE_PROCESS.md` describe the GitHub flow: one branch per change, merged into `main` through a pull request once CI passes. They used to say the repository had no remote.
 - Every color, corner radius and font comes from design tokens (`src/theme/themes.ts`) instead of classes repeated in each screen, in preparation for themes. The look is the same, except that the Start button on the dashboard uses the split color with dark text.
 - Deloads follow the performance trend instead of the rep range. The app suggests one only when average reps drop in two sessions in a row at the same weight, the stall-or-decline signal strength coaches use (Bell et al. 2023 consensus; Rogerson et al. 2024 survey). Reps below the range that are still rising now mean "hold the weight" (Incline DB Press and Biceps Curl no longer get a deload). Three flat sessions below the range suggest a lighter working weight, shown as a new "Lighter Weight" status (Lateral Raise: 5 to 4 kg).
 
 ### Fixed
 - The dev server no longer serves `data/gymmy.db` as a static file. Any other page on the same machine could download the whole training history from `/data/gymmy.db`, because Vite answered cross-origin requests from any `localhost` origin. It now refuses `data/**` with 403 and sends no CORS headers.
+- Deleting a session whose id has broken URI encoding answers 400 instead of 500, and a database error no longer sends its message, which can include SQL and file paths, to the browser.
 - Other sites can no longer load Gymmy in a frame (`X-Frame-Options: DENY` and `frame-ancestors 'none'` on the dev and preview servers).
 - The plate calculator draws the 10 and 15 kg plates. They had no height, so the bar looked lighter than the list below it.
 - Pinch-zoom works on phones again. Form fields use 16 px text on small screens, so focusing one no longer makes iOS Safari zoom in, which the page used to prevent by disabling zoom altogether.

@@ -29,6 +29,7 @@ The key names are stored data: never rename them (see `AGENTS.md`).
 
 ## Backups
 - One format both ways: `GymmyBackup` (`format: "gymmy-backup"`, `version: 1`). `createBackup` in `backup.ts` builds it, `parseBackup` in `src/validation.ts` reads it, and `backupFile.ts` handles the download and the chosen file.
+- `parseBackup` applies the same `LIMITS` as the server, so a file with, say, a billion target sets is refused before it reaches the tracker.
 - `parseBackup` also reads the unversioned 1.0.0 export (`appVersion: "1.0.0"`, `exportDate`). A new version must keep reading every older one, and refuses newer ones.
 - An import is previewed first (`planImport`). It adds new sessions, replaces sessions with the same id when their content differs, and replaces the exercise targets when they differ. It never deletes. `applyImport` queues it through the outbox like any other change.
 

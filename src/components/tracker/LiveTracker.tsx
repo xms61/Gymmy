@@ -15,6 +15,7 @@ import { toLocalDateString } from '../../utils/date.ts';
 import { unlockAudio } from '../../utils/audio.ts';
 import { clearDraft, saveDraft } from './workoutDraft.ts';
 import { SplitBadge } from '../ui/badges.tsx';
+import { LIMITS, MAX_NOTES_LENGTH } from '../../validation.ts';
 
 interface LiveTrackerProps {
   workoutType: SplitType;
@@ -155,6 +156,7 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
 
   const addSet = (exIdx: number) => {
     updateExercise(exIdx, ex => {
+      if (ex.sets.length >= LIMITS.setNumber.max) return ex;
       const lastSet = ex.sets[ex.sets.length - 1];
       const exDef = workoutExercises.find(e => e.id === ex.exerciseId);
 
@@ -287,6 +289,7 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
             onChange={e => setSessionNotes(e.target.value)}
             placeholder="How did the session feel? Energy levels, soreness, personal breakthroughs..."
             rows={3}
+            maxLength={MAX_NOTES_LENGTH}
             className="field w-full bg-inset rounded-panel p-3 text-base sm:text-sm text-ink-soft"
           />
         </div>

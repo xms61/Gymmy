@@ -32,8 +32,9 @@ export function handleApiRequest(db: DatabaseSync, request: ApiRequest): ApiResp
   try {
     return rejectUntrustedRequest(request) ?? route(db, request);
   } catch (err) {
+    // The details go to the server log only: they can hold SQL and file paths.
     console.error('[Gymmy DB] Request failed:', request.method, request.pathname, err);
-    return { status: 500, body: { success: false, error: err instanceof Error ? err.message : 'Internal database error' } };
+    return { status: 500, body: { success: false, error: 'Internal database error' } };
   }
 }
 
@@ -43,7 +44,8 @@ function route(db: DatabaseSync, { method, pathname, body }: ApiRequest): ApiRes
   }
   if (method === 'POST' && pathname === '/api/sessions') return saveSession(db, body);
   if (method === 'DELETE' && pathname.startsWith(SESSION_PATH_PREFIX)) {
-    return removeSession(db, decodeURIComponent(pathname.slice(SESSION_PATH_PREFIX.length)));
+    const id = decodePathSegment(pathname.slice(SESSION_PATH_PREFIX.length));
+    return id === null ? badRequest('Session ID is not valid URI encoding') : removeSession(db, id);
   }
   if (method === 'POST' && pathname === '/api/exercises') return saveExercises(db, body);
   if (method === 'POST' && pathname === '/api/clear') {
@@ -80,6 +82,14 @@ function isSameOrigin(origin: string, host: string): boolean {
 
 function isJson(contentType: string | undefined): boolean {
   return contentType?.split(';')[0]?.trim().toLowerCase() === 'application/json';
+}
+
+function decodePathSegment(text: string): string | null {
+  try {
+    return decodeURIComponent(text);
+  } catch {
+    return null;
+  }
 }
 
 function parseUrl(text: string): URL | null {
