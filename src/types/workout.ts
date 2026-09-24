@@ -1,6 +1,8 @@
-export type SplitType = 'Push' | 'Pull' | 'Legs' | 'Other';
+export const SPLIT_TYPES = ['Push', 'Pull', 'Legs', 'Other'] as const;
+export type SplitType = (typeof SPLIT_TYPES)[number];
 
-export type EquipmentType = 'barbell' | 'dumbbell' | 'cable' | 'bodyweight' | 'machine';
+export const EQUIPMENT_TYPES = ['barbell', 'dumbbell', 'cable', 'bodyweight', 'machine'] as const;
+export type EquipmentType = (typeof EQUIPMENT_TYPES)[number];
 
 export interface ExerciseDefinition {
   id: string;
