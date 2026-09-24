@@ -31,11 +31,11 @@ export function ExerciseCard({
   // Every log the tracker creates records its equipment; the fallback covers older drafts.
   const equipment = definition?.equipment ?? log.equipment ?? 'barbell';
   return (
-    <div className="card p-5 shadow-xl transition hover:border-edge relative overflow-hidden">
+    <div className="exercise-card card p-5 shadow-xl transition hover:border-edge relative overflow-hidden">
       <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
         <div>
           <div className="flex items-center space-x-2">
-            <h3 className="text-xl font-black text-ink tracking-tight">{log.exerciseName}</h3>
+            <h3 className="exercise-name text-xl font-black text-ink tracking-tight">{log.exerciseName}</h3>
             {isPlateLoaded(equipment) && (
               <button
                 onClick={() => onOpenPlates(log.sets[0]?.weightKg ?? definition?.defaultWeightKg ?? 0, equipment)}
@@ -47,6 +47,8 @@ export function ExerciseCard({
               </button>
             )}
           </div>
+
+          {definition && <Prescription definition={definition} weightKg={recommendation?.recommendedWeightKg ?? log.sets[0]?.weightKg ?? 0} />}
 
           <div className="flex items-center space-x-2 mt-1 text-xs text-ink-muted">
             <span className="capitalize font-medium text-ink-soft">{log.equipment || 'Gym Exercise'}</span>
@@ -75,7 +77,7 @@ export function ExerciseCard({
       )}
 
       <div className="space-y-3">
-        <div className="grid grid-cols-12 gap-2 section-label text-ink-faint px-2">
+        <div className="set-header grid grid-cols-12 gap-2 section-label text-ink-faint px-2">
           <div className="col-span-2 text-center">Set</div>
           <div className="col-span-4 text-center">Load (kg)</div>
           <div className="col-span-4 text-center">Reps</div>
@@ -125,6 +127,17 @@ export function ExerciseCard({
         />
       </div>
     </div>
+  );
+}
+
+// "4 × 6–8 @ 62.5 kg": the whole target in one line. Only themes that set it in large type show
+// it; the others give the same numbers in the line below and in the guidance panel.
+function Prescription({ definition, weightKg }: { definition: ExerciseDefinition; weightKg: number }) {
+  return (
+    <p className="exercise-prescription hidden mt-1 font-display text-2xl text-accent-ink uppercase">
+      {definition.targetSets} × {definition.targetRepsMin}–{definition.targetRepsMax}
+      {weightKg > 0 && ` @ ${weightKg} kg`}
+    </p>
   );
 }
 

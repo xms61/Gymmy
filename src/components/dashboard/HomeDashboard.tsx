@@ -74,7 +74,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
           <button
             onClick={() => onStartWorkout(nextSplit)}
             disabled={!canStart}
-            className={`btn px-6 py-3.5 disabled:opacity-60 ${nextStyle.fill} hover:opacity-90 font-black text-sm uppercase tracking-wider rounded-panel shadow-xl`}
+            className={`btn min-h-tap-lg px-6 py-3.5 disabled:opacity-60 ${nextStyle.fill} hover:opacity-90 font-black text-sm uppercase tracking-wider rounded-panel shadow-xl`}
           >
             <Play className="w-4 h-4 fill-current" />
             <span>{canStart ? `Start ${nextSplit}` : 'Syncing…'}</span>
@@ -120,13 +120,13 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
                 key={split}
                 onClick={() => onStartWorkout(split)}
                 disabled={!canStart}
-                className={`p-4 card disabled:opacity-60 disabled:cursor-wait rounded-panel ${style.hoverBorder} flex flex-col items-center justify-center space-y-2 transition active:scale-95 group`}
+                className={`split-solid p-4 card disabled:opacity-60 disabled:cursor-wait rounded-panel ${style.solid} ${style.hoverBorder} flex flex-col items-center justify-center space-y-2 transition active:scale-95 group`}
               >
-                <div className={`w-10 h-10 rounded-control ${style.tint} ${style.text} ${style.groupHoverFill} flex items-center justify-center transition`}>
+                <div className={`split-icon w-10 h-10 rounded-control ${style.tint} ${style.text} ${style.groupHoverFill} flex items-center justify-center transition`}>
                   <Dumbbell className="w-5 h-5" />
                 </div>
                 <div className="text-center">
-                  <div className="font-bold text-sm text-ink">{split}</div>
+                  <div className="split-name font-bold text-sm text-ink">{split}</div>
                   <div className="text-[11px] text-ink-muted">{exerciseCount} Exercises</div>
                 </div>
               </button>

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { THEMES, type ColorToken } from '../src/theme/themes.ts';
-import { hexToChannels, themeStylesheet } from '../src/theme/themeCss.ts';
+import { parseThemeId, THEME_IDS, THEME_STORAGE_KEY, THEMES, type ColorToken } from '../src/theme/themes.ts';
+import { hexToChannels, themeBootScript, themeStylesheet } from '../src/theme/themeCss.ts';
 
 test('writes colors as rgb channels so Tailwind opacity modifiers work', () => {
   const CASES: [hex: string, expected: string][] = [
@@ -25,6 +25,46 @@ test('scopes every theme to its data-theme attribute', () => {
   for (const theme of Object.values(THEMES)) {
     assert.match(css, new RegExp(`\\[data-theme="${theme.id}"\\] \\{[^}]*--c-bg: ${hexToChannels(theme.colors.bg)};`));
   }
+});
+
+test('reads only known theme ids', () => {
+  assert.equal(parseThemeId('brutalism'), 'brutalism');
+  for (const value of [null, '', 'Brutalism', 'constructor', 42]) {
+    assert.equal(parseThemeId(value), null, String(value));
+  }
+});
+
+test('every theme id has a theme', () => {
+  assert.deepEqual(Object.keys(THEMES).sort(), [...THEME_IDS].sort());
+  for (const id of THEME_IDS) assert.equal(THEMES[id].id, id);
+});
+
+// Runs the boot script against a fake page, the way the browser runs it in <head>.
+function runBootScript(readStored: () => string | null): { theme: string; toolbarColor: string } {
+  const page = { theme: 'classic', toolbarColor: '#090D16' };
+  const document = {
+    documentElement: { setAttribute: (_name: string, value: string) => (page.theme = value) },
+    querySelector: () => ({ setAttribute: (_name: string, value: string) => (page.toolbarColor = value) })
+  };
+  const localStorage = { getItem: (key: string) => (key === THEME_STORAGE_KEY ? readStored() : null) };
+  new Function('document', 'localStorage', themeBootScript(Object.values(THEMES), THEME_STORAGE_KEY))(document, localStorage);
+  return page;
+}
+
+test('the boot script applies the stored theme before the first paint', () => {
+  assert.deepEqual(runBootScript(() => 'brutalism'), { theme: 'brutalism', toolbarColor: THEMES.brutalism.colors.bg });
+});
+
+test('the boot script keeps the default for a missing, unknown or unreadable choice', () => {
+  const unchanged = { theme: 'classic', toolbarColor: '#090D16' };
+  assert.deepEqual(runBootScript(() => null), unchanged);
+  assert.deepEqual(runBootScript(() => 'toString'), unchanged);
+  assert.deepEqual(
+    runBootScript(() => {
+      throw new Error('storage blocked');
+    }),
+    unchanged
+  );
 });
 
 test('turns off animations only for a theme without motion', () => {

@@ -5,11 +5,12 @@ import type { SyncStatus } from '../../services/sync.ts';
 import type { ExerciseDefinition } from '../../types/workout.ts';
 import { clampTo, hasValidRepRange, LIMITS } from '../../validation.ts';
 import { describeSyncStatus, needsAttention, syncLabel } from '../syncStatusText.ts';
+import { AppearanceSection } from './AppearanceSection.tsx';
 import { BackupSection } from './BackupSection.tsx';
 import { RefusedChanges } from './RefusedChanges.tsx';
 import { Dialog, DialogHeader } from '../ui/Dialog.tsx';
 
-type SettingsTab = 'data' | 'exercises';
+type SettingsTab = 'data' | 'exercises' | 'appearance';
 
 // The fallback is used when the field is cleared, and every value is clamped to the limits the server accepts.
 const TARGET_FIELDS = [
@@ -22,7 +23,8 @@ type TargetField = (typeof TARGET_FIELDS)[number]['field'];
 
 const SETTINGS_TABS: { id: SettingsTab; label: string }[] = [
   { id: 'data', label: 'Data & Backup' },
-  { id: 'exercises', label: 'Exercise Targets' }
+  { id: 'exercises', label: 'Exercise Targets' },
+  { id: 'appearance', label: 'Appearance' }
 ];
 
 interface SettingsModalProps {
@@ -136,6 +138,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </button>
             </div>
           </div>
+        ) : activeTab === 'appearance' ? (
+          <AppearanceSection />
         ) : (
           <div className="space-y-4">
             <p className="text-xs text-ink-muted">

@@ -40,6 +40,7 @@ See the Commands table in [AGENTS.md](AGENTS.md). Every pull request and every p
 - **History:** a monthly calendar colored by split (Push orange, Pull green, Legs blue), with each day's sets, loads, volume and notes, and a weekly streak: weeks in a row, Monday to Sunday, with at least one workout.
 - **Progress:** estimated 1RM (Brzycki formula), best load and volume for each exercise.
 - **Backup and restore:** a JSON file with every workout and the exercise targets. Restoring previews the changes first and never deletes anything.
+- **Themes:** the Appearance tab in Settings switches between Classic and Industrial Brutalism (iron, chalk and caution yellow, square corners, 56 px steppers, load stacked over reps, and a full-width rest timer). The choice is stored on each device. The fonts are bundled, so they work offline.
 
 ## Where data lives
 - `data/gymmy.db` is the source of truth. It's a SQLite file created by the dev and preview servers, which serve it at `/api/*`.

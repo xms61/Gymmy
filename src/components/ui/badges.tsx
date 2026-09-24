@@ -10,6 +10,7 @@ interface SplitStyle {
   gradient: string;
   hoverBorder: string;
   groupHoverFill: string;
+  solid: string; // for themes that fill split tiles and training days with the split color
 }
 
 export const SPLIT_STYLE: Record<SplitType, SplitStyle> = {
@@ -20,7 +21,8 @@ export const SPLIT_STYLE: Record<SplitType, SplitStyle> = {
     border: 'border-push/40',
     gradient: 'from-push/20 to-push/5',
     hoverBorder: 'hover:border-push/50',
-    groupHoverFill: 'group-hover:bg-push group-hover:text-on-split'
+    groupHoverFill: 'group-hover:bg-push group-hover:text-on-split',
+    solid: 'brutalism:bg-push'
   },
   Pull: {
     text: 'text-pull',
@@ -29,7 +31,8 @@ export const SPLIT_STYLE: Record<SplitType, SplitStyle> = {
     border: 'border-pull/40',
     gradient: 'from-pull/20 to-pull/5',
     hoverBorder: 'hover:border-pull/50',
-    groupHoverFill: 'group-hover:bg-pull group-hover:text-on-split'
+    groupHoverFill: 'group-hover:bg-pull group-hover:text-on-split',
+    solid: 'brutalism:bg-pull'
   },
   Legs: {
     text: 'text-legs',
@@ -38,7 +41,8 @@ export const SPLIT_STYLE: Record<SplitType, SplitStyle> = {
     border: 'border-legs/40',
     gradient: 'from-legs/20 to-legs/5',
     hoverBorder: 'hover:border-legs/50',
-    groupHoverFill: 'group-hover:bg-legs group-hover:text-on-split'
+    groupHoverFill: 'group-hover:bg-legs group-hover:text-on-split',
+    solid: 'brutalism:bg-legs'
   },
   Other: {
     text: 'text-other',
@@ -47,7 +51,8 @@ export const SPLIT_STYLE: Record<SplitType, SplitStyle> = {
     border: 'border-other/40',
     gradient: 'from-other/20 to-other/5',
     hoverBorder: 'hover:border-other/50',
-    groupHoverFill: 'group-hover:bg-other group-hover:text-on-split'
+    groupHoverFill: 'group-hover:bg-other group-hover:text-on-split',
+    solid: 'brutalism:bg-other'
   }
 };
 

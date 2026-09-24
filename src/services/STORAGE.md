@@ -28,6 +28,7 @@ Entry: `src/services/storage.ts`: `StorageService` holds the app's sessions and 
 | `gymmy_rejected_ops_v1` | Ops the server refused (400/413/415), kept so the data is not lost until the user downloads or dismisses them in Settings. |
 | `gymmy_workout_draft_v1` | The workout in progress (`WorkoutDraft`). Owned by `src/components/tracker/workoutDraft.ts`, not `StorageService`: it is never synced, and is cleared when the workout is finished or left. |
 | `gymmy_local_sessions_adopted_v1` | Timestamp. Set after the one-time check for sessions that 1.0.0 left only in localStorage. |
+| `gymmy_theme_v1` | The theme chosen on this device (`ThemeId`). Owned by `src/theme/themePreference.ts` and read by the boot script in `<head>`; never synced, so each device keeps its own. |
 
 The key names are stored data: never rename them (see `AGENTS.md`).
 

@@ -4,15 +4,18 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from 'tailwindcss';
 import autoprefixer from 'autoprefixer';
 import { gymmySqlitePlugin } from './server/vitePlugin.ts';
-import { THEMES } from './src/theme/themes.ts';
-import { themeStylesheet } from './src/theme/themeCss.ts';
+import { THEME_STORAGE_KEY, THEMES } from './src/theme/themes.ts';
+import { themeBootScript, themeStylesheet } from './src/theme/themeCss.ts';
 
-// Puts the theme tokens in <head>, so the first paint already has the right colors.
+// Puts the theme tokens and the stored theme choice in <head>, so the first paint already has
+// the right colors.
 function themeTokensPlugin(): Plugin {
+  const themes = Object.values(THEMES);
   return {
     name: 'gymmy-theme-tokens',
     transformIndexHtml: () => [
-      { tag: 'style', attrs: { id: 'theme-tokens' }, children: themeStylesheet(Object.values(THEMES)), injectTo: 'head' }
+      { tag: 'style', attrs: { id: 'theme-tokens' }, children: themeStylesheet(themes), injectTo: 'head' },
+      { tag: 'script', children: themeBootScript(themes, THEME_STORAGE_KEY), injectTo: 'head' }
     ]
   };
 }

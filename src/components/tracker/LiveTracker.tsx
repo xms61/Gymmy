@@ -25,6 +25,7 @@ import { toLocalDateString } from '../../utils/date.ts';
 import { unlockAudio } from '../../utils/audio.ts';
 import { clearDraft, saveDraft } from './workoutDraft.ts';
 import { SplitBadge } from '../ui/badges.tsx';
+import { useTheme } from '../../theme/ThemeProvider.tsx';
 import { LIMITS, MAX_NOTES_LENGTH } from '../../validation.ts';
 
 interface LiveTrackerProps {
@@ -111,6 +112,7 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
   const [completedSummary, setCompletedSummary] = useState<WorkoutSession | null>(null);
   // A ref, not state: a double tap fires both clicks before React re-renders.
   const hasFinishedRef = useRef(false);
+  const { theme } = useTheme();
 
   // Keeps the screen on during the workout (phones and laptops that sleep between sets), asking
   // again when the tab comes back, because the browser drops the lock when the tab is hidden.
@@ -256,17 +258,19 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
     clearDraft();
     setCompletedSummary(completedSession);
 
-    confetti({
-      particleCount: 80,
-      spread: 70,
-      origin: { y: 0.6 },
-      disableForReducedMotion: true
-    });
+    if (theme.traits.celebration === 'confetti') {
+      confetti({
+        particleCount: 80,
+        spread: 70,
+        origin: { y: 0.6 },
+        disableForReducedMotion: true
+      });
+    }
   };
 
   return (
     <div className="min-h-screen bg-inset pb-28 text-ink-soft antialiased">
-      <header className="sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-line px-4 py-3">
+      <header className="hazard-edge sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-line px-4 py-3">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <button onClick={onCancel} className="icon-btn" title="Leave workout">
@@ -284,7 +288,7 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
           <button
             onClick={handleFinishWorkout}
             disabled={completedSetsCount === 0 || completedSummary !== null}
-            className="btn btn-good px-4 py-2 text-sm shadow-lg shadow-good/30 disabled:shadow-none"
+            className="btn btn-good min-h-tap-lg px-4 py-2 text-sm shadow-lg shadow-good/30 disabled:shadow-none"
           >
             <Check className="w-4 h-4" />
             <span>Finish Workout</span>
