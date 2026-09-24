@@ -83,6 +83,23 @@ export async function sendInOrder(
   return { remaining: [], rejected };
 }
 
+// Removes each finished op once, matched by content. The outbox may have gained ops from this tab
+// or another one while the batch was in flight, and ops read back from storage are new objects.
+export function withoutOps(outbox: PendingOp[], finished: PendingOp[]): PendingOp[] {
+  const toRemove = new Map<string, number>();
+  for (const op of finished) {
+    const key = JSON.stringify(op);
+    toRemove.set(key, (toRemove.get(key) ?? 0) + 1);
+  }
+  return outbox.filter(op => {
+    const key = JSON.stringify(op);
+    const count = toRemove.get(key) ?? 0;
+    if (count === 0) return true;
+    toRemove.set(key, count - 1);
+    return false;
+  });
+}
+
 export interface Adoption {
   validIds: string[];
   invalidCount: number;

@@ -13,6 +13,9 @@ Entry: `src/services/storage.ts`: `StorageService` holds the app's sessions and 
   1. sends the outbox;
   2. loads `/api/data`;
   3. re-applies whatever is still queued on top of the server data. Unsynced local changes win, and offline deletes stay deleted.
+- Every request gives up after 8 s (`AbortSignal.timeout`), so an unreachable address cannot hold up the outbox.
+- While the app is open, it tries again when the browser goes back online, when the tab comes back to the front, and every 30 s: it runs the start sync again if that never reached the server, and otherwise sends whatever is queued.
+- Tabs share the stored copy. When another tab writes it (`storage` event), this tab takes the stored sessions and outbox, so its next write builds on them. After a send, the ops that went out are removed by content (`withoutOps`), because the outbox may have changed while they were in flight.
 - A new kind of write gets a new `PendingOp` variant in `sync.ts`, with its `applyOps` case, its `apiCallFor` case and tests.
 
 ## Data
@@ -40,5 +43,5 @@ The key names are stored data: never rename them (see `AGENTS.md`).
 - A static build (no API) queues every change forever. The header shows "Offline, N pending".
 
 ## Tests
-- `tests/sync.test.ts`: offline saves survive a start and offline deletes stay deleted; sending is in order and stops at a failure; rejected ops are set aside; status classification; adoption and its confirmation rule.
+- `tests/sync.test.ts`: offline saves survive a start and offline deletes stay deleted; sending is in order and stops at a failure; rejected ops are set aside; sent ops leave an outbox that changed meanwhile; status classification; adoption and its confirmation rule.
 - `tests/backup.test.ts`: export and import round trip, reading 1.0.0 backups, refusing other files, and what an import adds, replaces or keeps.

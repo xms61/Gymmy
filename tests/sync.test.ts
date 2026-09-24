@@ -9,7 +9,8 @@ import {
   sessionsToAdopt,
   type PendingOp,
   type SendResult,
-  type Snapshot
+  type Snapshot,
+  withoutOps
 } from '../src/services/sync.ts';
 import { EXERCISE_DEFINITIONS } from '../src/data/seedData.ts';
 import type { WorkoutSession } from '../src/types/workout.ts';
@@ -107,6 +108,25 @@ test('a rejected operation is set aside and the rest are still sent', async () =
   ];
   const result = await sendInOrder(ops, async op => (op.type === 'deleteSession' && op.id === 'bad' ? 'rejected' : 'sent'));
   assert.deepEqual(result, { remaining: [], rejected: [ops[0]] });
+});
+
+test('sent operations leave the outbox even if it changed while they were in flight', () => {
+  const sent: PendingOp[] = [{ type: 'upsertSession', session: session('a') }, { type: 'deleteSession', id: 'b' }];
+  const addedMeanwhile: PendingOp = { type: 'upsertSession', session: session('c') };
+  // Another tab's write replaced the outbox with copies read back from storage, plus its own op.
+  const outbox = JSON.parse(JSON.stringify([...sent, addedMeanwhile])) as PendingOp[];
+  assert.deepEqual(withoutOps(outbox, sent), [addedMeanwhile]);
+});
+
+test('an operation queued twice leaves the outbox once per send', () => {
+  const save: PendingOp = { type: 'upsertSession', session: session('a') };
+  assert.deepEqual(withoutOps([save, save], [save]), [save]);
+});
+
+test('an operation another tab already sent is not removed twice', () => {
+  const clear: PendingOp = { type: 'clearSessions' };
+  const other: PendingOp = { type: 'deleteSession', id: 'x' };
+  assert.deepEqual(withoutOps([other], [clear]), [other]);
 });
 
 test('adopts only valid sessions that are not known yet', () => {
