@@ -6,9 +6,15 @@ import {
   Flame, 
   Award 
 } from 'lucide-react';
-import type { WorkoutSession } from '../../types/workout.ts';
+import type { ReactNode } from 'react';
+import type { LucideIcon } from 'lucide-react';
+import type { SplitType, WorkoutSession } from '../../types/workout.ts';
 import { DayDetailModal } from './DayDetailModal.tsx';
 import { toLocalDateString, getTodayDateString } from '../../utils/date.ts';
+import { SPLIT_STYLE } from '../ui/badges.tsx';
+
+const LEGEND_SPLITS: SplitType[] = ['Push', 'Pull', 'Legs'];
+const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 interface WorkoutCalendarProps {
   sessions: WorkoutSession[];
@@ -124,103 +130,52 @@ export const WorkoutCalendar: React.FC<WorkoutCalendarProps> = ({
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Monthly Statistics Overview */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center space-x-3">
-          <div className="p-3 bg-indigo-500/10 rounded-xl text-indigo-400">
-            <CalendarIcon className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="text-xs text-slate-400 font-semibold">Workouts</div>
-            <div className="text-xl font-bold text-white font-mono">{workoutsThisMonth.length}</div>
-          </div>
-        </div>
-
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center space-x-3">
-          <div className="p-3 bg-emerald-500/10 rounded-xl text-emerald-400">
-            <Flame className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="text-xs text-slate-400 font-semibold">Active Streak</div>
-            <div className="text-xl font-bold text-white font-mono">
-              {sessions.filter(s => s.completed).length > 0 ? 'Consistent' : '0 days'}
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center space-x-3">
-          <div className="p-3 bg-blue-500/10 rounded-xl text-blue-400">
-            <Award className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="text-xs text-slate-400 font-semibold">Month Volume</div>
-            <div className="text-xl font-bold text-white font-mono">
-              {Math.round(totalVolumeThisMonth / 1000)}k <span className="text-xs font-normal text-slate-400">kg</span>
-            </div>
-          </div>
-        </div>
+        <MonthStat icon={CalendarIcon} iconClass="bg-accent-ink/10 text-accent-ink" label="Workouts">
+          {workoutsThisMonth.length}
+        </MonthStat>
+        <MonthStat icon={Flame} iconClass="bg-good-ink/10 text-good-ink" label="Active Streak">
+          {sessions.filter(s => s.completed).length > 0 ? 'Consistent' : '0 days'}
+        </MonthStat>
+        <MonthStat icon={Award} iconClass="bg-legs/10 text-legs" label="Month Volume">
+          {Math.round(totalVolumeThisMonth / 1000)}k <span className="text-xs font-normal text-ink-muted">kg</span>
+        </MonthStat>
       </div>
 
-      {/* Calendar Card */}
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 md:p-6 shadow-xl">
-        {/* Month Header and Navigation */}
+      <div className="card p-5 md:p-6 shadow-xl">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-3">
-            <h2 className="text-xl font-black text-white tracking-tight">{monthName}</h2>
-            <button
-              onClick={jumpToToday}
-              className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-indigo-300 rounded-lg transition"
-            >
+            <h2 className="text-xl font-black text-ink tracking-tight">{monthName}</h2>
+            <button onClick={jumpToToday} className="btn btn-secondary px-2.5 py-1 text-xs font-semibold text-accent-ink rounded-chip">
               Today
             </button>
           </div>
 
           <div className="flex items-center space-x-1">
-            <button
-              onClick={prevMonth}
-              className="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition"
-              title="Previous month"
-            >
+            <button onClick={prevMonth} className="icon-btn" title="Previous month">
               <ChevronLeft className="w-5 h-5" />
             </button>
-            <button
-              onClick={nextMonth}
-              className="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition"
-              title="Next month"
-            >
+            <button onClick={nextMonth} className="icon-btn" title="Next month">
               <ChevronRight className="w-5 h-5" />
             </button>
           </div>
         </div>
 
-        {/* Legend */}
-        <div className="flex items-center space-x-4 mb-4 text-xs font-semibold text-slate-400 border-b border-slate-800/80 pb-3">
-          <span className="flex items-center space-x-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-orange-500 inline-block shadow-sm shadow-orange-500/50" />
-            <span>Push</span>
-          </span>
-          <span className="flex items-center space-x-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block shadow-sm shadow-emerald-500/50" />
-            <span>Pull</span>
-          </span>
-          <span className="flex items-center space-x-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block shadow-sm shadow-blue-500/50" />
-            <span>Legs</span>
-          </span>
+        <div className="flex items-center space-x-4 mb-4 text-xs font-semibold text-ink-muted border-b border-line pb-3">
+          {LEGEND_SPLITS.map(split => (
+            <span key={split} className="flex items-center space-x-1.5">
+              <span className={`w-2.5 h-2.5 rounded-pill inline-block ${SPLIT_STYLE[split].fill}`} />
+              <span>{split}</span>
+            </span>
+          ))}
         </div>
 
-        {/* Day of Week Labels */}
-        <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
-          <span>Sun</span>
-          <span>Mon</span>
-          <span>Tue</span>
-          <span>Wed</span>
-          <span>Thu</span>
-          <span>Fri</span>
-          <span>Sat</span>
+        <div className="grid grid-cols-7 gap-1 text-center section-label text-ink-faint mb-2">
+          {WEEKDAYS.map(day => (
+            <span key={day}>{day}</span>
+          ))}
         </div>
 
-        {/* Calendar Day Grid */}
         <div className="grid grid-cols-7 gap-1.5">
           {calendarDays.map((day, idx) => {
             const isToday = day.dateString === todayStr;
@@ -230,47 +185,36 @@ export const WorkoutCalendar: React.FC<WorkoutCalendarProps> = ({
               <button
                 key={idx}
                 onClick={() => setSelectedDayString(day.dateString)}
-                className={`min-h-[64px] md:min-h-[76px] p-2 rounded-2xl flex flex-col items-center justify-between border transition-all text-left relative active:scale-95 ${
-                  day.isCurrentMonth ? 'text-slate-200' : 'text-slate-600 bg-slate-950/30 border-transparent'
+                className={`min-h-[64px] md:min-h-[76px] p-2 rounded-panel flex flex-col items-center justify-between border transition-all text-left relative active:scale-95 ${
+                  day.isCurrentMonth ? 'text-ink-soft' : 'text-ink-faint bg-inset/30 border-transparent'
                 } ${
                   isToday
-                    ? 'border-indigo-500 bg-indigo-500/5 font-bold'
+                    ? 'border-accent-ink bg-accent-ink/5 font-bold'
                     : hasWorkout
-                    ? 'bg-slate-950 border-slate-800 hover:border-slate-700'
-                    : 'bg-slate-950/60 border-slate-800/50 hover:border-slate-700'
+                    ? 'bg-inset border-line hover:border-edge'
+                    : 'bg-inset/60 border-line/50 hover:border-edge'
                 }`}
               >
-                {/* Day number */}
                 <div className="w-full flex items-center justify-between">
-                  <span className={`text-xs font-mono font-bold ${isToday ? 'text-indigo-400' : ''}`}>
+                  <span className={`text-xs font-mono font-bold ${isToday ? 'text-accent-ink' : ''}`}>
                     {day.dayNumber}
                   </span>
                   {hasWorkout && (
-                    <span className="text-[10px] text-slate-500 font-mono hidden md:inline">
+                    <span className="text-[10px] text-ink-faint font-mono hidden md:inline">
                       {day.sessions.length}
                     </span>
                   )}
                 </div>
 
-                {/* Workout Type Badges */}
                 <div className="w-full flex flex-wrap gap-1 justify-center mt-1">
-                  {day.sessions.map((s, sIdx) => {
-                    const bgClass =
-                      s.splitType === 'Push'
-                        ? 'bg-orange-500 text-slate-950'
-                        : s.splitType === 'Pull'
-                        ? 'bg-emerald-500 text-slate-950'
-                        : 'bg-blue-500 text-slate-950';
-
-                    return (
-                      <span
-                        key={sIdx}
-                        className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded-md ${bgClass} shadow-sm truncate max-w-full`}
-                      >
-                        {s.name}
-                      </span>
-                    );
-                  })}
+                  {day.sessions.map((s, sIdx) => (
+                    <span
+                      key={sIdx}
+                      className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded-chip ${SPLIT_STYLE[s.splitType].fill} shadow-sm truncate max-w-full`}
+                    >
+                      {s.name}
+                    </span>
+                  ))}
                 </div>
               </button>
             );
@@ -293,3 +237,24 @@ export const WorkoutCalendar: React.FC<WorkoutCalendarProps> = ({
     </div>
   );
 };
+
+interface MonthStatProps {
+  icon: LucideIcon;
+  iconClass: string;
+  label: string;
+  children: ReactNode;
+}
+
+function MonthStat({ icon: Icon, iconClass, label, children }: MonthStatProps) {
+  return (
+    <div className="card rounded-panel p-4 flex items-center space-x-3">
+      <div className={`p-3 rounded-control ${iconClass}`}>
+        <Icon className="w-5 h-5" />
+      </div>
+      <div>
+        <div className="text-xs text-ink-muted font-semibold">{label}</div>
+        <div className="text-xl font-bold text-ink font-mono">{children}</div>
+      </div>
+    </div>
+  );
+}

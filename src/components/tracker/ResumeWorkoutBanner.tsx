@@ -13,14 +13,14 @@ export function ResumeWorkoutBanner({ draft, onResume, onDiscard }: ResumeWorkou
   const doneSets = sets.filter(s => s.completed).length;
 
   return (
-    <div className="mb-6 bg-indigo-950/40 border border-indigo-500/40 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
+    <div className="mb-6 bg-accent/10 border border-accent-ink/40 rounded-panel p-4 flex flex-wrap items-center justify-between gap-3">
       <div className="flex items-center space-x-3">
-        <div className="p-2 bg-indigo-500/15 text-indigo-300 rounded-xl">
+        <div className="p-2 bg-accent-ink/15 text-accent-ink rounded-control">
           <History className="w-5 h-5" />
         </div>
         <div>
-          <div className="text-sm font-bold text-white">Unfinished {draft.workoutType} workout</div>
-          <div className="text-xs text-slate-400">
+          <div className="text-sm font-bold text-ink">Unfinished {draft.workoutType} workout</div>
+          <div className="text-xs text-ink-muted">
             Started {describeStart(draft.startTime)} · {doneSets} of {sets.length} sets done
           </div>
         </div>
@@ -28,14 +28,14 @@ export function ResumeWorkoutBanner({ draft, onResume, onDiscard }: ResumeWorkou
       <div className="flex items-center space-x-2">
         <button
           onClick={onDiscard}
-          className="flex items-center space-x-1.5 px-3 py-2 text-xs font-semibold text-slate-400 hover:text-rose-300 rounded-xl transition"
+          className="flex items-center space-x-1.5 px-3 py-2 text-xs font-semibold text-ink-muted hover:text-bad-ink rounded-control transition"
         >
           <Trash2 className="w-3.5 h-3.5" />
           <span>Discard</span>
         </button>
         <button
           onClick={onResume}
-          className="flex items-center space-x-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition active:scale-95"
+          className="btn btn-primary gap-1.5 px-4 py-2 text-xs"
         >
           <Play className="w-3.5 h-3.5" />
           <span>Resume</span>
