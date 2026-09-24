@@ -1,7 +1,7 @@
 // Progressive overload rules (double progression) and 1RM estimates. Which loads exist, and
 // which one comes next, is decided by loading.ts from the home equipment.
 import type { EquipmentType, ExerciseDefinition, ProgressRecommendation, SetLog, WorkoutSession } from '../types/workout.ts';
-import { completedExerciseLogs, type CompletedExerciseLog } from './exerciseLogs.ts';
+import { completedExerciseLogs, workingSets, workingWeight, type CompletedExerciseLog } from './exerciseLogs.ts';
 import { lightestLoad, nearestLoad, stepLoad } from './loading.ts';
 
 const DELOAD_FACTOR = 0.9;
@@ -42,8 +42,8 @@ function adviceForFirstSession(exercise: ExerciseDefinition): Advice {
 // logs is oldest first, and every log has at least one set.
 function adviceFromHistory(exercise: ExerciseDefinition, logs: CompletedExerciseLog[]): Advice {
   const { targetSets, targetRepsMin: min, targetRepsMax: max, equipment } = exercise;
-  const sets = logs[logs.length - 1].sets;
-  const weight = sets[0].weightKg;
+  const sets = workingSets(logs[logs.length - 1]!.sets);
+  const weight = workingWeight(sets);
   const summary = sets.map(s => s.repsCompleted).join(' / ');
   const hold = (reason: string, nextStepGoal: string): Advice => ({
     status: 'progress_reps',
@@ -80,7 +80,7 @@ function adviceFromHistory(exercise: ExerciseDefinition, logs: CompletedExercise
   }
 
   // Trends are read only across sessions at this weight: reps at another load aren't comparable.
-  const averages = logsAtWeight(logs, weight).map(log => averageReps(log.sets));
+  const averages = logsAtWeight(logs, weight).map(log => averageReps(workingSets(log.sets)));
   const trend = averages.slice(-3).map(formatAverage).join(' → ');
 
   // Falling performance is the fatigue signal coaches deload on (Bell et al. 2023 Delphi
@@ -157,7 +157,7 @@ function averageReps(sets: SetLog[]): number {
 // The most recent run of sessions at this weight, oldest first.
 function logsAtWeight(logs: CompletedExerciseLog[], weightKg: number): CompletedExerciseLog[] {
   let start = logs.length;
-  while (start > 0 && logs[start - 1].sets[0].weightKg === weightKg) start--;
+  while (start > 0 && workingWeight(logs[start - 1]!.sets) === weightKg) start--;
   return logs.slice(start);
 }
 
