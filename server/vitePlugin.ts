@@ -47,7 +47,16 @@ function apiMiddleware(db: DatabaseSync): Connect.NextHandleFunction {
     if (!url.pathname.startsWith('/api')) return next();
 
     readJsonBody(req)
-      .then(body => handleApiRequest(db, { method: req.method?.toUpperCase() ?? 'GET', pathname: url.pathname, body }))
+      .then(body =>
+        handleApiRequest(db, {
+          method: req.method?.toUpperCase() ?? 'GET',
+          pathname: url.pathname,
+          host: req.headers.host,
+          origin: req.headers.origin,
+          contentType: req.headers['content-type'],
+          body
+        })
+      )
       .catch((err: unknown): ApiResponse => {
         if (err instanceof RequestBodyError) return { status: err.status, body: { success: false, error: err.message } };
         console.error('[Gymmy DB] Could not read request body:', req.method, url.pathname, err);

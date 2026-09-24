@@ -58,8 +58,11 @@ function pushSession(overrides: Partial<WorkoutSession> = {}): WorkoutSession {
   };
 }
 
+// What the app itself sends: same-origin requests to the dev server with JSON bodies.
+const SAME_ORIGIN = { host: 'localhost:3000', origin: 'http://localhost:3000', contentType: 'application/json' };
+
 function send(db: DatabaseSync, request: ApiRequest) {
-  return handleApiRequest(db, request);
+  return handleApiRequest(db, { ...SAME_ORIGIN, ...request });
 }
 
 function fetchData(db: DatabaseSync): DataBody {
@@ -192,4 +195,54 @@ test('reset removes sessions and restores the seed targets', t => {
 test('answers 404 for an unknown route', t => {
   const response = send(emptyDatabase(t), { method: 'GET', pathname: '/api/nope' });
   assert.deepEqual(response, { status: 404, body: { success: false, error: 'Not found: GET /api/nope' } });
+});
+
+test('accepts requests addressed to localhost or an IP address', t => {
+  const db = emptyDatabase(t);
+  for (const host of ['localhost:3000', 'gymmy.localhost:3000', '127.0.0.1:3000', '[::1]:3000', '192.168.1.20:3000']) {
+    const response = send(db, { method: 'GET', pathname: '/api/data', host, origin: undefined });
+    assert.equal(response.status, 200, host);
+  }
+});
+
+test('rejects requests addressed to another host name (DNS rebinding)', t => {
+  const db = emptyDatabase(t);
+  for (const host of ['evil.example:3000', 'localhost.evil.example', undefined]) {
+    const response = send(db, { method: 'GET', pathname: '/api/data', host, origin: undefined });
+    assert.deepEqual(response, { status: 403, body: { success: false, error: 'Host is not allowed' } }, String(host));
+  }
+});
+
+test('rejects requests sent by another site', t => {
+  const db = emptyDatabase(t);
+  send(db, { method: 'POST', pathname: '/api/sessions', body: pushSession() });
+  for (const origin of ['https://evil.example', 'http://localhost:5173', 'null']) {
+    const response = send(db, { method: 'POST', pathname: '/api/clear', origin });
+    assert.deepEqual(response, { status: 403, body: { success: false, error: 'Requests from other sites are not allowed' } }, origin);
+  }
+  assert.equal(fetchData(db).sessions.length, 1);
+});
+
+test('rejects reads by another local site', t => {
+  const response = send(emptyDatabase(t), { method: 'GET', pathname: '/api/data', origin: 'http://localhost:5173' });
+  assert.equal(response.status, 403);
+});
+
+test('rejects a POST that is not JSON', t => {
+  const db = emptyDatabase(t);
+  for (const contentType of ['text/plain', 'application/x-www-form-urlencoded', undefined]) {
+    const response = send(db, { method: 'POST', pathname: '/api/sessions', contentType, body: pushSession() });
+    assert.deepEqual(response, { status: 415, body: { success: false, error: 'Content-Type must be application/json' } }, String(contentType));
+  }
+  assert.deepEqual(fetchData(db).sessions, []);
+});
+
+test('accepts a JSON content type with parameters', t => {
+  const response = send(emptyDatabase(t), {
+    method: 'POST',
+    pathname: '/api/sessions',
+    contentType: 'application/json; charset=utf-8',
+    body: pushSession()
+  });
+  assert.equal(response.status, 200);
 });

@@ -14,6 +14,11 @@ Entry: `server/vitePlugin.ts`: a Vite plugin that serves `/api/*` from the dev a
 - A write that touches more than one row runs inside `inTransaction`, so it lands completely or not at all (`upsertExercises`, `resetToSeed`, migrations).
 - Exercises are listed by `sort_order`, which `/api/exercises` sets from each item's position in the submitted list.
 
+- The API has no login, so `rejectUntrustedRequest` in `api.ts` runs before every route:
+  - `Host` must be `localhost`, `*.localhost` or an IP address. This blocks DNS rebinding; Vite's own host check runs after plugin middleware, so it doesn't cover `/api`.
+  - `Origin`, when sent, must equal this server.
+  - A POST must be `application/json`, even without a body (`/api/clear`, `/api/reset`).
+
 ## Data / API
 | Route | Body | Response |
 |---|---|---|
@@ -24,7 +29,7 @@ Entry: `server/vitePlugin.ts`: a Vite plugin that serves `/api/*` from the dev a
 | `POST /api/clear` | none | deletes every session, keeps exercises |
 | `POST /api/reset` | none | deletes every session, restores the seed exercises |
 
-Errors: 400 for an invalid body (the message names the first bad field, for example `session.date must be a string`), 404 for an unknown route, 413 for a body over 1 MB, 500 for a database error (logged once).
+Errors: 403 for a foreign `Host` or `Origin`, 415 for a POST that isn't JSON, 400 for an invalid body (the message names the first bad field, for example `session.date must be a string`), 404 for an unknown route, 413 for a body over 1 MB, 500 for a database error (logged once).
 
 | Table | Key | Notes |
 |---|---|---|
@@ -32,9 +37,9 @@ Errors: 400 for an invalid body (the message names the first bad field, for exam
 | `exercise_definitions` | `id` | `warmup_required` is 0/1; `sort_order` (schema v1) is the routine position |
 
 ## Gotchas
-- Any page open in the same browser can call the POST routes while the dev server runs (no origin check yet).
+- Requests need a localhost or IP-address `Host`. A test client or `curl` has to send one; a request for `http://mypc:3000` gets 403. Use `localhost` or the machine's IP address instead.
 
 ## Tests
 - `tests/server/db.test.ts`: migrating a 1.0.0 database (order, sessions kept, backup), reopening it, and all-or-nothing exercise writes.
-- `tests/server/api.test.ts`: every route against a temp-dir database, including validation failures and reopening an existing file.
+- `tests/server/api.test.ts`: every route against a temp-dir database, including validation failures, reopening an existing file, and the host, origin and content-type checks.
 - `tests/validation.test.ts`: which session and exercise shapes are accepted, and the error for each invalid field.
