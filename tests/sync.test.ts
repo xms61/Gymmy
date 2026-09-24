@@ -54,6 +54,24 @@ test('saving a known session replaces it in place', () => {
   assert.equal(next.sessions[1]?.notes, 'edited');
 });
 
+test('an imported older session takes its place by date, not the top', () => {
+  const next = applyOps(serverSnapshot(session('new', '2026-09-20'), session('mid', '2026-09-10')), [
+    { type: 'upsertSession', session: session('old', '2026-09-01') },
+    { type: 'upsertSession', session: session('latest', '2026-09-22') }
+  ]);
+  assert.deepEqual(sessionIds(next), ['latest', 'new', 'mid', 'old']);
+});
+
+test('a batch applies deletes and saves in order', () => {
+  const next = applyOps(serverSnapshot(session('a')), [
+    { type: 'upsertSession', session: session('b') },
+    { type: 'deleteSession', id: 'a' },
+    { type: 'clearSessions' },
+    { type: 'upsertSession', session: session('c') }
+  ]);
+  assert.deepEqual(sessionIds(next), ['c']);
+});
+
 test('clearing removes sessions and keeps exercises', () => {
   const next = applyOps(serverSnapshot(session('a')), [{ type: 'clearSessions' }]);
   assert.deepEqual(next, { sessions: [], exercises: EXERCISE_DEFINITIONS });

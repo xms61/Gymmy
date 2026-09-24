@@ -31,26 +31,35 @@ export interface ApiCall {
 // aside instead of blocking the queue). failed: try again later.
 export type SendResult = 'sent' | 'rejected' | 'failed';
 
+// Applies a whole batch in one pass over a map by id, then sorts once, so a restored backup of
+// many sessions costs one sort instead of a scan per session. Sessions stay newest first; on the
+// same day and start time, a session added by these ops comes before the ones already there.
 export function applyOps(snapshot: Snapshot, ops: PendingOp[]): Snapshot {
-  return ops.reduce(applyOp, snapshot);
-}
-
-function applyOp(snapshot: Snapshot, op: PendingOp): Snapshot {
-  switch (op.type) {
-    case 'upsertSession': {
-      const exists = snapshot.sessions.some(s => s.id === op.session.id);
-      const sessions = exists
-        ? snapshot.sessions.map(s => (s.id === op.session.id ? op.session : s))
-        : [op.session, ...snapshot.sessions];
-      return { ...snapshot, sessions };
+  const sessionsById = new Map(snapshot.sessions.map(s => [s.id, s]));
+  const position = new Map(snapshot.sessions.map((s, i) => [s.id, i]));
+  let exercises = snapshot.exercises;
+  let nextNewPosition = -1;
+  for (const op of ops) {
+    switch (op.type) {
+      case 'upsertSession':
+        if (!sessionsById.has(op.session.id)) position.set(op.session.id, nextNewPosition--);
+        sessionsById.set(op.session.id, op.session);
+        break;
+      case 'deleteSession':
+        sessionsById.delete(op.id);
+        break;
+      case 'saveExercises':
+        exercises = op.exercises;
+        break;
+      case 'clearSessions':
+        sessionsById.clear();
+        break;
     }
-    case 'deleteSession':
-      return { ...snapshot, sessions: snapshot.sessions.filter(s => s.id !== op.id) };
-    case 'saveExercises':
-      return { ...snapshot, exercises: op.exercises };
-    case 'clearSessions':
-      return { ...snapshot, sessions: [] };
   }
+  const sessions = [...sessionsById.values()].sort(
+    (a, b) => b.date.localeCompare(a.date) || b.startTime.localeCompare(a.startTime) || position.get(a.id)! - position.get(b.id)!
+  );
+  return { sessions, exercises };
 }
 
 export function apiCallFor(op: PendingOp): ApiCall {
