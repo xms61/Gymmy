@@ -12,6 +12,7 @@ Read only the doc(s) matching your task.
 | [src/components/tracker/TRACKER.md](src/components/tracker/TRACKER.md) | Touching the live workout screen, drafts, the rest timer or its chime |
 | [src/services/STORAGE.md](src/services/STORAGE.md) | Touching browser storage, the outbox or `StorageService` |
 | [server/SERVER.md](server/SERVER.md) | Touching the `/api` routes, the SQLite schema or `src/validation.ts` |
+| [src/theme/THEME.md](src/theme/THEME.md) | Touching colors, fonts, themes, `tailwind.config.ts`, `src/index.css` or `src/components/ui/` |
 
 ## Commands
 | Task | Command |

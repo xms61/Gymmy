@@ -1,31 +1,36 @@
 import type { Config } from 'tailwindcss';
+import plugin from 'tailwindcss/plugin';
+import { COLOR_TOKENS, THEME_IDS } from './src/theme/themes.ts';
+
+// Every color, radius, font and size a component uses comes from the active theme's tokens (src/theme/themes.ts).
+const tokenColors = Object.fromEntries(COLOR_TOKENS.map(token => [token, `rgb(var(--c-${token}) / <alpha-value>)`]));
+
+// One variant per theme, e.g. `terminal:border-dashed`, for differences that tokens cannot express.
+const themeVariants = plugin(({ addVariant }) => {
+  for (const id of THEME_IDS) addVariant(id, `[data-theme="${id}"] &`);
+});
 
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
-  darkMode: 'class',
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
-      colors: {
-        gym: {
-          bg: '#090D16',
-          card: '#111827',
-          cardBorder: '#1F2937',
-          cardHover: '#1A2234',
-          accent: '#6366F1',
-          accentHover: '#4F46E5',
-          push: '#F97316',
-          pushBg: 'rgba(249, 115, 22, 0.12)',
-          pull: '#10B981',
-          pullBg: 'rgba(16, 185, 129, 0.12)',
-          legs: '#3B82F6',
-          legsBg: 'rgba(59, 130, 246, 0.12)',
-          gold: '#F59E0B'
-        }
-      }
-    },
+      colors: tokenColors,
+      fontFamily: {
+        sans: 'var(--font-body)',
+        mono: 'var(--font-data)',
+        display: 'var(--font-display)'
+      },
+      borderRadius: {
+        card: 'var(--radius-card)',
+        panel: 'var(--radius-panel)',
+        control: 'var(--radius-control)',
+        chip: 'var(--radius-chip)',
+        pill: 'var(--radius-pill)'
+      },
+      borderWidth: { DEFAULT: 'var(--border-width)' },
+      spacing: { tap: 'var(--tap)' },
+      transitionDuration: { DEFAULT: 'var(--motion)' }
+    }
   },
-  plugins: [],
+  plugins: [themeVariants]
 } satisfies Config;

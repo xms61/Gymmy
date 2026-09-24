@@ -8,12 +8,75 @@
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
-    @apply bg-[#090D16] text-slate-100;
+  }
+
+  body {
+    background-color: rgb(var(--c-bg));
+    color: rgb(var(--c-ink-soft));
+    font-family: var(--font-body);
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+  }
+
+  *, ::before, ::after {
+    border-style: var(--border-style);
+  }
+
+  ::selection {
+    background-color: rgb(var(--c-accent));
+    color: rgb(var(--c-on-accent));
+  }
+
+  ::placeholder {
+    color: rgb(var(--c-ink-faint));
   }
 }
 
-/* Custom animations */
+@layer components {
+  .card {
+    @apply bg-surface border border-line rounded-card;
+  }
+
+  .panel {
+    @apply bg-inset border border-line rounded-panel;
+  }
+
+  .section-label {
+    @apply text-xs font-bold uppercase tracking-wider text-ink-muted;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 font-bold rounded-control transition active:scale-95 disabled:cursor-not-allowed disabled:active:scale-100;
+  }
+
+  .btn-primary {
+    @apply bg-accent hover:bg-accent-hover text-on-accent;
+  }
+
+  .btn-good {
+    @apply bg-good hover:bg-good-hover text-on-good disabled:bg-control disabled:text-ink-faint;
+  }
+
+  .btn-secondary {
+    @apply bg-control hover:bg-control-hover text-ink-soft;
+  }
+
+  .btn-danger {
+    @apply bg-bad-ink/15 hover:bg-bad-ink/25 text-bad-ink border border-bad-ink/40;
+  }
+
+  .icon-btn {
+    @apply p-2 text-ink-muted hover:text-ink rounded-control hover:bg-control transition;
+  }
+
+  .field {
+    @apply bg-surface border border-edge rounded-chip text-ink focus:border-accent focus:outline-none;
+  }
+}
+
 @keyframes fadeIn {
   from { opacity: 0; transform: scale(0.98); }
   to { opacity: 1; transform: scale(1); }
@@ -32,21 +95,27 @@
   animation: slideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Custom scrollbars */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #090D16;
+  background: rgb(var(--c-bg));
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1F2937;
-  border-radius: 9999px;
+  background: rgb(var(--c-control));
+  border-radius: var(--radius-pill);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #374151;
+  background: rgb(var(--c-control-hover));
 }

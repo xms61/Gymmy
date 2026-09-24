@@ -5,7 +5,8 @@ import {
   TrendingUp, 
   Settings as SettingsIcon, 
   Flame,
-  Database
+  Database,
+  type LucideIcon
 } from 'lucide-react';
 import type { SplitType, WorkoutDraft, WorkoutSession, ExerciseDefinition } from './types/workout.ts';
 import { StorageService, type SyncStatus } from './services/storage.ts';
@@ -18,10 +19,18 @@ import { ResumeWorkoutBanner } from './components/tracker/ResumeWorkoutBanner.ts
 import { clearDraft, loadDraft } from './components/tracker/workoutDraft.ts';
 import { describeSyncStatus, syncLabel } from './components/syncStatusText.ts';
 
+type AppTab = 'dashboard' | 'calendar' | 'analytics';
+
+const NAV_TABS: { id: AppTab; label: string; icon: LucideIcon }[] = [
+  { id: 'dashboard', label: 'Home', icon: Flame },
+  { id: 'calendar', label: 'Calendar', icon: CalendarIcon },
+  { id: 'analytics', label: 'Progress', icon: TrendingUp }
+];
+
 export function App() {
   const [sessions, setSessions] = useState<WorkoutSession[]>([]);
   const [exercises, setExercises] = useState<ExerciseDefinition[]>([]);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'calendar' | 'analytics'>('dashboard');
+  const [activeTab, setActiveTab] = useState<AppTab>('dashboard');
   const [activeWorkoutType, setActiveWorkoutType] = useState<SplitType | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>(() => StorageService.getSyncStatus());
@@ -100,37 +109,36 @@ export function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#090D16] text-slate-100 flex flex-col antialiased">
-      {/* Top Navbar */}
-      <header className="sticky top-0 z-30 bg-[#090D16]/90 backdrop-blur-md border-b border-slate-800/80 px-4 py-3">
+    <div className="min-h-screen flex flex-col antialiased">
+      <header className="sticky top-0 z-30 bg-bg/90 backdrop-blur-md border-b border-line px-4 py-3">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-indigo-400 flex items-center justify-center shadow-lg shadow-indigo-600/30">
-              <Dumbbell className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-panel bg-gradient-to-tr from-accent to-accent-ink flex items-center justify-center shadow-lg shadow-accent/30">
+              <Dumbbell className="w-5 h-5 text-on-accent" />
             </div>
             <div>
-              <h1 className="text-xl font-black text-white tracking-tight flex items-center space-x-1">
+              <h1 className="text-xl font-black text-ink tracking-tight flex items-center space-x-1">
                 <span>Gymmy</span>
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="w-2 h-2 rounded-pill bg-good-ink animate-pulse" />
               </h1>
-              <span className="text-[11px] text-slate-400 font-medium">Fundamentals Tracker</span>
+              <span className="text-[11px] text-ink-muted font-medium">Fundamentals Tracker</span>
             </div>
           </div>
 
           <div className="flex items-center space-x-2">
-            <div 
+            <button
               onClick={() => setIsSettingsOpen(true)}
-              className="flex items-center space-x-1.5 px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-[11px] text-slate-300 cursor-pointer hover:border-slate-700 transition"
+              className="flex items-center space-x-1.5 px-2.5 py-1.5 rounded-control bg-surface border border-line text-[11px] text-ink-soft hover:border-edge transition"
               title={describeSyncStatus(syncStatus)}
             >
-              <Database className="w-3.5 h-3.5 text-indigo-400" />
+              <Database className="w-3.5 h-3.5 text-accent-ink" />
               <span className="hidden sm:inline font-medium">{syncLabel(syncStatus)}</span>
-              <span className={`w-1.5 h-1.5 rounded-full ${syncStatus.connected ? 'bg-emerald-400' : 'bg-amber-400'}`} />
-            </div>
+              <span className={`w-1.5 h-1.5 rounded-pill ${syncStatus.connected ? 'bg-good-ink' : 'bg-warn-ink'}`} />
+            </button>
 
             <button
               onClick={() => setIsSettingsOpen(true)}
-              className="p-2.5 text-slate-400 hover:text-white rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition"
+              className="p-2.5 text-ink-muted hover:text-ink rounded-panel bg-surface border border-line hover:border-edge transition"
               title="Settings"
             >
               <SettingsIcon className="w-5 h-5" />
@@ -139,7 +147,6 @@ export function App() {
         </div>
       </header>
 
-      {/* Main View Area */}
       <main className="flex-1 max-w-4xl w-full mx-auto p-4 md:p-6 pb-28">
         {draft && <ResumeWorkoutBanner draft={draft} onResume={handleResumeWorkout} onDiscard={handleDiscardDraft} />}
 
@@ -167,38 +174,20 @@ export function App() {
         )}
       </main>
 
-      {/* Bottom Sticky Tab Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 z-30 bg-slate-950/95 backdrop-blur-md border-t border-slate-800/80 py-2 px-6">
+      <nav className="fixed bottom-0 left-0 right-0 z-30 bg-inset/95 backdrop-blur-md border-t border-line py-2 px-6">
         <div className="max-w-md mx-auto flex items-center justify-around">
-          <button
-            onClick={() => setActiveTab('dashboard')}
-            className={`flex flex-col items-center space-y-1 py-1 px-4 rounded-xl transition ${
-              activeTab === 'dashboard' ? 'text-indigo-400 font-bold' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <Flame className="w-5 h-5" />
-            <span className="text-[11px]">Home</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('calendar')}
-            className={`flex flex-col items-center space-y-1 py-1 px-4 rounded-xl transition ${
-              activeTab === 'calendar' ? 'text-indigo-400 font-bold' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <CalendarIcon className="w-5 h-5" />
-            <span className="text-[11px]">Calendar</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('analytics')}
-            className={`flex flex-col items-center space-y-1 py-1 px-4 rounded-xl transition ${
-              activeTab === 'analytics' ? 'text-indigo-400 font-bold' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <TrendingUp className="w-5 h-5" />
-            <span className="text-[11px]">Progress</span>
-          </button>
+          {NAV_TABS.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              onClick={() => setActiveTab(id)}
+              className={`flex flex-col items-center space-y-1 py-1 px-4 rounded-control transition ${
+                activeTab === id ? 'text-accent-ink font-bold' : 'text-ink-muted hover:text-ink-soft'
+              }`}
+            >
+              <Icon className="w-5 h-5" />
+              <span className="text-[11px]">{label}</span>
+            </button>
+          ))}
         </div>
       </nav>
 
