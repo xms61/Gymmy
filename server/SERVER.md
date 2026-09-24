@@ -8,16 +8,16 @@ Entry: `server/vitePlugin.ts`: a Vite plugin that serves `/api/*` from the dev a
 ## Rules
 - Every request body is checked by a parser in `src/validation.ts` before it reaches `db.ts`. The browser uses the same parsers, so the two sides accept the same shapes. A new payload gets a new parser there, not an inline check.
 - SQL lives only in `db.ts`. Routes in `api.ts` call its functions.
-- The seed routine comes from `src/data/seedData.ts`. It is inserted only when `exercise_definitions` is empty, and again by `/api/reset`.
+- The seed routine comes from `src/data/seedData.ts`. It is inserted only when `exercise_definitions` is empty.
 - Table and column names are stored data: never rename them (see `AGENTS.md`).
 - Schema changes go in `MIGRATIONS` in `db.ts`: append a function, never edit an old one. `PRAGMA user_version` records how many have run. Before the first pending migration on an existing file, `openDatabase` writes a copy to `data/gymmy.before-schema-v<N>.db`, and each migration runs in a transaction.
-- A write that touches more than one row runs inside `inTransaction`, so it lands completely or not at all (`upsertExercises`, `resetToSeed`, migrations).
+- A write that touches more than one row runs inside `inTransaction`, so it lands completely or not at all (`upsertExercises`, migrations).
 - Exercises are listed by `sort_order`, which `/api/exercises` sets from each item's position in the submitted list.
 
 - The API has no login, so `rejectUntrustedRequest` in `api.ts` runs before every route:
   - `Host` must be `localhost`, `*.localhost` or an IP address. This blocks DNS rebinding; Vite's own host check runs after plugin middleware, so it doesn't cover `/api`.
   - `Origin`, when sent, must equal this server.
-  - A POST must be `application/json`, even without a body (`/api/clear`, `/api/reset`).
+  - A POST must be `application/json`, even without a body (`/api/clear`).
 
 ## Data / API
 | Route | Body | Response |
@@ -27,7 +27,6 @@ Entry: `server/vitePlugin.ts`: a Vite plugin that serves `/api/*` from the dev a
 | `DELETE /api/sessions/:id` | none | `{ success, deletedId }`; `:id` is URI-encoded |
 | `POST /api/exercises` | `ExerciseDefinition[]` | `{ success, count }`; inserts or replaces by `id` |
 | `POST /api/clear` | none | deletes every session, keeps exercises |
-| `POST /api/reset` | none | deletes every session, restores the seed exercises |
 
 Errors: 403 for a foreign `Host` or `Origin`, 415 for a POST that isn't JSON, 400 for an invalid body (the message names the first bad field, for example `session.date must be a string`), 404 for an unknown route, 413 for a body over 1 MB, 500 for a database error (logged once).
 

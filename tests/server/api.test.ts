@@ -180,18 +180,6 @@ test('clearing removes every session and keeps the exercises', t => {
   assert.equal(data.exercises.length, EXERCISE_DEFINITIONS.length);
 });
 
-test('reset removes sessions and restores the seed targets', t => {
-  const db = emptyDatabase(t);
-  send(db, { method: 'POST', pathname: '/api/sessions', body: pushSession() });
-  const edited = EXERCISE_DEFINITIONS.map(e => ({ ...e, targetSets: 9 }));
-  send(db, { method: 'POST', pathname: '/api/exercises', body: edited });
-
-  assert.equal(send(db, { method: 'POST', pathname: '/api/reset' }).status, 200);
-  const data = fetchData(db);
-  assert.deepEqual(data.sessions, []);
-  assert.deepEqual(data.exercises.map(e => e.targetSets).sort(), EXERCISE_DEFINITIONS.map(e => e.targetSets).sort());
-});
-
 test('answers 404 for an unknown route', t => {
   const response = send(emptyDatabase(t), { method: 'GET', pathname: '/api/nope' });
   assert.deepEqual(response, { status: 404, body: { success: false, error: 'Not found: GET /api/nope' } });
