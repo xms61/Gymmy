@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from 'tailwindcss';
@@ -16,6 +17,14 @@ function themeTokensPlugin(): Plugin {
   };
 }
 
+// data/ holds the real training history, and Vite would otherwise serve it as a static file.
+// Setting fs.deny replaces Vite's defaults, so they are listed again.
+const DATA_DIR = fileURLToPath(new URL('./data', import.meta.url));
+const DENIED_FILES = ['.env', '.env.*', '*.{crt,pem}', '**/.git/**', `${DATA_DIR}/**`];
+
+// Another site could load the app in a hidden frame, where its requests count as same-origin.
+const NO_FRAMING = { 'X-Frame-Options': 'DENY', 'Content-Security-Policy': "frame-ancestors 'none'" };
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react(), gymmySqlitePlugin(), themeTokensPlugin()],
@@ -26,6 +35,12 @@ export default defineConfig({
   },
   server: {
     port: 3000,
-    open: true
+    open: true,
+    cors: false,
+    headers: NO_FRAMING,
+    fs: { deny: DENIED_FILES }
+  },
+  preview: {
+    headers: NO_FRAMING
   }
 });
