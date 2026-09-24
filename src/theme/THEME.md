@@ -4,7 +4,7 @@ Entry: `src/theme/themes.ts`: every theme's design tokens (colors, fonts, corner
 - `themeCss.ts`: turns the themes into `[data-theme="<id>"] { --c-…; --font-…; }` rules. `vite.config.ts` puts them in `<head>` of `index.html`, so the first paint has the right colors.
 - `tailwind.config.ts`: maps the tokens to Tailwind classes (`bg-surface`, `text-ink-muted`, `rounded-card`, `font-display`, `h-tap`) and adds one variant per theme (`classic:`).
 - `src/index.css`: the base rules (body, headings, scrollbars) and the shared component classes: `card`, `panel`, `section-label`, `btn` with `btn-primary | btn-good | btn-secondary | btn-danger`, `icon-btn`, `field`.
-- `src/components/ui/`: `Dialog` and `DialogHeader` (every modal), `SplitBadge`, `StatusBadge` and `SPLIT_STYLE` (the split and overload status colors).
+- `src/components/ui/`: `Dialog` and `DialogHeader` (every modal; `Dialog` takes focus when it opens, keeps Tab inside, closes on Escape and gives focus back when it closes), `SplitBadge`, `StatusBadge` and `SPLIT_STYLE` (the split and overload status colors).
 
 ## Rules
 - Components use token classes only. No palette colors (`slate-800`, `indigo-400`), no hex values, no `rounded-xl`: use `rounded-card | panel | control | chip | pill`.
@@ -16,7 +16,7 @@ Entry: `src/theme/themes.ts`: every theme's design tokens (colors, fonts, corner
 
 ## Gotchas
 - `--border-style` is applied to every element in `index.css`, so a theme can make all borders dashed. `border-transparent` still hides a border.
-- A theme with `motionMs: 0` gets a rule that turns off every animation and transition. `prefers-reduced-motion` does the same for every theme.
+- A theme with `motionMs: 0` gets a rule that turns off every animation and transition. `prefers-reduced-motion` does the same for every theme, and also turns off the confetti at the end of a workout.
 - Tailwind reads `tailwind.config.ts` when the dev server starts. After changing the tokens or the config, restart `npm run dev` if the page shows a CSS error.
 
 ## Tests

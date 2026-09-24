@@ -57,7 +57,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   };
 
   return (
-    <Dialog width="lg">
+    <Dialog width="lg" onClose={onClose}>
       <DialogHeader title="Settings & Data Management" onClose={onClose} />
 
         {/* Tab Toggle */}

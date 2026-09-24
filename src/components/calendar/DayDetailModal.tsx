@@ -19,7 +19,7 @@ export const DayDetailModal: React.FC<DayDetailModalProps> = ({
   onDeleteSession
 }) => {
   return (
-    <Dialog width="lg">
+    <Dialog width="lg" onClose={onClose}>
       <DialogHeader
         icon={Calendar}
         title={formatDisplayDate(dateString)}
