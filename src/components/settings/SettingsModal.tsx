@@ -4,6 +4,7 @@ import { StorageService, type SyncStatus } from '../../services/storage.ts';
 import type { ExerciseDefinition } from '../../types/workout.ts';
 import { hasValidRepRange } from '../../validation.ts';
 import { describeSyncStatus, syncLabel } from '../syncStatusText.ts';
+import { BackupSection } from './BackupSection.tsx';
 import * as XLSX from 'xlsx';
 
 interface SettingsModalProps {
@@ -173,23 +174,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </div>
             </div>
 
-            {/* JSON Backup */}
-            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4">
-              <div className="flex items-center space-x-3 mb-2">
-                <Download className="w-5 h-5 text-indigo-400" />
-                <h4 className="text-sm font-bold text-white">JSON Cloud / Offline Backup</h4>
-              </div>
-              <p className="text-xs text-slate-400 mb-4">
-                Download a lightweight full backup of your routine, workouts, and PRs.
-              </p>
-
-              <button
-                onClick={() => StorageService.exportToJson()}
-                className="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl transition"
-              >
-                Download JSON Backup
-              </button>
-            </div>
+            <BackupSection />
 
             {/* Clear All Workouts for Clean Slate */}
             <div className="bg-slate-950 border border-rose-900/30 rounded-2xl p-4">

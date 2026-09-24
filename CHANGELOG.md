@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Restore from a JSON backup (Settings, Backup and Restore). The app shows what the file would add or replace before anything changes, never deletes, and also reads backups exported by 1.0.0.
 - A workout in progress survives a reload or a closed tab. The app shows "Unfinished Push workout" with Resume and Discard, and resuming restores the ticked sets, notes and start time.
 - Local git repository, release process (`.github/RELEASE_PROCESS.md`), agent doc map (`AGENTS.md`), code style and testing docs.
 
@@ -32,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Other websites can no longer read or change your data through the API. It rejects requests from other origins (403), requests addressed to a host name other than localhost or an IP address (DNS rebinding, 403), and POSTs that aren't JSON (415). Before, any page open in the same browser could wipe the history with `/api/clear`.
 
 ### Changed
+- JSON backups use one versioned format (`format: "gymmy-backup"`, `version: 1`) for both export and import, validated with the same rules as the server.
 - The live tracker no longer redraws every exercise each second: only the clock ticks, and recommendations are computed once per workout.
 - The browser keeps its copy in localStorage only. Sessions from the old IndexedDB copy are moved over, and that copy is deleted once the server has confirmed them all.
 - The overload engine is plain functions (`getRecommendation`, `estimate1RM`, `calculatePlates`), and the Progress view's per-exercise history is computed by `exerciseHistory` in `src/services/progress.ts`, with tests.

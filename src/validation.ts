@@ -1,8 +1,15 @@
-// Checks data that comes from outside the app's own code (API request bodies, and later
-// backup files and stored drafts) and turns it into typed values. Shared by the server and
-// the browser so both accept exactly the same shapes.
+// Checks data that comes from outside the app's own code (API request bodies, backup files and
+// stored drafts) and turns it into typed values. Shared by the server and the browser so both
+// accept exactly the same shapes.
 import { EQUIPMENT_TYPES, SPLIT_TYPES } from './types/workout.ts';
-import type { ExerciseDefinition, ExerciseSessionLog, SetLog, WorkoutDraft, WorkoutSession } from './types/workout.ts';
+import type {
+  ExerciseDefinition,
+  ExerciseSessionLog,
+  GymmyBackup,
+  SetLog,
+  WorkoutDraft,
+  WorkoutSession
+} from './types/workout.ts';
 
 export type ParseResult<T> = { ok: true; value: T } | { ok: false; error: string };
 
@@ -29,6 +36,22 @@ export function parseWorkoutDraft(value: unknown): ParseResult<WorkoutDraft> {
       sessionNotes: readText(fields, 'sessionNotes', 'draft'),
       exerciseLogs: readList(fields, 'exerciseLogs', 'draft', readExerciseLog)
     };
+  });
+}
+
+// Reads every backup format Gymmy has written: version 1, and the unversioned JSON export of
+// 1.0.0 (appVersion '1.0.0', exportDate). A newer version is refused, because its fields are
+// unknown here.
+export function parseBackup(value: unknown): ParseResult<GymmyBackup> {
+  return attempt(() => {
+    const fields = readRecord(value, 'backup');
+    if (fields.format === undefined && fields.appVersion === '1.0.0') return readBackupContent(fields, 'exportDate');
+    if (fields.format !== 'gymmy-backup') fail('backup', 'is not a Gymmy backup file');
+    if (typeof fields.version === 'number' && fields.version > 1) {
+      fail('backup.version', `is ${fields.version}, which is newer than this app can read (1)`);
+    }
+    if (fields.version !== 1) fail('backup.version', 'must be 1');
+    return readBackupContent(fields, 'exportedAt');
   });
 }
 
@@ -69,6 +92,16 @@ function readWorkoutSession(value: unknown, path: string): WorkoutSession {
     totalVolumeKg: readNumber(fields, 'totalVolumeKg', path, { min: 0 }),
     completed: readBoolean(fields, 'completed', path),
     ...(notes !== undefined && { notes })
+  };
+}
+
+function readBackupContent(fields: Fields, exportedAtKey: string): GymmyBackup {
+  return {
+    format: 'gymmy-backup',
+    version: 1,
+    exportedAt: readTimestamp(fields, exportedAtKey, 'backup'),
+    sessions: readList(fields, 'sessions', 'backup', readWorkoutSession),
+    exercises: readList(fields, 'exercises', 'backup', readExerciseDefinition)
   };
 }
 
