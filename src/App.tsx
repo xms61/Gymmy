@@ -9,7 +9,8 @@ import {
   type LucideIcon
 } from 'lucide-react';
 import type { SplitType, WorkoutDraft, WorkoutSession, ExerciseDefinition } from './types/workout.ts';
-import { StorageService, type SyncStatus } from './services/storage.ts';
+import { StorageService } from './services/storage.ts';
+import type { SyncStatus } from './services/sync.ts';
 import { HomeDashboard } from './components/dashboard/HomeDashboard.tsx';
 import { WorkoutCalendar } from './components/calendar/WorkoutCalendar.tsx';
 import { ProgressView } from './components/analytics/ProgressView.tsx';
@@ -17,7 +18,7 @@ import { SettingsModal } from './components/settings/SettingsModal.tsx';
 import { LiveTracker } from './components/tracker/LiveTracker.tsx';
 import { ResumeWorkoutBanner } from './components/tracker/ResumeWorkoutBanner.tsx';
 import { clearDraft, loadDraft } from './components/tracker/workoutDraft.ts';
-import { describeSyncStatus, syncLabel } from './components/syncStatusText.ts';
+import { describeSyncStatus, needsAttention, syncLabel } from './components/syncStatusText.ts';
 
 type AppTab = 'dashboard' | 'calendar' | 'analytics';
 
@@ -133,7 +134,7 @@ export function App() {
             >
               <Database className="w-3.5 h-3.5 text-accent-ink" />
               <span className="hidden sm:inline font-medium">{syncLabel(syncStatus)}</span>
-              <span className={`w-1.5 h-1.5 rounded-pill ${syncStatus.connected ? 'bg-good-ink' : 'bg-warn-ink'}`} />
+              <span className={`w-1.5 h-1.5 rounded-pill ${needsAttention(syncStatus) ? 'bg-warn-ink' : 'bg-good-ink'}`} />
             </button>
 
             <button
