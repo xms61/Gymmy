@@ -121,7 +121,7 @@ export class StorageService {
     indexedDb.clearSessions().catch(() => {});
 
     // Sync with SQLite backend
-    fetch('/api/clear', { method: 'POST' }).catch(() => {});
+    fetch('/api/clear', { method: 'POST', headers: { 'Content-Type': 'application/json' } }).catch(() => {});
   }
 
   /**
@@ -280,6 +280,6 @@ export class StorageService {
   static resetToSeed(): void {
     this.saveSessions(INITIAL_SESSIONS);
     this.saveExerciseDefinitions(EXERCISE_DEFINITIONS);
-    fetch('/api/reset', { method: 'POST' }).catch(() => {});
+    fetch('/api/reset', { method: 'POST', headers: { 'Content-Type': 'application/json' } }).catch(() => {});
   }
 }
