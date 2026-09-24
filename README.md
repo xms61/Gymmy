@@ -25,6 +25,7 @@ See the Commands table in [AGENTS.md](AGENTS.md). Every pull request and every p
 - **Load suggestions (double progression):**
   - Loads come from the home equipment in `src/data/gymInventory.ts`: a 10 kg barbell, one dumbbell (handle not counted, 25 kg at most) and 2×20, 2×15, 2×10, 6×5, 4×2.5 and 2×1.25 kg plates. The barbell makes every 2.5 kg step from 10 to 142.5 kg, the dumbbell every 2.5 kg step up to 25 kg, and the landmine row (plates on one end) every 1.25 kg step.
   - When every set reaches the top of the rep range, the next session moves to the next load the equipment makes. At the heaviest load it keeps the weight and asks for more reps.
+  - When the next load is more than 15 % heavier (Lateral Raise 5 to 7.5 kg is +50 %), the jump is earned with extra reps first: the reps at the current weight that predict the same one-rep max as the bottom of the range at the next weight (Brzycki), at most 30. Lateral Raise needs 19 reps at 5 kg, Incline DB Press and Biceps Curl 14 reps at 10 kg. Bodyweight lifts are exempt.
   - Otherwise the load stays the same and the goal is more reps, including while reps are still climbing toward the range.
   - If average reps drop in two sessions in a row at the same weight, the app suggests a deload: about 10 % lighter for a week, rounded to a loadable weight.
   - If average reps stay below the range for three sessions at the same weight without improving, the app suggests a lighter working weight, one loading step down.
