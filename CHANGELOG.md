@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Local git repository, release process (`.github/RELEASE_PROCESS.md`), agent doc map (`AGENTS.md`), code style and testing docs.
 
 ### Fixed
+- `src/data/seedData.ts` is committed. The `.gitignore` pattern for the local `data/` folder also matched `src/data/`, so a fresh clone could not build.
 - Workouts saved or deleted while the server was down are no longer lost or brought back. Every change waits in a local queue until the server stores it, and on start the app applies unsent changes on top of the server's data. The first start after upgrading also queues any sessions that 1.0.0 had left only in the browser.
 - The "SQLite" badge in the header and Settings shows the real connection state, and the number of changes waiting to be sent.
 - Settings no longer lets you save a min rep count above the max. The exercise shows a warning and Save is disabled until it is fixed.
