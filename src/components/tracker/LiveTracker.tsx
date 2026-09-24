@@ -8,6 +8,7 @@ import {
   Trash2, 
   Trophy, 
   TrendingUp, 
+  TrendingDown,
   Calculator,
   ArrowLeft,
   Sparkles
@@ -441,6 +442,12 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
                       <span className="px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded-full text-xs font-bold flex items-center space-x-1">
                         <Info className="w-3.5 h-3.5" />
                         <span>Deload Advised</span>
+                      </span>
+                    )}
+                    {recommendation.status === 'reduce_load' && (
+                      <span className="px-3 py-1 bg-sky-500/20 text-sky-300 border border-sky-500/40 rounded-full text-xs font-bold flex items-center space-x-1">
+                        <TrendingDown className="w-3.5 h-3.5" />
+                        <span>Lighter Weight</span>
                       </span>
                     )}
                   </div>

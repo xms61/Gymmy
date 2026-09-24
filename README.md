@@ -23,8 +23,10 @@ See the Commands table in [AGENTS.md](AGENTS.md).
 - **Next workout:** the dashboard picks the next split in rotation after the last logged session.
 - **Load suggestions (double progression):**
   - When every set reaches the top of the rep range, the next session adds one loading step: 2 kg for dumbbells, 2.5 kg for everything else.
-  - Otherwise the load stays the same and the goal is more reps.
-  - Two sessions in a row that average below the minimum rep count suggest a deload of about 10 %, rounded to a loadable weight. It never goes below an empty 20 kg bar for barbell lifts.
+  - Otherwise the load stays the same and the goal is more reps, including while reps are still climbing toward the range.
+  - If average reps drop in two sessions in a row at the same weight, the app suggests a deload: about 10 % lighter for a week, rounded to a loadable weight.
+  - If average reps stay below the range for three sessions at the same weight without improving, the app suggests a lighter working weight, one loading step down.
+  - Neither goes below an empty 20 kg bar for barbell lifts.
   - A skipped exercise, meaning no completed sets, is ignored.
 - **Live tracking:**
   - Set logger with weight and rep steppers.
