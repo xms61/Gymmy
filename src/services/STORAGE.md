@@ -3,7 +3,6 @@
 Entry: `src/services/storage.ts`: `StorageService` holds the app's sessions and exercise definitions in the browser, and syncs them with the SQLite API (`server/SERVER.md`).
 - `src/services/storage.ts`: the I/O. Reads and writes localStorage, calls `/api/*`, and notifies subscribers (`App.tsx`) when data or sync status changes.
 - `src/services/sync.ts`: the pure rules, with tests. How a pending change applies to local data, which API call sends it, how a queue is sent in order, and which found sessions to adopt.
-- `src/services/legacyIndexedDb.ts`: reads and deletes the IndexedDB store written by 1.0.0. Temporary; see Gotchas.
 
 ## Rules
 - Components read through `getSessions()` / `getExerciseDefinitions()` and write through `saveSession`, `deleteSession`, `saveExerciseDefinitions`, `clearAllSessions` or `applyImport`. Never call `/api/*` or localStorage directly.
@@ -40,10 +39,8 @@ The key names are stored data: never rename them (see `AGENTS.md`).
 
 ## Gotchas
 - A browser upgraded from 1.0.0 can hold sessions that exist only in localStorage, because 1.0.0 dropped writes that failed. The first start that reaches the server queues every local session the server lacks, then sets `gymmy_local_sessions_adopted_v1`.
-- A browser upgraded from 1.0.0 also has an IndexedDB copy (`gymmy_idb`). Each start moves any sessions missing from the local copy over, and deletes the database only when every one of its sessions is in localStorage **and** confirmed by the server. Otherwise it keeps the database and tries again next start. Remove `legacyIndexedDb.ts` and its call one release after 1.1.0.
-- `readLegacySessions` aborts the upgrade when the database does not exist, because opening without a version would otherwise create an empty one.
 - A static build (no API) queues every change forever. The header shows "Offline, N pending".
 
 ## Tests
-- `tests/sync.test.ts`: offline saves survive a start and offline deletes stay deleted; sending is in order and stops at a failure; rejected ops are set aside; sent ops leave an outbox that changed meanwhile; status classification; adoption and its confirmation rule.
+- `tests/sync.test.ts`: offline saves survive a start and offline deletes stay deleted; sending is in order and stops at a failure; rejected ops are set aside; sent ops leave an outbox that changed meanwhile; status classification; adopting sessions that only the old local cache had.
 - `tests/backup.test.ts`: export and import round trip, reading 1.0.0 backups, refusing other files, and what an import adds, replaces or keeps.

@@ -116,33 +116,12 @@ export function withoutOps(outbox: PendingOp[], finished: PendingOp[]): PendingO
   });
 }
 
-export interface Adoption {
-  validIds: string[];
-  invalidCount: number;
-  toAdopt: WorkoutSession[];
-}
-
-// Sessions found outside the normal sync path (the retired IndexedDB store, or a local cache
-// from before the outbox existed) that the known data does not have yet.
-export function sessionsToAdopt(candidates: unknown[], known: Snapshot): Adoption {
+// Valid sessions from the local cache of before the outbox existed that the known data does not
+// have yet. Unreadable ones are skipped.
+export function sessionsToAdopt(candidates: unknown[], known: Snapshot): WorkoutSession[] {
   const knownIds = new Set(known.sessions.map(s => s.id));
-  const valid: WorkoutSession[] = [];
-  let invalidCount = 0;
-  for (const candidate of candidates) {
+  return candidates.flatMap(candidate => {
     const parsed = parseWorkoutSession(candidate);
-    if (parsed.ok) valid.push(parsed.value);
-    else invalidCount++;
-  }
-  return {
-    validIds: valid.map(s => s.id),
-    invalidCount,
-    toAdopt: valid.filter(s => !knownIds.has(s.id))
-  };
-}
-
-// True once every adopted session is in the stored copy and the server has confirmed it.
-export function isAdoptionConfirmed(adoption: Adoption, stored: Snapshot, outbox: PendingOp[]): boolean {
-  const storedIds = new Set(stored.sessions.map(s => s.id));
-  const pendingIds = new Set(outbox.flatMap(op => (op.type === 'upsertSession' ? [op.session.id] : [])));
-  return adoption.invalidCount === 0 && adoption.validIds.every(id => storedIds.has(id) && !pendingIds.has(id));
+    return parsed.ok && !knownIds.has(parsed.value.id) ? [parsed.value] : [];
+  });
 }

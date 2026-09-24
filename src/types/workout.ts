@@ -85,8 +85,3 @@ export interface ProgressRecommendation {
   nextStepGoal: string;
 }
 
-export interface CalendarDayStats {
-  date: string; // YYYY-MM-DD
-  sessions: WorkoutSession[];
-  totalVolume: number;
-}

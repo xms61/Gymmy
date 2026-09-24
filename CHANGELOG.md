@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Exercises can use a new equipment type, `landmine`: one end of a barbell on the floor, plates on the other. Meadows Row is a landmine lift, and Calf Raises is a barbell lift instead of a machine lift, to match the home gym. A one-time database update (schema version 2) changes the stored definitions, after the usual backup copy, and leaves any definition you already changed. Backups that contain `landmine` can't be read by 1.x, so the next release is 2.0.0.
 - History is indexed by exercise once per change (`indexCompletedLogs`) instead of being filtered and sorted again for every exercise on the dashboard, in Progress and in the tracker. The results are the same.
 
+### Removed
+- The one-time move of sessions out of the IndexedDB copy that 1.0.0 kept, scheduled for removal one release after 1.1.0. Every browser that opened 1.1.0 or 1.2.0 has already moved its sessions and deleted that copy; a browser still on 1.0.0 data should open 1.2.0 once before upgrading.
+- Unused code: the `CalendarDayStats` type and the default export of `App`.
+
 ### Fixed
 - The rest-timer chime sounds on time when the Gymmy tab is in the background or the window is minimized. It is scheduled on the audio clock when the rest starts, instead of waiting for a timer tick that browsers delay by up to a minute in background tabs. The tracker also keeps the screen on while a workout is open.
 - A restored or back-dated session takes its place by date in the local copy. It used to appear at the top of the list until the next reload. Restoring a backup applies all its sessions in one pass instead of one scan of the history per session.
