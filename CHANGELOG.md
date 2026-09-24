@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Local git repository, release process (`.github/RELEASE_PROCESS.md`), agent doc map (`AGENTS.md`), code style and testing docs.
 
 ### Fixed
+- The rest-timer chime uses one shared audio context, started by the tap that completes a set. Before, every chime created a new context outside a user gesture, which iOS Safari keeps muted, and none were ever closed.
 - Tapping Finish twice no longer saves the workout twice.
 - A workout is dated by the day it started, so one resumed the next day or finished after midnight stays on the right calendar day.
 - Workout duration is measured from the start time. It used to count timer ticks, which phones slow down or pause while the screen is locked, so the recorded duration came out too short. The clock also shows hours after the first hour.

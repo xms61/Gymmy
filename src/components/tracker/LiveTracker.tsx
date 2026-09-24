@@ -21,6 +21,7 @@ import { PlateCalculatorModal } from './PlateCalculatorModal.tsx';
 import { ElapsedClock } from './ElapsedClock.tsx';
 import { workoutDurationMinutes } from './workoutTime.ts';
 import { toLocalDateString } from '../../utils/date.ts';
+import { unlockAudio } from '../../utils/audio.ts';
 import { clearDraft, saveDraft } from './workoutDraft.ts';
 
 interface LiveTrackerProps {
@@ -113,6 +114,8 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
     if (!currentSet) return;
 
     const willBeCompleted = !currentSet.completed;
+    // This tap is the user gesture that lets the rest timer play its chime later.
+    if (willBeCompleted) unlockAudio();
 
     // 1. Pure immutable state update (no mutation, works seamlessly in StrictMode)
     setExerciseLogs(prev =>
@@ -618,7 +621,6 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
       {activeTimer.show && (
         <RestTimer
           key={activeTimer.id}
-          totalSeconds={activeTimer.seconds}
           initialSeconds={activeTimer.seconds}
           exerciseName={activeTimer.exerciseName}
           nextSetNumber={activeTimer.nextSetNumber}

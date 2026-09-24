@@ -3,7 +3,6 @@ import { Play, Pause, SkipForward, Plus, Minus, Volume2, Maximize2, Minimize2 } 
 import { playTimerChime } from '../../utils/audio.ts';
 
 interface RestTimerProps {
-  totalSeconds: number;
   initialSeconds: number;
   exerciseName: string;
   nextSetNumber: number;
