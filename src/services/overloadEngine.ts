@@ -6,6 +6,14 @@ import { lightestLoad, nearestLoad, stepLoad } from './loading.ts';
 
 const DELOAD_FACTOR = 0.9;
 
+// A heavier jump than this is earned with extra reps first. Double progression restarts at the
+// bottom of the range after a jump, which only works when the jump is a few percent: 5 to 7.5 kg
+// (+50 %) after 15 reps would leave the lifter far below the range at the new weight.
+const MAX_PLAIN_JUMP = 0.15;
+// Sets of up to about 30 reps taken close to failure build muscle about as well as heavier ones
+// (Schoenfeld et al. 2017); much lighter loads do less (Lasevicius et al. 2018).
+const REP_TARGET_CAP = 30;
+
 type Advice = Omit<ProgressRecommendation, 'exerciseId' | 'exerciseName' | 'recommendedRepRange'>;
 
 export function getRecommendation(exercise: ExerciseDefinition, history: WorkoutSession[]): ProgressRecommendation {
@@ -52,6 +60,13 @@ function adviceFromHistory(exercise: ExerciseDefinition, logs: CompletedExercise
       return hold(
         `Every set reached the top of the range (${max} reps), and ${weight} kg is the heaviest load your equipment makes.`,
         `Stay at ${weight} kg and add reps beyond ${max}.`
+      );
+    }
+    const repsNeeded = repsToMoveUp(weight, next, exercise);
+    if (!sets.every(s => s.repsCompleted >= repsNeeded)) {
+      return hold(
+        `Every set reached the top of the range, but the next load, ${next} kg, is ${Math.round(((next - weight) / weight) * 100)} % heavier.`,
+        `Build to ${repsNeeded} reps on every set at ${weight} kg, then move to ${next} kg for ${min} reps.`
       );
     }
     return {
@@ -122,6 +137,17 @@ function adviceFromHistory(exercise: ExerciseDefinition, logs: CompletedExercise
     );
   }
   return hold(`Reps are within the target range (${summary}). Double progression adds reps before weight.`, goal);
+}
+
+// The reps every set needs before moving from weightKg to nextKg: the top of the range, or for a
+// big jump the reps that predict the same one-rep max as the bottom of the range at nextKg (Brzycki).
+// Bodyweight lifts move the body too, so their added weight is a small share of the load.
+function repsToMoveUp(weightKg: number, nextKg: number, exercise: ExerciseDefinition): number {
+  const { targetRepsMin: min, targetRepsMax: max, equipment } = exercise;
+  const jumpIsBig = equipment !== 'bodyweight' && weightKg > 0 && (nextKg - weightKg) / weightKg > MAX_PLAIN_JUMP;
+  if (!jumpIsBig) return max;
+  const sameOneRepMax = Math.ceil(37 - (37 - min) * (weightKg / nextKg));
+  return Math.max(max, Math.min(REP_TARGET_CAP, sameOneRepMax));
 }
 
 function averageReps(sets: SetLog[]): number {

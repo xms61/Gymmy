@@ -207,8 +207,7 @@ test('suggests one loading step lighter after three flat sessions below the rang
 test('adds one loading step when every set reaches the top of the range', () => {
   const CASES: [equipment: EquipmentType, weightKg: number, recommendedKg: number][] = [
     ['barbell', 60, 62.5],
-    ['dumbbell', 10, 12.5],
-    ['dumbbell', 5, 7.5],
+    ['dumbbell', 20, 22.5],
     ['landmine', 20, 21.25],
     ['machine', 60, 62.5],
     ['bodyweight', 0, 2.5]
@@ -233,4 +232,33 @@ test('holds at the heaviest load the equipment makes', () => {
 test('says how much weight to add', () => {
   const rec = getRecommendation(lift('landmine'), [liftSession('2026-09-01', 20, [8, 8, 8])]);
   assert.equal(rec.reason, 'Every set reached the top of the range (8 reps). Add 1.25 kg.');
+});
+
+function dumbbellLift(targetRepsMin: number, targetRepsMax: number): ExerciseDefinition {
+  return { ...lift('dumbbell'), targetRepsMin, targetRepsMax };
+}
+
+test('earns a big dumbbell jump with extra reps first', () => {
+  const CASES: [label: string, min: number, max: number, weightKg: number, reps: number, status: OverloadStatus, recommendedKg: number][] = [
+    ['Lateral Raise at the top of 10-15', 10, 15, 5, 15, 'progress_reps', 5],
+    ['Lateral Raise at 19 reps', 10, 15, 5, 19, 'increase_load', 7.5],
+    ['Incline DB Press at the top of 8-12', 8, 12, 10, 12, 'progress_reps', 10],
+    ['Incline DB Press at 14 reps', 8, 12, 10, 14, 'increase_load', 12.5],
+    ['a jump under 15 %', 8, 12, 17.5, 12, 'increase_load', 20]
+  ];
+  for (const [label, min, max, weightKg, reps, status, recommendedKg] of CASES) {
+    const rec = getRecommendation(dumbbellLift(min, max), [liftSession('2026-09-01', weightKg, [reps, reps, reps])]);
+    assert.deepEqual([rec.status, rec.recommendedWeightKg], [status, recommendedKg], label);
+  }
+});
+
+test('names the reps a big jump needs', () => {
+  const rec = getRecommendation(dumbbellLift(10, 15), [liftSession('2026-09-01', 5, [15, 15, 15])]);
+  assert.equal(rec.reason, 'Every set reached the top of the range, but the next load, 7.5 kg, is 50 % heavier.');
+  assert.equal(rec.nextStepGoal, 'Build to 19 reps on every set at 5 kg, then move to 7.5 kg for 10 reps.');
+});
+
+test('never asks for more than 30 reps before a jump', () => {
+  const rec = getRecommendation(dumbbellLift(25, 28), [liftSession('2026-09-01', 2.5, [28, 28, 28])]);
+  assert.equal(rec.nextStepGoal, 'Build to 30 reps on every set at 2.5 kg, then move to 5 kg for 25 reps.');
 });
