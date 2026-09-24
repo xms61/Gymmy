@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Deloads follow the performance trend instead of the rep range. The app suggests one only when average reps drop in two sessions in a row at the same weight, the stall-or-decline signal strength coaches use (Bell et al. 2023 consensus; Rogerson et al. 2024 survey). Reps below the range that are still rising now mean "hold the weight" (Incline DB Press and Biceps Curl no longer get a deload). Three flat sessions below the range suggest a lighter working weight, shown as a new "Lighter Weight" status (Lateral Raise: 5 to 4 kg).
 
 ### Fixed
+- Changes made while the server was unreachable are sent as soon as it is back, while the app stays open: when the browser goes online, when the tab returns to the front, and every 30 s. They used to wait for the next change or a reload, and the header kept saying "Offline". Requests also give up after 8 s instead of hanging.
+- Two open tabs no longer erase each other's unsent changes. Each tab wrote its own copy of the outbox, so a change queued in one tab while the server was down could be overwritten by the other.
 - The dev server no longer serves `data/gymmy.db` as a static file. Any other page on the same machine could download the whole training history from `/data/gymmy.db`, because Vite answered cross-origin requests from any `localhost` origin. It now refuses `data/**` with 403 and sends no CORS headers.
 - Deleting a session whose id has broken URI encoding answers 400 instead of 500, and a database error no longer sends its message, which can include SQL and file paths, to the browser.
 - Other sites can no longer load Gymmy in a frame (`X-Frame-Options: DENY` and `frame-ancestors 'none'` on the dev and preview servers).

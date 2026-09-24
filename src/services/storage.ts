@@ -14,7 +14,8 @@ import {
   sessionsToAdopt,
   type PendingOp,
   type SendResult,
-  type Snapshot
+  type Snapshot,
+  withoutOps
 } from './sync.ts';
 
 const SESSIONS_KEY = 'gymmy_workout_sessions_v2';
@@ -23,6 +24,10 @@ const OUTBOX_KEY = 'gymmy_pending_ops_v1';
 const REJECTED_KEY = 'gymmy_rejected_ops_v1';
 // Set once the local cache from before the outbox existed has been checked against the server.
 const LOCAL_ADOPTION_KEY = 'gymmy_local_sessions_adopted_v1';
+
+// A request to an unreachable address can hang for minutes, and every later send waits behind it.
+const REQUEST_TIMEOUT_MS = 8000;
+const RETRY_INTERVAL_MS = 30_000;
 
 export interface SyncStatus {
   connected: boolean;
@@ -33,12 +38,18 @@ export class StorageService {
   private static snapshot: Snapshot = readStoredSnapshot();
   private static outbox: PendingOp[] = readStoredList<PendingOp>(OUTBOX_KEY);
   private static connected = false;
+  private static hasServerData = false;
   private static initPromise: Promise<void> | null = null;
+  private static syncing: Promise<void> | null = null;
   private static flushQueue: Promise<void> = Promise.resolve();
   private static listeners = new Set<() => void>();
 
   static init(): Promise<void> {
-    this.initPromise ??= this.syncOnStart();
+    if (!this.initPromise) {
+      this.followOtherTabs();
+      this.retryWhenPossible();
+      this.initPromise = this.syncWithServer();
+    }
     return this.initPromise;
   }
 
@@ -91,11 +102,20 @@ export class StorageService {
     void this.flush();
   }
 
-  private static async syncOnStart(): Promise<void> {
+  // Runs at start, and again whenever an earlier run could not reach the server.
+  private static syncWithServer(): Promise<void> {
+    this.syncing ??= this.sendAndLoad().finally(() => {
+      this.syncing = null;
+    });
+    return this.syncing;
+  }
+
+  private static async sendAndLoad(): Promise<void> {
     await this.flush();
     const server = await fetchServerSnapshot();
     if (server) {
       this.connected = true;
+      this.hasServerData = true;
       this.snapshot = applyOps(server, this.outbox);
       if (localStorage.getItem(LOCAL_ADOPTION_KEY) === null) this.adoptLocalOnlySessions(readStoredSnapshot(), this.snapshot);
       this.persist();
@@ -103,6 +123,30 @@ export class StorageService {
     await this.retireIndexedDb();
     await this.flush();
     this.notify();
+  }
+
+  // Without this, changes queued while the server was down would wait for the next change or reload.
+  private static retryWhenPossible(): void {
+    const retry = () => {
+      if (!this.hasServerData) void this.syncWithServer();
+      else if (this.outbox.length > 0) void this.flush();
+    };
+    window.addEventListener('online', retry);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') retry();
+    });
+    window.setInterval(retry, RETRY_INTERVAL_MS);
+  }
+
+  // Another tab wrote the stored copy. Take its version, so this tab's next write builds on it
+  // instead of overwriting it.
+  private static followOtherTabs(): void {
+    window.addEventListener('storage', event => {
+      if (event.key !== OUTBOX_KEY && event.key !== SESSIONS_KEY && event.key !== DEFINITIONS_KEY) return;
+      this.snapshot = readStoredSnapshot();
+      this.outbox = readStoredList<PendingOp>(OUTBOX_KEY);
+      this.notify();
+    });
   }
 
   // Before the outbox existed, a session saved while the server was down stayed only in
@@ -147,9 +191,12 @@ export class StorageService {
     this.outbox = [...this.outbox, op];
   }
 
-  // Flushes run one after another, so two can never send the same operation.
+  // Flushes run one after another, so two can never send the same operation. A failed flush is
+  // logged and the chain goes on, so one error does not stop every later send.
   private static flush(): Promise<void> {
-    this.flushQueue = this.flushQueue.then(() => this.sendOutbox());
+    this.flushQueue = this.flushQueue
+      .then(() => this.sendOutbox())
+      .catch((err: unknown) => console.error('[StorageService] Could not send queued changes', err));
     return this.flushQueue;
   }
 
@@ -158,8 +205,8 @@ export class StorageService {
     if (batch.length === 0) return;
 
     const { remaining, rejected } = await sendInOrder(batch, sendToServer);
-    // Operations recorded while this batch was in flight were appended after it.
-    this.outbox = [...remaining, ...this.outbox.slice(batch.length)];
+    const finished = batch.slice(0, batch.length - remaining.length);
+    this.outbox = withoutOps(this.outbox, finished);
     this.connected = remaining.length === 0;
     if (rejected.length > 0) keepRejected(rejected);
     writeStored(OUTBOX_KEY, this.outbox);
@@ -179,7 +226,7 @@ export class StorageService {
 
 async function fetchServerSnapshot(): Promise<Snapshot | null> {
   try {
-    const res = await fetch('/api/data');
+    const res = await fetch('/api/data', { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
     if (!res.ok) return null;
     // Safe: /api/data is our own server, which validates everything before storing it.
     const data = (await res.json()) as { success?: boolean; sessions: WorkoutSession[]; exercises: ExerciseDefinition[] };
@@ -196,6 +243,7 @@ async function sendToServer(op: PendingOp): Promise<SendResult> {
   try {
     const res = await fetch(call.path, {
       method: call.method,
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       headers: call.method === 'POST' ? { 'Content-Type': 'application/json' } : undefined,
       body: call.body === undefined ? undefined : JSON.stringify(call.body)
     });
