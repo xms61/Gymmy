@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Deloads follow the performance trend instead of the rep range. The app suggests one only when average reps drop in two sessions in a row at the same weight, the stall-or-decline signal strength coaches use (Bell et al. 2023 consensus; Rogerson et al. 2024 survey). Reps below the range that are still rising now mean "hold the weight" (Incline DB Press and Biceps Curl no longer get a deload). Three flat sessions below the range suggest a lighter working weight, shown as a new "Lighter Weight" status (Lateral Raise: 5 to 4 kg).
 
 ### Fixed
+- The dev server no longer serves `data/gymmy.db` as a static file. Any other page on the same machine could download the whole training history from `/data/gymmy.db`, because Vite answered cross-origin requests from any `localhost` origin. It now refuses `data/**` with 403 and sends no CORS headers.
+- Other sites can no longer load Gymmy in a frame (`X-Frame-Options: DENY` and `frame-ancestors 'none'` on the dev and preview servers).
 - The plate calculator draws the 10 and 15 kg plates. They had no height, so the bar looked lighter than the list below it.
 - Pinch-zoom works on phones again. Form fields use 16 px text on small screens, so focusing one no longer makes iOS Safari zoom in, which the page used to prevent by disabling zoom altogether.
 

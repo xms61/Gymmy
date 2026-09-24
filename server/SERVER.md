@@ -18,6 +18,7 @@ Entry: `server/vitePlugin.ts`: a Vite plugin that serves `/api/*` from the dev a
   - `Host` must be `localhost`, `*.localhost` or an IP address. This blocks DNS rebinding; Vite's own host check runs after plugin middleware, so it doesn't cover `/api`.
   - `Origin`, when sent, must equal this server.
   - A POST must be `application/json`, even without a body (`/api/clear`).
+- `vite.config.ts` denies `data/**` to Vite's file serving (`server.fs.deny`) and turns off Vite's CORS answers, so no page can download `data/gymmy.db` as a static file. Keep both when changing the config. Both servers send `X-Frame-Options: DENY`, so other sites cannot frame the app.
 
 ## Data / API
 | Route | Body | Response |
