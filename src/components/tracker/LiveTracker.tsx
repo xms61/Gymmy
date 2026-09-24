@@ -117,7 +117,7 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
     // This tap is the user gesture that lets the rest timer play its chime later.
     if (willBeCompleted) unlockAudio();
 
-    // 1. Pure immutable state update (no mutation, works seamlessly in StrictMode)
+    // StrictMode calls state updaters twice, so this one must not mutate.
     setExerciseLogs(prev =>
       prev.map((ex, eIdx) => {
         if (eIdx !== exIdx) return ex;
@@ -131,7 +131,7 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
       })
     );
 
-    // 2. Trigger Rest Timer ONLY if marking completed (outside state updater)
+    // Started outside the updater, so the double call cannot start two timers.
     if (willBeCompleted) {
       const exDef = workoutExercises.find(e => e.id === currentEx.exerciseId);
       let restSecs = exDef?.defaultRestSeconds || 90;
@@ -312,7 +312,6 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
     clearDraft();
     setCompletedSummary(completedSession);
 
-    // Fire celebratory confetti!
     confetti({
       particleCount: 80,
       spread: 70,
@@ -429,7 +428,7 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
                     {recommendation.status === 'increase_load' && (
                       <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full text-xs font-bold flex items-center space-x-1 animate-pulse">
                         <TrendingUp className="w-3.5 h-3.5" />
-                        <span>Weight Up Ready!</span>
+                        <span>Add Weight</span>
                       </span>
                     )}
                     {recommendation.status === 'progress_reps' && (
@@ -647,9 +646,9 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
               <Trophy className="w-8 h-8 text-white" />
             </div>
 
-            <h2 className="text-2xl font-black text-white tracking-tight mb-1">Workout Crushed!</h2>
+            <h2 className="text-2xl font-black text-white tracking-tight mb-1">Workout Saved</h2>
             <p className="text-sm text-slate-400 mb-6">
-              Great consistency! Your progress has been logged and your calendar updated.
+              Your sets are in your history and on the calendar.
             </p>
 
             <div className="grid grid-cols-2 gap-3 mb-6 text-left">
