@@ -1,8 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { hasValidRepRange, parseExerciseDefinitions, parseWorkoutSession } from '../src/validation.ts';
+import { hasValidRepRange, parseExerciseDefinitions, parseWorkoutDraft, parseWorkoutSession } from '../src/validation.ts';
 import { EXERCISE_DEFINITIONS } from '../src/data/seedData.ts';
-import type { WorkoutSession } from '../src/types/workout.ts';
+import type { WorkoutDraft, WorkoutSession } from '../src/types/workout.ts';
 
 function legsSession(): WorkoutSession {
   return {
@@ -96,5 +96,44 @@ test('a rep range is valid when min is not above max', () => {
   ];
   for (const [targetRepsMin, targetRepsMax, expected] of CASES) {
     assert.equal(hasValidRepRange({ targetRepsMin, targetRepsMax }), expected, `${targetRepsMin}-${targetRepsMax}`);
+  }
+});
+
+function pullDraft(): WorkoutDraft {
+  return {
+    version: 1,
+    workoutType: 'Pull',
+    startTime: '2026-09-24T17:02:00.000Z',
+    sessionNotes: '',
+    exerciseLogs: [
+      {
+        exerciseId: 'deadlifts',
+        exerciseName: 'Deadlifts',
+        equipment: 'barbell',
+        notes: 'Follow with Pull Ups (5 min break)',
+        sets: [
+          { setNumber: 1, weightKg: 100, repsCompleted: 5, targetReps: '5–6', completed: true },
+          { setNumber: 2, weightKg: 100, repsCompleted: 5, targetReps: '5–6', completed: false }
+        ]
+      }
+    ]
+  };
+}
+
+test('restores a saved workout draft unchanged', () => {
+  assert.deepEqual(parseWorkoutDraft(pullDraft()), { ok: true, value: pullDraft() });
+});
+
+test('refuses a corrupt or outdated workout draft', () => {
+  const CASES: [label: string, input: unknown, error: string][] = [
+    ['not an object', 'Pull', 'draft must be an object'],
+    ['no version (older format)', { ...pullDraft(), version: undefined }, 'draft.version must be 1'],
+    ['newer version', { ...pullDraft(), version: 2 }, 'draft.version must be 1'],
+    ['unknown split', { ...pullDraft(), workoutType: 'Arms' }, 'draft.workoutType must be one of Push, Pull, Legs, Other'],
+    ['bad start time', { ...pullDraft(), startTime: 'yesterday' }, 'draft.startTime must be a date and time'],
+    ['broken set', { ...pullDraft(), exerciseLogs: [{ ...pullDraft().exerciseLogs[0], sets: [{}] }] }, 'draft.exerciseLogs[0].sets[0].setNumber must be a whole number >= 1']
+  ];
+  for (const [label, input, error] of CASES) {
+    assert.deepEqual(parseWorkoutDraft(input), { ok: false, error }, label);
   }
 });

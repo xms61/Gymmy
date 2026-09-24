@@ -7,13 +7,15 @@ import {
   Flame,
   Database
 } from 'lucide-react';
-import type { SplitType, WorkoutSession, ExerciseDefinition } from './types/workout.ts';
+import type { SplitType, WorkoutDraft, WorkoutSession, ExerciseDefinition } from './types/workout.ts';
 import { StorageService, type SyncStatus } from './services/storage.ts';
 import { HomeDashboard } from './components/dashboard/HomeDashboard.tsx';
 import { WorkoutCalendar } from './components/calendar/WorkoutCalendar.tsx';
 import { ProgressView } from './components/analytics/ProgressView.tsx';
 import { SettingsModal } from './components/settings/SettingsModal.tsx';
 import { LiveTracker } from './components/tracker/LiveTracker.tsx';
+import { ResumeWorkoutBanner } from './components/tracker/ResumeWorkoutBanner.tsx';
+import { clearDraft, loadDraft } from './components/tracker/workoutDraft.ts';
 import { describeSyncStatus, syncLabel } from './components/syncStatusText.ts';
 
 export function App() {
@@ -23,6 +25,9 @@ export function App() {
   const [activeWorkoutType, setActiveWorkoutType] = useState<SplitType | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>(() => StorageService.getSyncStatus());
+  // A workout left unfinished by a reload or a closed tab, offered for resuming.
+  const [draft, setDraft] = useState<WorkoutDraft | null>(() => loadDraft());
+  const [resumeFrom, setResumeFrom] = useState<WorkoutDraft | null>(null);
 
   const refreshData = () => {
     setSessions(StorageService.getSessions());
@@ -38,13 +43,42 @@ export function App() {
     return unsubscribe;
   }, []);
 
+  const discardDraft = () => {
+    clearDraft();
+    setDraft(null);
+    setResumeFrom(null);
+  };
+
   const handleStartWorkout = (type: SplitType) => {
+    if (draft && !window.confirm(`Discard the unfinished ${draft.workoutType} workout and start a new ${type} workout?`)) {
+      return;
+    }
+    discardDraft();
     setActiveWorkoutType(type);
   };
 
+  const handleResumeWorkout = () => {
+    if (!draft) return;
+    setResumeFrom(draft);
+    setActiveWorkoutType(draft.workoutType);
+  };
+
+  const handleDiscardDraft = () => {
+    if (window.confirm('Discard the unfinished workout? Its sets will not be saved.')) discardDraft();
+  };
+
   const handleFinishWorkout = () => {
+    setDraft(null);
+    setResumeFrom(null);
     setActiveWorkoutType(null);
     setActiveTab('calendar');
+  };
+
+  const handleLeaveWorkout = () => {
+    if (window.confirm('Leave this workout? Its sets will not be saved.')) {
+      discardDraft();
+      setActiveWorkoutType(null);
+    }
   };
 
   const handleDeleteSession = (id: string) => {
@@ -58,12 +92,9 @@ export function App() {
     return (
       <LiveTracker
         workoutType={activeWorkoutType}
+        resumeFrom={resumeFrom}
         onFinish={handleFinishWorkout}
-        onCancel={() => {
-          if (window.confirm('Are you sure you want to exit the current workout?')) {
-            setActiveWorkoutType(null);
-          }
-        }}
+        onCancel={handleLeaveWorkout}
       />
     );
   }
@@ -110,6 +141,8 @@ export function App() {
 
       {/* Main View Area */}
       <main className="flex-1 max-w-4xl w-full mx-auto p-4 md:p-6 pb-28">
+        {draft && <ResumeWorkoutBanner draft={draft} onResume={handleResumeWorkout} onDiscard={handleDiscardDraft} />}
+
         {activeTab === 'dashboard' && (
           <HomeDashboard
             sessions={sessions}

@@ -49,6 +49,15 @@ export interface WorkoutSession {
   notes?: string;
 }
 
+// A workout in progress, kept in the browser so a reload can resume it.
+export interface WorkoutDraft {
+  version: 1;
+  workoutType: SplitType;
+  startTime: string; // ISO string
+  sessionNotes: string;
+  exerciseLogs: ExerciseSessionLog[];
+}
+
 export type OverloadStatus = 'increase_load' | 'progress_reps' | 'maintain' | 'deload';
 
 export interface ProgressRecommendation {
