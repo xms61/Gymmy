@@ -37,5 +37,6 @@ See the Commands table in [AGENTS.md](AGENTS.md).
 
 ## Where data lives
 - `data/gymmy.db` is the source of truth. It's a SQLite file created by the dev and preview servers, which serve it at `/api/*`.
-- The browser keeps a copy in localStorage and IndexedDB. The app falls back to that copy when the API isn't reachable, for example when the `dist/` build is served as static files.
+- The browser keeps a copy in localStorage. Changes made while the server is unreachable are queued there and sent the next time the app reaches the server. The header badge shows "SQLite" when connected, or "Offline, N pending".
+- Version 1.0.0 also kept a copy in IndexedDB. The app moves any sessions found there over, and deletes that copy once the server has them all.
 - `data/` holds your real training history and is never committed.

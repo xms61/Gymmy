@@ -9,6 +9,7 @@ Read only the doc(s) matching your task.
 | [.github/RELEASE_PROCESS.md](.github/RELEASE_PROCESS.md) | **Before any commit** (branching, version bump, checklist) |
 | [docs/CODE_STYLE.md](docs/CODE_STYLE.md) | Writing or reviewing code |
 | [docs/TESTING.md](docs/TESTING.md) | Running or writing tests |
+| [src/services/STORAGE.md](src/services/STORAGE.md) | Touching browser storage, the outbox or `StorageService` |
 | [server/SERVER.md](server/SERVER.md) | Touching the `/api` routes, the SQLite schema or `src/validation.ts` |
 
 ## Commands
@@ -30,7 +31,7 @@ Read only the doc(s) matching your task.
 - Plans and scratch notes go in `docs/plans/`, which git ignores. Never commit them.
 - Git is local only. There is no remote: never add one and never push.
 - Never rename these. Stored data and saved sessions depend on them:
-  - the localStorage keys `gymmy_workout_sessions_v2` and `gymmy_exercise_definitions_v1`;
+  - the localStorage keys listed in `src/services/STORAGE.md`;
   - the `/api/*` paths;
   - the exercise `id`s in `src/data/seedData.ts`, because saved sessions refer to exercises by `exerciseId`;
   - the SQLite table and column names in `data/gymmy.db`.

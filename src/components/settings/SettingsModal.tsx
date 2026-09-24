@@ -1,18 +1,21 @@
 import React, { useState } from 'react';
 import { X, Download, FileSpreadsheet, RotateCcw, Check, Database } from 'lucide-react';
-import { StorageService } from '../../services/storage.ts';
+import { StorageService, type SyncStatus } from '../../services/storage.ts';
 import type { ExerciseDefinition } from '../../types/workout.ts';
 import { hasValidRepRange } from '../../validation.ts';
+import { describeSyncStatus, syncLabel } from '../syncStatusText.ts';
 import * as XLSX from 'xlsx';
 
 interface SettingsModalProps {
   exercises: ExerciseDefinition[];
+  syncStatus: SyncStatus;
   onClose: () => void;
   onRefreshData: () => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
   exercises,
+  syncStatus,
   onClose,
   onRefreshData
 }) => {
@@ -114,14 +117,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <Database className="w-5 h-5 text-indigo-400" />
                   <h4 className="text-sm font-bold text-white">Local Database</h4>
                 </div>
-                <span className="flex items-center space-x-1.5 text-[11px] font-semibold text-emerald-400 bg-emerald-950/60 border border-emerald-800/60 px-2.5 py-0.5 rounded-full">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>SQLite Active</span>
+                <span
+                  className={`flex items-center space-x-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${
+                    syncStatus.connected
+                      ? 'text-emerald-400 bg-emerald-950/60 border-emerald-800/60'
+                      : 'text-amber-300 bg-amber-950/60 border-amber-800/60'
+                  }`}
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full ${syncStatus.connected ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+                  <span>{syncLabel(syncStatus)}</span>
                 </span>
               </div>
-              <p className="text-xs text-slate-400 mb-3">
-                All workout sessions and exercise configurations are persisted locally in SQLite and browser IndexedDB.
-              </p>
+              <p className="text-xs text-slate-400 mb-3">{describeSyncStatus(syncStatus)}</p>
               <div className="text-[11px] text-slate-500 space-y-1 bg-slate-900/50 p-2.5 rounded-xl border border-slate-800/50">
                 <div className="flex justify-between items-center">
                   <span>SQLite File:</span>
@@ -129,7 +136,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
                 <div className="flex justify-between items-center">
                   <span>Browser Store:</span>
-                  <span className="font-mono text-slate-300">IndexedDB (gymmy_idb)</span>
+                  <span className="font-mono text-slate-300">localStorage</span>
                 </div>
               </div>
             </div>

@@ -8,12 +8,13 @@ import {
   Database
 } from 'lucide-react';
 import type { SplitType, WorkoutSession, ExerciseDefinition } from './types/workout.ts';
-import { StorageService } from './services/storage.ts';
+import { StorageService, type SyncStatus } from './services/storage.ts';
 import { HomeDashboard } from './components/dashboard/HomeDashboard.tsx';
 import { WorkoutCalendar } from './components/calendar/WorkoutCalendar.tsx';
 import { ProgressView } from './components/analytics/ProgressView.tsx';
 import { SettingsModal } from './components/settings/SettingsModal.tsx';
 import { LiveTracker } from './components/tracker/LiveTracker.tsx';
+import { describeSyncStatus, syncLabel } from './components/syncStatusText.ts';
 
 export function App() {
   const [sessions, setSessions] = useState<WorkoutSession[]>([]);
@@ -21,17 +22,20 @@ export function App() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'calendar' | 'analytics'>('dashboard');
   const [activeWorkoutType, setActiveWorkoutType] = useState<SplitType | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>(() => StorageService.getSyncStatus());
 
-  // Load state from Storage / Local Database
   const refreshData = () => {
     setSessions(StorageService.getSessions());
     setExercises(StorageService.getExerciseDefinitions());
+    setSyncStatus(StorageService.getSyncStatus());
   };
 
+  // Shows the local copy at once, then whatever the server sync changes.
   useEffect(() => {
-    StorageService.init().then(() => {
-      refreshData();
-    });
+    const unsubscribe = StorageService.subscribe(refreshData);
+    refreshData();
+    void StorageService.init();
+    return unsubscribe;
   }, []);
 
   const handleStartWorkout = (type: SplitType) => {
@@ -40,14 +44,12 @@ export function App() {
 
   const handleFinishWorkout = () => {
     setActiveWorkoutType(null);
-    refreshData();
     setActiveTab('calendar');
   };
 
   const handleDeleteSession = (id: string) => {
     if (window.confirm('Delete this workout session?')) {
       StorageService.deleteSession(id);
-      refreshData();
     }
   };
 
@@ -88,11 +90,11 @@ export function App() {
             <div 
               onClick={() => setIsSettingsOpen(true)}
               className="flex items-center space-x-1.5 px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-[11px] text-slate-300 cursor-pointer hover:border-slate-700 transition"
-              title="Data persisted locally in data/gymmy.db (SQLite) and IndexedDB"
+              title={describeSyncStatus(syncStatus)}
             >
               <Database className="w-3.5 h-3.5 text-indigo-400" />
-              <span className="hidden sm:inline font-medium">SQLite DB</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="hidden sm:inline font-medium">{syncLabel(syncStatus)}</span>
+              <span className={`w-1.5 h-1.5 rounded-full ${syncStatus.connected ? 'bg-emerald-400' : 'bg-amber-400'}`} />
             </div>
 
             <button
@@ -173,6 +175,7 @@ export function App() {
           exercises={exercises}
           onClose={() => setIsSettingsOpen(false)}
           onRefreshData={refreshData}
+          syncStatus={syncStatus}
         />
       )}
     </div>

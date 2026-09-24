@@ -1,4 +1,4 @@
-import type { ExerciseDefinition, WorkoutSession } from '../types/workout.ts';
+import type { ExerciseDefinition } from '../types/workout.ts';
 
 export const EXERCISE_DEFINITIONS: ExerciseDefinition[] = [
   // Push Workout Exercises
@@ -156,5 +156,3 @@ export const EXERCISE_DEFINITIONS: ExerciseDefinition[] = [
   }
 ];
 
-// Clean slate for workout sessions and statistics
-export const INITIAL_SESSIONS: WorkoutSession[] = [];
