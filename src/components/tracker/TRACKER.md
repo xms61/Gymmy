@@ -12,7 +12,8 @@ Entry: `src/components/tracker/LiveTracker.tsx`: the screen for logging one work
 - Time comes from timestamps (`startTime`, `Date.now()`), never from counting timer ticks. Browsers slow down or pause timers in background tabs.
 - The weight steppers call `stepLoad` in `src/services/loading.ts`, so they step through the loads the home equipment makes. A typed weight the plates can't make gets a warning border and names the nearest loads.
 - Weight, reps, the number of sets and note lengths are clamped to `LIMITS` in `src/validation.ts`, the bounds the server accepts. Add Set stops at 50 sets.
-- Recommendations are computed once per workout (`recommendations` map). History does not change while the tracker is open.
+- The tracker gets `sessions` and `exercises` from `App` and keeps the copy it opened with, so recommendations are computed once per workout (`recommendations` map) and saving the workout doesn't move its own targets.
+- `App` enables the Start buttons only after the first sync with the server, or after 5 s if the server is slow, so a new or cleared browser doesn't start from an empty history and the seeded starting loads.
 - The draft is saved on every change to sets or notes. It is cleared in the same step that saves the finished session, and when the user leaves the workout. The rules for resuming and discarding live in `App.tsx`.
 - `hasFinishedRef` guards Finish. A double tap fires both clicks before React re-renders, so state alone cannot stop the second save.
 - A finished session is dated by the day `startTime` falls on.

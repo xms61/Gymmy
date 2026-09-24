@@ -17,6 +17,7 @@ interface HomeDashboardProps {
   sessions: WorkoutSession[];
   exercises: ExerciseDefinition[];
   onStartWorkout: (type: SplitType) => void;
+  canStart: boolean; // false until the first sync, so targets come from the full history
   onNavigateToCalendar: () => void;
 }
 
@@ -24,6 +25,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
   sessions,
   exercises,
   onStartWorkout,
+  canStart,
   onNavigateToCalendar
 }) => {
   // Determine next scheduled split based on last completed session (newest date first)
@@ -82,10 +84,11 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
 
           <button
             onClick={() => onStartWorkout(nextSplit)}
-            className={`btn px-6 py-3.5 ${nextStyle.fill} hover:opacity-90 font-black text-sm uppercase tracking-wider rounded-panel shadow-xl`}
+            disabled={!canStart}
+            className={`btn px-6 py-3.5 disabled:opacity-60 ${nextStyle.fill} hover:opacity-90 font-black text-sm uppercase tracking-wider rounded-panel shadow-xl`}
           >
             <Play className="w-4 h-4 fill-current" />
-            <span>Start {nextSplit}</span>
+            <span>{canStart ? `Start ${nextSplit}` : 'Syncing…'}</span>
           </button>
         </div>
 
@@ -127,7 +130,8 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
               <button
                 key={split}
                 onClick={() => onStartWorkout(split)}
-                className={`p-4 card rounded-panel ${style.hoverBorder} flex flex-col items-center justify-center space-y-2 transition active:scale-95 group`}
+                disabled={!canStart}
+                className={`p-4 card disabled:opacity-60 disabled:cursor-wait rounded-panel ${style.hoverBorder} flex flex-col items-center justify-center space-y-2 transition active:scale-95 group`}
               >
                 <div className={`w-10 h-10 rounded-control ${style.tint} ${style.text} ${style.groupHoverFill} flex items-center justify-center transition`}>
                   <Dumbbell className="w-5 h-5" />

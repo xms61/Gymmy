@@ -1,7 +1,15 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, Check, Clock } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import type { EquipmentType, ExerciseSessionLog, SetLog, SplitType, WorkoutDraft, WorkoutSession } from '../../types/workout.ts';
+import type {
+  EquipmentType,
+  ExerciseDefinition,
+  ExerciseSessionLog,
+  SetLog,
+  SplitType,
+  WorkoutDraft,
+  WorkoutSession
+} from '../../types/workout.ts';
 import { isPlateLoaded, type PlateLoaded } from '../../services/loading.ts';
 import { getRecommendation } from '../../services/overloadEngine.ts';
 import { StorageService } from '../../services/storage.ts';
@@ -20,6 +28,8 @@ import { LIMITS, MAX_NOTES_LENGTH } from '../../validation.ts';
 
 interface LiveTrackerProps {
   workoutType: SplitType;
+  sessions: WorkoutSession[];
+  exercises: ExerciseDefinition[];
   // A workout in progress from before a reload. Only read when the tracker opens.
   resumeFrom: WorkoutDraft | null;
   onFinish: () => void;
@@ -28,13 +38,15 @@ interface LiveTrackerProps {
 
 export const LiveTracker: React.FC<LiveTrackerProps> = ({
   workoutType,
+  sessions,
+  exercises,
   resumeFrom,
   onFinish,
   onCancel
 }) => {
-  // Load existing definitions & history
-  const allDefinitions = useMemo(() => StorageService.getExerciseDefinitions(), []);
-  const history = useMemo(() => StorageService.getSessions(), []);
+  // Taken once when the tracker opens: saving this workout must not change the targets it started with.
+  const [allDefinitions] = useState(exercises);
+  const [history] = useState(sessions);
 
   // Filter exercises matching active workout split
   const workoutExercises = useMemo(() => {
