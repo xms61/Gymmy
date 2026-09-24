@@ -18,6 +18,8 @@ Entry: `src/components/tracker/LiveTracker.tsx`: the screen for logging one work
 - `hasFinishedRef` guards Finish. A double tap fires both clicks before React re-renders, so state alone cannot stop the second save.
 - A finished session is dated by the day `startTime` falls on.
 - Audio starts only from a tap: `unlockAudio()` runs when a set is marked complete, and the chime reuses that one context.
+- The rest timer schedules its chime on the audio clock when it starts (`scheduleTimerChime`), and reschedules or cancels it on pause, +/- time and skip, because browsers slow down or pause timers in background tabs. The countdown's own tick only updates the display and vibrates.
+- The tracker holds a screen wake lock while it is open, and asks again when the tab comes back to the front.
 
 ## Data
 A finished session stores every exercise of the split, including sets that were never ticked (`completed: false`). History readers must go through `completedExerciseLogs` (`src/services/exerciseLogs.ts`), which skips them.

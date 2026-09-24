@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, Pause, SkipForward, Plus, Minus, Volume2, Maximize2, Minimize2 } from 'lucide-react';
-import { playTimerChime } from '../../utils/audio.ts';
+import { playTimerChime, scheduleTimerChime, vibrateForChime } from '../../utils/audio.ts';
 import { Dialog } from '../ui/Dialog.tsx';
 
 interface RestTimerProps {
@@ -26,13 +26,18 @@ export const RestTimer: React.FC<RestTimerProps> = ({
   onFinishRef.current = onFinish;
 
   const targetEndTimeRef = useRef<number>(Date.now() + initialSeconds * 1000);
+  const cancelChimeRef = useRef<() => void>(() => {});
 
-  // Sync when initialSeconds changes (e.g. new exercise timer started)
+  // The chime is set up on the audio clock at the start, so a throttled background tab can't delay it.
+  const scheduleChime = (seconds: number) => {
+    cancelChimeRef.current();
+    cancelChimeRef.current = scheduleTimerChime(seconds);
+  };
+
   useEffect(() => {
-    setSecondsLeft(initialSeconds);
-    setIsActive(true);
-    targetEndTimeRef.current = Date.now() + initialSeconds * 1000;
-  }, [initialSeconds]);
+    scheduleChime(initialSeconds);
+    return () => cancelChimeRef.current();
+  }, []);
 
   // Main countdown loop using high-resolution timestamp
   useEffect(() => {
@@ -45,7 +50,7 @@ export const RestTimer: React.FC<RestTimerProps> = ({
       if (diff <= 0) {
         clearInterval(interval);
         setSecondsLeft(0);
-        playTimerChime();
+        vibrateForChime();
         onFinishRef.current();
       } else {
         setSecondsLeft(diff);
@@ -57,9 +62,11 @@ export const RestTimer: React.FC<RestTimerProps> = ({
 
   const toggleTimer = () => {
     if (isActive) {
+      cancelChimeRef.current();
       setIsActive(false);
     } else {
       targetEndTimeRef.current = Date.now() + secondsLeft * 1000;
+      scheduleChime(secondsLeft);
       setIsActive(true);
     }
   };
@@ -68,6 +75,7 @@ export const RestTimer: React.FC<RestTimerProps> = ({
     const newSeconds = Math.max(0, secondsLeft + amount);
     setSecondsLeft(newSeconds);
     targetEndTimeRef.current = Date.now() + newSeconds * 1000;
+    if (isActive) scheduleChime(newSeconds);
   };
 
   const minutes = Math.floor(secondsLeft / 60);
