@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Local git repository, release process (`.github/RELEASE_PROCESS.md`), agent doc map (`AGENTS.md`), code style and testing docs.
 
 ### Fixed
+- Workout duration is measured from the start time. It used to count timer ticks, which phones slow down or pause while the screen is locked, so the recorded duration came out too short. The clock also shows hours after the first hour.
 - `src/data/seedData.ts` is committed. The `.gitignore` pattern for the local `data/` folder also matched `src/data/`, so a fresh clone could not build.
 - Workouts saved or deleted while the server was down are no longer lost or brought back. Every change waits in a local queue until the server stores it, and on start the app applies unsent changes on top of the server's data. The first start after upgrading also queues any sessions that 1.0.0 had left only in the browser.
 - The "SQLite" badge in the header and Settings shows the real connection state, and the number of changes waiting to be sent.
@@ -27,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Other websites can no longer read or change your data through the API. It rejects requests from other origins (403), requests addressed to a host name other than localhost or an IP address (DNS rebinding, 403), and POSTs that aren't JSON (415). Before, any page open in the same browser could wipe the history with `/api/clear`.
 
 ### Changed
+- The live tracker no longer redraws every exercise each second: only the clock ticks, and recommendations are computed once per workout.
 - The browser keeps its copy in localStorage only. Sessions from the old IndexedDB copy are moved over, and that copy is deleted once the server has confirmed them all.
 - The overload engine is plain functions (`getRecommendation`, `estimate1RM`, `calculatePlates`), and the Progress view's per-exercise history is computed by `exerciseHistory` in `src/services/progress.ts`, with tests.
 - The API server is split into `server/` (`vitePlugin.ts` for HTTP, `api.ts` for routes, `db.ts` for SQL) and reads the seed routine from `src/data/seedData.ts` instead of its own copy. `/api/data` returns the same data as before.
