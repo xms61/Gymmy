@@ -513,7 +513,7 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
                           step="0.5"
                           value={set.weightKg === 0 ? '' : set.weightKg}
                           onChange={e => setExactSetWeight(exIdx, setIdx, parseFloat(e.target.value))}
-                          className="w-14 h-8 bg-slate-900 border border-slate-700/60 rounded-lg text-center font-mono font-bold text-sm text-white focus:border-indigo-500 focus:outline-none"
+                          className="w-14 h-8 bg-slate-900 border border-slate-700/60 rounded-lg text-center font-mono font-bold text-base sm:text-sm text-white focus:border-indigo-500 focus:outline-none"
                           placeholder="0"
                         />
                         <button
@@ -537,7 +537,7 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
                           type="number"
                           value={set.repsCompleted === 0 ? '' : set.repsCompleted}
                           onChange={e => setExactSetReps(exIdx, setIdx, parseInt(e.target.value) || 0)}
-                          className="w-12 h-8 bg-slate-900 border border-slate-700/60 rounded-lg text-center font-mono font-bold text-sm text-white focus:border-indigo-500 focus:outline-none"
+                          className="w-12 h-8 bg-slate-900 border border-slate-700/60 rounded-lg text-center font-mono font-bold text-base sm:text-sm text-white focus:border-indigo-500 focus:outline-none"
                           placeholder="0"
                         />
                         <button
@@ -594,7 +594,7 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
                   value={exLog.notes || ''}
                   onChange={e => updateExerciseNotes(exIdx, e.target.value)}
                   placeholder="Notes for this exercise (e.g., grip, form cues, RPE)..."
-                  className="w-full bg-slate-950/60 border border-slate-800/60 rounded-xl px-3 py-1.5 text-xs text-slate-300 placeholder-slate-600 focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-950/60 border border-slate-800/60 rounded-xl px-3 py-1.5 text-base sm:text-xs text-slate-300 placeholder-slate-600 focus:outline-none focus:border-indigo-500"
                 />
               </div>
             </div>
@@ -611,7 +611,7 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
             onChange={e => setSessionNotes(e.target.value)}
             placeholder="How did the session feel? Energy levels, soreness, personal breakthroughs..."
             rows={3}
-            className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-3 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500"
+            className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-3 text-base sm:text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500"
           />
         </div>
       </main>
