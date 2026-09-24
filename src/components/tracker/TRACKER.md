@@ -22,6 +22,7 @@ Entry: `src/components/tracker/LiveTracker.tsx`: the screen for logging one work
 - The tracker holds a screen wake lock while it is open, and asks again when the tab comes back to the front.
 - `SetRow`, `ExerciseCard` and `RestTimer` carry hook classes (`set-row`, `set-number`, `set-load`, `set-reps`, `set-done`, `stepper`, `exercise-card`, `rest-bar`, `rest-digits`, ...) that theme blocks in `src/index.css` use to rearrange them. Keep them when restructuring these components (`src/theme/THEME.md`).
 - Finish shows confetti only for themes whose `celebration` trait is `confetti`; `stamp` puts a "Logged" stamp on the summary instead. A done set shows a check, or a "Done" stamp for themes whose `doneMark` is `stamp`.
+- Reps in reserve (RIR) is optional. Once a set is done, a 0–5 picker appears under it; picking the chosen value again clears it. It is stored in `SetLog.rpe` as 10 − RIR (`src/services/effort.ts`), so the stored format is unchanged, and history shows it as "8 @ RIR 2". Nothing in the load suggestions reads it yet.
 - The exercise note is a one-row textarea that stays on one line, so Journal can let it wrap and grow in the margin.
 
 ## Data

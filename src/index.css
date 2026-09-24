@@ -205,7 +205,7 @@
 
 [data-theme="brutalism"] .set-row {
   grid-template-columns: 2rem minmax(0, 1fr) var(--tap);
-  grid-template-areas: "number load done" "number reps done";
+  grid-template-areas: "number load done" "number reps done" "rir rir rir";
   gap: 0.5rem 0.375rem;
   padding: 0.5rem;
 }
@@ -213,6 +213,7 @@
 [data-theme="brutalism"] .set-row > .set-number { grid-area: number; }
 [data-theme="brutalism"] .set-row > .set-load { grid-area: load; }
 [data-theme="brutalism"] .set-row > .set-reps { grid-area: reps; }
+[data-theme="brutalism"] .set-row > .set-rir { grid-area: rir; }
 
 [data-theme="brutalism"] .set-row > .set-done {
   grid-area: done;

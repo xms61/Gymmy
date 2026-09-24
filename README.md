@@ -33,7 +33,7 @@ See the Commands table in [AGENTS.md](AGENTS.md). Every pull request and every p
   - A session is judged by its working sets, the completed sets at its heaviest weight. Lighter ramp-up and back-off sets don't count.
   - A skipped exercise, meaning no completed sets, is ignored.
 - **Live tracking:**
-  - Set logger with weight and rep steppers.
+  - Set logger with weight and rep steppers, and an optional reps-in-reserve (RIR, 0–5) pick for each done set, shown in history as "8 @ RIR 2".
   - Rest timer set per exercise, with a 5-minute break between Deadlifts and Pull-Ups.
   - Chime and vibration when the rest ends.
   - Plate calculator for barbell, dumbbell and landmine lifts: which of the home plates go on each end, and the nearest loads when a weight can't be made. The weight steppers step through the loads the plates make, and a weight they can't make is marked.

@@ -1,6 +1,7 @@
 // Per-exercise training history for the Progress view.
 import { workingWeight, type CompletedExerciseLog } from './exerciseLogs.ts';
 import { estimate1RM } from './overloadEngine.ts';
+import { formatReps } from './effort.ts';
 
 export interface ExerciseHistoryEntry {
   date: string;
@@ -17,7 +18,7 @@ export function exerciseHistory(logs: CompletedExerciseLog[]): ExerciseHistoryEn
     date: session.date,
     sessionName: session.name,
     weight: workingWeight(sets),
-    repsString: sets.map(s => s.repsCompleted).join(' / '),
+    repsString: sets.map(formatReps).join(' / '),
     estimated1RM: Math.max(...sets.map(s => estimate1RM(s.weightKg, s.repsCompleted))),
     volumeKg: sets.reduce((total, s) => total + s.weightKg * s.repsCompleted, 0)
   }));

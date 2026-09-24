@@ -4,6 +4,7 @@ import { clampTo, LIMITS } from '../../validation.ts';
 import { isLoadable, stepLoad } from '../../services/loading.ts';
 import { useTheme } from '../../theme/ThemeProvider.tsx';
 import { InkStamp } from '../ui/InkStamp.tsx';
+import { RIR_CHOICES, rirOf, withRir } from '../../services/effort.ts';
 
 export type SetChange = (set: SetLog) => SetLog;
 
@@ -71,6 +72,35 @@ export function SetRow({ set, equipment, onToggle, onChange }: SetRowProps) {
           )}
         </button>
       </div>
+
+      {set.completed && (
+        <RirPicker setNumber={set.setNumber} value={rirOf(set)} onPick={rir => onChange(s => withRir(s, rir))} />
+      )}
+    </div>
+  );
+}
+
+// Optional, and offered only once the set is done: how many more reps it had left. Picking the
+// chosen value again clears it.
+function RirPicker({ setNumber, value, onPick }: { setNumber: number; value: number | null; onPick: (rir: number | null) => void }) {
+  return (
+    <div role="radiogroup" aria-label={`Reps in reserve, set ${setNumber}`} className="set-rir col-span-12 flex items-center gap-1.5 pl-1">
+      <span className="section-label text-[10px] w-10 flex-none" title="Reps in reserve: how many more reps you had left. 0 means you could not do another.">
+        RIR
+      </span>
+      {RIR_CHOICES.map(rir => (
+        <button
+          key={rir}
+          role="radio"
+          aria-checked={value === rir}
+          onClick={() => onPick(value === rir ? null : rir)}
+          className={`flex-1 max-w-12 h-tap rounded-chip font-mono font-bold text-xs transition ${
+            value === rir ? 'bg-accent text-on-accent' : 'bg-control hover:bg-control-hover text-ink-soft'
+          }`}
+        >
+          {rir}
+        </button>
+      ))}
     </div>
   );
 }

@@ -2,6 +2,7 @@ import React from 'react';
 import { Calendar, Clock, Dumbbell, Trash2 } from 'lucide-react';
 import type { WorkoutSession } from '../../types/workout.ts';
 import { formatDisplayDate } from '../../utils/date.ts';
+import { formatReps } from '../../services/effort.ts';
 import { Dialog, DialogHeader } from '../ui/Dialog.tsx';
 import { SplitBadge } from '../ui/badges.tsx';
 
@@ -79,7 +80,7 @@ export const DayDetailModal: React.FC<DayDetailModalProps> = ({
                             s.completed ? 'bg-control text-accent-ink font-semibold' : 'bg-surface text-ink-faint'
                           }`}
                         >
-                          {s.weightKg}kg × {s.repsCompleted}
+                          {s.weightKg}kg × {formatReps(s)}
                         </span>
                       ))}
                     </div>
