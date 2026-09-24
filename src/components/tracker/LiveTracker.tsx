@@ -13,12 +13,12 @@ import {
   Sparkles
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { ExerciseSessionLog, SetLog, SplitType, WorkoutSession } from '../../types/workout';
-import { OverloadEngine } from '../../services/overloadEngine';
-import { StorageService } from '../../services/storage';
-import { RestTimer } from './RestTimer';
-import { PlateCalculatorModal } from './PlateCalculatorModal';
-import { getTodayDateString } from '../../utils/date';
+import type { ExerciseSessionLog, SetLog, SplitType, WorkoutSession } from '../../types/workout.ts';
+import { OverloadEngine } from '../../services/overloadEngine.ts';
+import { StorageService } from '../../services/storage.ts';
+import { RestTimer } from './RestTimer.tsx';
+import { PlateCalculatorModal } from './PlateCalculatorModal.tsx';
+import { getTodayDateString } from '../../utils/date.ts';
 
 interface LiveTrackerProps {
   workoutType: SplitType;

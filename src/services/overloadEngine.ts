@@ -1,4 +1,4 @@
-import { ExerciseDefinition, ProgressRecommendation, WorkoutSession, SetLog } from '../types/workout';
+import type { ExerciseDefinition, ProgressRecommendation, WorkoutSession, SetLog } from '../types/workout.ts';
 
 export class OverloadEngine {
   /**

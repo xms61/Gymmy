@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, Download, FileSpreadsheet, RotateCcw, Check, Database } from 'lucide-react';
-import { StorageService } from '../../services/storage';
-import { ExerciseDefinition } from '../../types/workout';
+import { StorageService } from '../../services/storage.ts';
+import type { ExerciseDefinition } from '../../types/workout.ts';
 import * as XLSX from 'xlsx';
 
 interface SettingsModalProps {

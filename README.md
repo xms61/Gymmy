@@ -3,7 +3,7 @@
 A mobile-first workout tracker for one Push/Pull/Legs routine, built with React, TypeScript, Tailwind CSS and Vite. It logs each set, suggests the next load with double progression, and keeps the training history in a local SQLite database.
 
 ## Setup
-Requires Node.js 22.13 or newer (the dev server uses the built-in `node:sqlite` module).
+Requires Node.js 22.18 or newer. The dev server uses the built-in `node:sqlite` module, and the tests run TypeScript directly with Node.
 
 ```bash
 npm ci

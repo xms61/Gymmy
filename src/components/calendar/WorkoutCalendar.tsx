@@ -6,9 +6,9 @@ import {
   Flame, 
   Award 
 } from 'lucide-react';
-import { WorkoutSession } from '../../types/workout';
-import { DayDetailModal } from './DayDetailModal';
-import { toLocalDateString, getTodayDateString } from '../../utils/date';
+import type { WorkoutSession } from '../../types/workout.ts';
+import { DayDetailModal } from './DayDetailModal.tsx';
+import { toLocalDateString, getTodayDateString } from '../../utils/date.ts';
 
 interface WorkoutCalendarProps {
   sessions: WorkoutSession[];

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, Pause, SkipForward, Plus, Minus, Volume2, Maximize2, Minimize2 } from 'lucide-react';
-import { playTimerChime } from '../../utils/audio';
+import { playTimerChime } from '../../utils/audio.ts';
 
 interface RestTimerProps {
   totalSeconds: number;

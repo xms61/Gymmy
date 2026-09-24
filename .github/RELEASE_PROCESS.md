@@ -12,7 +12,7 @@ Git is local only. There is no remote, so nothing is pushed and there are no pul
 - Every change adds a line under `## [Unreleased]` in `CHANGELOG.md`. A release renames that section to the new version and date, and bumps `package.json` in the same commit.
 
 ## Before merging
-- [ ] `npx tsc -b` and `npm run build` pass (and the test suite, once it exists; see `docs/TESTING.md`)
+- [ ] `npm run test:ci` and `npm run build` pass
 - [ ] The app was checked with `npm run dev`, without writing test data into `data/gymmy.db`
 - [ ] `CHANGELOG.md`, `README.md` and the matching area doc are updated
 - [ ] Nothing from `data/`, `docs/plans/` or the spreadsheet is staged (`git status`)

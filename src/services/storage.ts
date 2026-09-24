@@ -1,6 +1,6 @@
-import { ExerciseDefinition, WorkoutSession } from '../types/workout';
-import { EXERCISE_DEFINITIONS, INITIAL_SESSIONS } from '../data/seedData';
-import { indexedDb } from './indexedDb';
+import type { ExerciseDefinition, WorkoutSession } from '../types/workout.ts';
+import { EXERCISE_DEFINITIONS, INITIAL_SESSIONS } from '../data/seedData.ts';
+import { indexedDb } from './indexedDb.ts';
 import * as XLSX from 'xlsx';
 
 const SESSIONS_STORAGE_KEY = 'gymmy_workout_sessions_v2';
