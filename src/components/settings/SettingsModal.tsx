@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { X, Download, FileSpreadsheet, RotateCcw, Check, Database } from 'lucide-react';
+import { X, RotateCcw, Check, Database } from 'lucide-react';
 import { StorageService, type SyncStatus } from '../../services/storage.ts';
 import type { ExerciseDefinition } from '../../types/workout.ts';
 import { hasValidRepRange } from '../../validation.ts';
 import { describeSyncStatus, syncLabel } from '../syncStatusText.ts';
 import { BackupSection } from './BackupSection.tsx';
-import * as XLSX from 'xlsx';
 
 interface SettingsModalProps {
   exercises: ExerciseDefinition[];
@@ -23,33 +22,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [activeTab, setActiveTab] = useState<'data' | 'exercises'>('data');
   const [exerciseList, setExerciseList] = useState<ExerciseDefinition[]>(exercises);
   const [savedSuccess, setSavedSuccess] = useState(false);
-
-  // Handle Excel Upload
-  const handleExcelUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = evt => {
-      try {
-        const bstr = evt.target?.result;
-        const wb = XLSX.read(bstr, { type: 'binary' });
-
-        // Ensure sheet "List" is present
-        if (!wb.Sheets['List']) {
-          alert('Excel file must contain a sheet named "List"');
-          return;
-        }
-
-        alert('Excel file loaded successfully! Your routine is synchronized with the latest sessions.');
-        onRefreshData();
-      } catch (err) {
-        console.error('Error reading Excel:', err);
-        alert('Failed to parse Excel file.');
-      }
-    };
-    reader.readAsBinaryString(file);
-  };
 
   const handleUpdateExercise = (
     id: string,
@@ -139,38 +111,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <span>Browser Store:</span>
                   <span className="font-mono text-slate-300">localStorage</span>
                 </div>
-              </div>
-            </div>
-
-            {/* Excel Sync */}
-            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4">
-              <div className="flex items-center space-x-3 mb-2">
-                <FileSpreadsheet className="w-5 h-5 text-emerald-400" />
-                <h4 className="text-sm font-bold text-white">Excel Import / Export</h4>
-              </div>
-              <p className="text-xs text-slate-400 mb-4">
-                Export all your tracked sessions to an Excel (.xlsx) spreadsheet or re-sync with <code>Fundamentals Workout.xlsx</code>.
-              </p>
-
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  onClick={() => StorageService.exportToExcel()}
-                  className="flex items-center justify-center space-x-2 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl transition"
-                >
-                  <Download className="w-4 h-4" />
-                  <span>Export to Excel</span>
-                </button>
-
-                <label className="flex items-center justify-center space-x-2 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition cursor-pointer">
-                  <FileSpreadsheet className="w-4 h-4" />
-                  <span>Import Excel</span>
-                  <input
-                    type="file"
-                    accept=".xlsx,.xls"
-                    className="hidden"
-                    onChange={handleExcelUpload}
-                  />
-                </label>
               </div>
             </div>
 

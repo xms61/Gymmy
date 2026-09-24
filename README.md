@@ -33,7 +33,7 @@ See the Commands table in [AGENTS.md](AGENTS.md).
   - Barbell plate calculator.
 - **History:** a monthly calendar colored by split (Push orange, Pull green, Legs blue), with each day's sets, loads, volume and notes.
 - **Progress:** estimated 1RM (Brzycki formula), best load and volume for each exercise.
-- **Export:** workout history to `.xlsx`, and a full JSON backup.
+- **Backup and restore:** a JSON file with every workout and the exercise targets. Restoring previews the changes first and never deletes anything.
 
 ## Where data lives
 - `data/gymmy.db` is the source of truth. It's a SQLite file created by the dev and preview servers, which serve it at `/api/*`.

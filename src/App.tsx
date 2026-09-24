@@ -131,7 +131,7 @@ export function App() {
             <button
               onClick={() => setIsSettingsOpen(true)}
               className="p-2.5 text-slate-400 hover:text-white rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition"
-              title="Settings & Excel Sync"
+              title="Settings"
             >
               <SettingsIcon className="w-5 h-5" />
             </button>

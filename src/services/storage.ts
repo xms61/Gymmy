@@ -16,7 +16,6 @@ import {
   type SendResult,
   type Snapshot
 } from './sync.ts';
-import * as XLSX from 'xlsx';
 
 const SESSIONS_KEY = 'gymmy_workout_sessions_v2';
 const DEFINITIONS_KEY = 'gymmy_exercise_definitions_v1';
@@ -175,45 +174,6 @@ export class StorageService {
 
   private static notify(): void {
     for (const listener of this.listeners) listener();
-  }
-
-  /**
-   * Exports completed sessions to Excel (.xlsx)
-   */
-  static exportToExcel(): void {
-    const sessions = this.getSessions().filter(s => s.completed);
-    const rows: Array<{
-      Date: string;
-      Workout: string;
-      Exercise: string;
-      Sets: number;
-      TargetReps: string;
-      Accomplished: string;
-      LoadKg: string;
-      Notes: string;
-    }> = [];
-
-    for (const session of sessions) {
-      for (const ex of session.exercises) {
-        const accomplished = ex.sets.map(s => s.repsCompleted).join('/');
-        const load = ex.sets.map(s => s.weightKg).join('/');
-        rows.push({
-          Date: session.date,
-          Workout: session.name,
-          Exercise: ex.exerciseName,
-          Sets: ex.sets.length,
-          TargetReps: ex.sets[0]?.targetReps || '',
-          Accomplished: accomplished,
-          LoadKg: load,
-          Notes: ex.notes || ''
-        });
-      }
-    }
-
-    const ws = XLSX.utils.json_to_sheet(rows);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Gymmy Workouts');
-    XLSX.writeFile(wb, `Gymmy-History-${new Date().toISOString().slice(0, 10)}.xlsx`);
   }
 }
 
