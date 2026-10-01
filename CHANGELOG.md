@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- Home is a platform sign: the next workout in yellow with Start, or the unfinished workout with Resume and Discard, then the targets on flap digits and the record (weekly streak, workouts, volume) along the foot. Bodyweight lifts with no load show BW.
 - One design, the Departure Board, replaces the five themes and the Appearance tab. The live workout screen is rebuilt as a board: the current exercise owns it, with load and reps on split-flap digits, the rest countdown beside it and the rest of the workout as one-line rows. Other screens take the new colors and fonts; their own layouts follow. The keyboard command line and shortcuts now work for everyone. Finishing shows a flap "Logged" instead of confetti, and `canvas-confetti` and the old themes' fonts are gone.
 - Desktop web only: the tabs moved from the bottom navigation into a header band, and the tracker keeps its rest timer beside the board at every width.
 

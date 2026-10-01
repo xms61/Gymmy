@@ -24,7 +24,7 @@ Gymmy gets one design in place of its five themes: the Departure Board, a statio
 ## Progress
 - [x] 2026-10-01 Milestone 1: one token set, theme system removed
 - [x] 2026-10-01 Milestone 2: live workout screen as the board (finish review: three fix rounds; DESIGN.md written)
-- [ ] Milestone 3: home dashboard
+- [x] 2026-10-01 Milestone 3: home dashboard as a platform sign
 - [ ] Milestone 4: history and progress
 - [ ] Milestone 5: settings and dialogs
 
@@ -35,6 +35,7 @@ Gymmy gets one design in place of its five themes: the Departure Board, a statio
 - 2026-10-01: Session dates in lists are written "Thu 1 Oct", one style for every screen.
 - 2026-10-01: Desktop web only, at the user's request: no phone layouts, no bottom navigation. The tabs moved into a yellow header band, the rest timer always sits beside the board, and the command row is in the page flow at the foot. Rejected: the phone rest bar, which covered the board.
 - 2026-10-01: Confirmations use an in-app dialog (`ConfirmHost`), because the embedded browser answered `window.confirm` with no and Discard did nothing.
+- 2026-10-01: Home is a yellow platform sign for the next workout (or the unfinished one, with Resume and Discard), the targets as board rows under it, and the record along the foot. Chosen from a structure round (seed aa90a80a). Rejected: Split Board (too close to the workout screen), Week Timetable (the week would outrank starting the workout). DESIGN.md admits the sign as the one yellow area below the band.
 - 2026-10-01: Barlow and Barlow Condensed, bundled with `@fontsource`, a grotesk drawn from road and rail signage with tabular figures. Rejected: the system sans (no character), the old themes' faces.
 
 ## Surprises

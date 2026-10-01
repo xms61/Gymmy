@@ -43,9 +43,27 @@ colors:
   on-plate-light: "#15130F"
   bar: "#A8A498"
 typography:
+  sign:
+    fontFamily: "'Barlow Condensed', 'Arial Narrow', sans-serif"
+    fontSize: "6rem"
+    fontWeight: 600
+    lineHeight: 0.85
+    letterSpacing: "0.02em"
   flap:
     fontFamily: "'Barlow Condensed', 'Arial Narrow', sans-serif"
     fontSize: "4.5rem"
+    fontWeight: 600
+    lineHeight: 1
+    fontFeature: "tnum"
+  flap-xl:
+    fontFamily: "'Barlow Condensed', 'Arial Narrow', sans-serif"
+    fontSize: "6.5rem"
+    fontWeight: 600
+    lineHeight: 1
+    fontFeature: "tnum"
+  flap-row:
+    fontFamily: "'Barlow Condensed', 'Arial Narrow', sans-serif"
+    fontSize: "2.25rem"
     fontWeight: 600
     lineHeight: 1
     fontFeature: "tnum"
@@ -168,6 +186,19 @@ components:
     textColor: "{colors.on-split}"
     rounded: "{rounded.pill}"
     size: "2rem"
+  route-marker-sm:
+    textColor: "{colors.on-split}"
+    rounded: "{rounded.pill}"
+    size: "1.5rem"
+  route-marker-lg:
+    textColor: "{colors.on-split}"
+    rounded: "{rounded.pill}"
+    size: "5rem"
+  platform-sign:
+    backgroundColor: "{colors.accent}"
+    textColor: "{colors.on-accent}"
+    rounded: "{rounded.card}"
+    padding: "1.25rem 2rem"
 ---
 
 # Design System: Gymmy
@@ -180,14 +211,14 @@ Token values live in `src/theme/tokens.ts`; how they reach the page, and the tok
 
 The workout is a station departure board. The current exercise owns the board, and each set is the next departure: when a value changes, its split-flap cells turn over to it. A matte warm-black board carries off-white characters on two-leaf flap cells with a hairline split. A yellow enamel signage band runs across the top. Barlow Condensed in capitals sets every heading, label and button.
 
-The board is read between sets at arm's length on a laptop, so it is sparse and large: one exercise, its load and reps in flap digits, the rest countdown beside them, and the other exercises as single rows. Colour is rare. The flaps hold two inks; colour belongs to the band and to small round route markers for Push, Pull and Legs. Surfaces are flat, with square 3px corners, and values change by a stepped flip, never by a fade.
+The board is read between sets at arm's length on a laptop, so it is sparse and large: one exercise, its load and reps in flap digits, the rest countdown beside them, and the other exercises as single rows. Colour is rare. The flaps hold two inks; colour belongs to the band, the home platform sign and round route markers for Push, Pull and Legs. Surfaces are flat, with square 3px corners, and values change by a stepped flip, never by a fade.
 
-The live workout screen is the first and only surface built in this world. The dashboard, calendar, progress and settings screens still have their earlier layouts and only inherit the tokens; redoing them is milestones 3 to 5 of the [Departure Board exec plan](docs/exec-plans/active/2026-10-01-departure-board.md). They are a known gap, not a reference for new work.
+The live workout screen and home are built in this world. The calendar, progress and settings screens still have their earlier layouts and only inherit the tokens; redoing them is milestones 4 and 5 of the [Departure Board exec plan](docs/exec-plans/active/2026-10-01-departure-board.md). They are a known gap, not a reference for new work.
 
 **Key Characteristics:**
 - Matte warm-black board with off-white flap characters.
 - Split-flap cells: two leaves, the lower one a shade darker, a 1px split in board colour.
-- One yellow signage band; yellow elsewhere only on the focus ring and the text caret.
+- One yellow signage band, and on home one yellow platform sign for the next workout; yellow elsewhere only on the focus ring and the text caret.
 - Round route markers carry the split colours.
 - Barlow Condensed in capitals for display, labels, buttons and numbers; Barlow for prose.
 - Flat: no drop shadows, gradients, glows or blur.
@@ -199,13 +230,13 @@ The live workout screen is the first and only surface built in this world. The d
 A near-monochrome board of warm blacks and off-whites, with one signage yellow and four route colours kept to small areas.
 
 ### Primary
-- **Signage Yellow** (`accent`): the band across the top of every screen, the 2px focus ring, the text caret and text selection. Its hover step (`accent-hover`) belongs to the same family. Text on it is `on-accent`, the board black.
+- **Signage Yellow** (`accent`): the band across the top of every screen, the platform sign on home, the 2px focus ring, the text caret and text selection. Its hover step (`accent-hover`) belongs to the same family. Text on it is `on-accent`, the board black.
 
 ### Secondary
 - **Route colours** (`push` orange, `pull` green, `legs` blue, `other` violet): only as the fill of a round route marker, with `on-split` black lettering.
 
 ### Tertiary
-- **Status inks** (`good-ink`, `warn-ink`, `bad-ink`, `info-ink`): coloured text for status, warnings and destructive actions, sometimes on a 15% tint of the same ink with a 40% border. `bad-ink` marks delete and danger actions; `warn-ink` marks an unloadable weight under the load flaps.
+- **Status inks** (`good-ink`, `warn-ink`, `bad-ink`, `info-ink`): coloured text for status, warnings and destructive actions. A progression status is an icon and a word in its ink with no box, so it never reads as a button; danger buttons use a 15% tint of `bad-ink` with a 40% border. `bad-ink` marks delete and danger actions; `warn-ink` marks an unloadable weight under the load flaps.
 - **Plate colours** (`plate-*`, `bar`, `on-plate`, `on-plate-light`): the competition plate colours, only in the plate calculator.
 
 ### Neutral
@@ -222,7 +253,7 @@ A near-monochrome board of warm blacks and off-whites, with one signage yellow a
 ### Named Rules
 **The Two Inks Rule.** Flap cells show `ink` characters on `surface` over `flap-low`, nothing else. Colour never goes on a flap.
 
-**The Signage Rule.** Yellow is the band, the focus ring, the caret and selection. Buttons on the board are never yellow; the filled primary is Departure White.
+**The Signage Rule.** Yellow is the band, the home platform sign, the focus ring, the caret and selection. Buttons on the board are never yellow; the filled primary is Departure White. On a yellow sign, actions are board-black.
 
 **The Route Marker Rule.** A split colour appears only as the fill of a round marker with its first letter in `on-split`.
 
@@ -235,7 +266,8 @@ A near-monochrome board of warm blacks and off-whites, with one signage yellow a
 **Character:** A narrow transport-signage face in capitals for everything that is read at a glance, and a plain humanist sans for the few sentences the board carries.
 
 ### Hierarchy
-- **Flap** (600, 4.5rem, 6.5rem from 1280px wide; 1): load and reps on the board and the rest clock. Session rows use the same cells at 1.25rem.
+- **Sign** (600, 4.5rem, 6rem from 1280px wide): the split name on the home platform sign, on flap cells; the state word before it (Next, Unfinished) at 2.25rem, 3rem from 1280px.
+- **Flap** (600, 4.5rem, 6.5rem from 1280px wide; 1): load and reps on the board and the rest clock. Home target rows and record figures use the same cells at 2.25rem, session rows at 1.25rem.
 - **Display** (600, 3.75rem, 0.95, 0.02em, capitals): the name of the exercise that owns the board.
 - **Headline** (600, 1.875rem, 1, capitals): the band title: the app name, or the split of the workout.
 - **Title** (600, 1.5rem, capitals): section headings in the side column, such as Rest and This workout.
@@ -255,7 +287,7 @@ Desktop browser only; there are no phone layouts and no bottom navigation. Every
 
 The live workout fills the window: the band, then one scrolling main area, then the command row in flow at the foot. The main area is two columns: the board (`minmax(0, 1fr)`) and a side column of 18 to 26rem, 2.5rem apart (3rem from 1280px wide), with 2rem above and below. The side column stacks the rest timer, the session board and the workout notes 2rem apart.
 
-On the board, the load and reps steppers sit side by side at a 1.45 to 1 ratio, 1.5rem apart. The minus and plus buttons under each value are as wide as its flap group. Set tiles wrap in one row 0.5rem apart. Steppers, set tiles and timer buttons are at least `tap-lg` tall; status badges, Plates and RIR choices use `tap`.
+On the board, the load and reps steppers sit side by side at a 1.45 to 1 ratio, 1.5rem apart. The minus and plus buttons under each value are as wide as its flap group. Set tiles wrap in one row 0.5rem apart. Steppers, set tiles and timer buttons are at least `tap-lg` tall; Plates and RIR choices use `tap`.
 
 ### Named Rules
 **The One Board Rule.** One exercise owns the board at a time. Other exercises are single rows: the current row on `surface`, the next row with open sets in full ink, the rest at 50% opacity.
@@ -269,7 +301,7 @@ The system is flat. Depth comes from tone: the board, then the darker wells (`in
 
 ## Shapes
 
-Square corners with a slight break: 3px on flap cells, panels and controls, 4px on cards, 2px on fields, chips and RIR choices. The full circle is reserved for route markers and small attention dots. Borders are 1px: `line` for decoration, `edge` where a control needs a visible boundary, and a dashed `edge` for the add-set button. The flap cell is the recurring silhouette: 0.66em by 1.16em, 0.34em wide for the decimal point, colon, comma and slash, with 0.06em between cells.
+Square corners with a slight break: 3px on flap cells, panels and controls, 4px on cards, 2px on fields, chips and RIR choices. The full circle is reserved for route markers and small attention dots. Borders are 1px: `line` for decoration, `edge` where a control needs a visible boundary, and a dashed `edge` for the add-set button. The flap cell is the recurring silhouette: 0.66em by 1.16em for every character, punctuation included, with 0.06em between cells, so every flap row sits on one uniform grid.
 
 ## Components
 
@@ -310,8 +342,11 @@ The flaps are both the readout and the field: a transparent number input covers 
 ### Set strip
 Every set of the board's exercise as a tile: set number in `ink-faint`, then load and reps in data type, and a check once done. Idle tiles are `inset` with a `line` border; the set on the board is `surface` with an `ink` border. Done sets drop to `ink-muted`.
 
+### Platform sign (home)
+A yellow `accent` panel with 4px corners across the content column, always one line: a large route marker (3.5rem, 5rem from 1280px wide), then one heading line, the state word (Next or Unfinished; 2.25rem, 3rem from 1280px) and the split name on flap cells (4.5rem, 6rem from 1280px) that turn over when the rotation moves on, with one detail line under it. The flaps keep their two inks on the yellow. The actions sit at the right as board-black buttons (Start, or Discard outlined and Resume filled). It is the only yellow area below the band. Under it, the split's targets are board rows: exercise name, target load and rep range on 2.25rem flaps (BW for a bodyweight lift with no load; the rep range takes two cells either side of the dash, so the dashes of every row stand in one column), and a status only when the target changes. The record runs along the foot: weekly streak, workouts and volume on flaps, then start buttons for the other two splits.
+
 ### Route marker
-A 2rem circle filled with the split colour, the split's first letter in bold Barlow Condensed `on-split`, and a 1px ring. It appears in the band and beside saved-workout titles.
+A circle filled with the split colour, the split's first letter in bold Barlow Condensed `on-split`, and a ring: 1.5rem (`sm`) on start buttons, 2rem (`md`) in the band and beside saved-workout titles, 3.5rem (`lg`, 5rem from 1280px wide) on the platform sign.
 
 ## Do's and Don'ts
 
@@ -319,7 +354,7 @@ A 2rem circle filled with the split colour, the split's first letter in bold Bar
 - **Do** put changing numbers on flap cells and let them turn over in stepped motion.
 - **Do** use Departure White (`good`) for the single filled primary action on the board.
 - **Do** give every secondary action the bordered `control` button with an `edge` border.
-- **Do** keep yellow to the band, the focus ring, the caret and selection.
+- **Do** keep yellow to the band, the home platform sign, the focus ring, the caret and selection.
 - **Do** show the split as a round route marker.
 - **Do** dim exercises that are neither current nor next to 50% opacity.
 - **Do** ask for confirmation in the in-app dialog.
