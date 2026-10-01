@@ -3,7 +3,7 @@ import { useState, type FormEvent, type RefObject } from 'react';
 interface CommandLineProps {
   prompt: string; // "gymmy/push$"
   output: string[]; // the replies to the last command, oldest first
-  inputRef: RefObject<HTMLInputElement>;
+  inputRef: RefObject<HTMLInputElement | null>;
   onSubmit: (text: string) => void;
 }
 

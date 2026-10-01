@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- React 19 (`react`, `react-dom` and their types, upgraded together because each pair's types require the other's major version). The command line's input ref is typed as nullable, as React 19's `useRef` returns.
+
 ### Added
 - A knowledge base for agent work, taken from the setup of the ysto repo: `ARCHITECTURE.md` (code map, layers, invariants), core beliefs and a design-doc index, exec plans with a template (`docs/PLANS.md`, `docs/exec-plans/`), a tech-debt tracker, `docs/RELIABILITY.md`, `docs/SECURITY.md`, a quality score stub and the doc rules (`docs/KNOWLEDGE_BASE.md`). Every doc now carries `status` and `last-verified` frontmatter.
 - `scripts/check-docs.mjs` checks links, frontmatter, reachability from `AGENTS.md`, the design-doc index and exec-plan sections. `scripts/check-tracked-files.mjs` refuses databases, spreadsheets, keys, `data/`, scratch notes, files over 1 MiB and home-folder paths; `.githooks/pre-commit` runs it on staged files. Both have tests.
