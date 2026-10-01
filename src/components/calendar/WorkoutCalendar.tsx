@@ -1,266 +1,217 @@
-import React, { useState, useMemo } from 'react';
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  Calendar as CalendarIcon, 
-  Flame, 
-  Award 
-} from 'lucide-react';
-import type { ReactNode } from 'react';
-import type { LucideIcon } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
 import type { WorkoutSession } from '../../types/workout.ts';
-import { DayDetailModal } from './DayDetailModal.tsx';
-import { toLocalDateString, getTodayDateString } from '../../utils/date.ts';
-import { SPLIT_STYLE } from '../ui/badges.tsx';
-import { ROTATION } from '../../services/rotation.ts';
-import { weeklyStreak } from '../../services/streak.ts';
+import { formatReps } from '../../services/effort.ts';
+import { latestSession } from '../../services/rotation.ts';
+import { formatDisplayDate, getTodayDateString, toLocalDateString } from '../../utils/date.ts';
+import { RouteMarker } from '../ui/badges.tsx';
+import { Flaps } from '../ui/Flaps.tsx';
+import { monthGrid } from './monthGrid.ts';
 
-const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 interface WorkoutCalendarProps {
   sessions: WorkoutSession[];
   onDeleteSession: (id: string) => void;
 }
 
-export const WorkoutCalendar: React.FC<WorkoutCalendarProps> = ({
-  sessions,
-  onDeleteSession
-}) => {
-  // Calendar viewed month and year
-  const [currentDate, setCurrentDate] = useState(() => new Date());
-  const [selectedDayString, setSelectedDayString] = useState<string | null>(null);
+// The month and the chosen day side by side: training days carry route markers in the grid, and
+// the chosen day's workouts read set by set in the column beside it.
+export function WorkoutCalendar({ sessions, onDeleteSession }: WorkoutCalendarProps) {
+  const completed = useMemo(() => sessions.filter(s => s.completed), [sessions]);
+  const byDate = useMemo(() => groupByDate(completed), [completed]);
+  const today = getTodayDateString();
+  // Until a day is chosen, the latest training day is open, in its month. Derived rather than
+  // stored, so history that arrives after the first render still opens the right day.
+  const [chosen, setChosen] = useState<string | null>(null);
+  const selected = chosen ?? latestSession(completed)?.date ?? today;
+  const shown = monthOf(selected);
 
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth(); // 0-indexed
+  const year = shown.getFullYear();
+  const month = shown.getMonth();
+  const days = useMemo(() => monthGrid(year, month), [year, month]);
+  const monthSessions = completed.filter(s => s.date.startsWith(`${year}-${String(month + 1).padStart(2, '0')}-`));
+  const monthTonnes = Math.round(monthSessions.reduce((total, s) => total + s.totalVolumeKg, 0) / 100) / 10;
 
-  // Month navigation
-  const prevMonth = () => {
-    setCurrentDate(new Date(year, month - 1, 1));
+  // Another month opens on its latest training day, or its 1st, so the day beside the grid is
+  // always one of the grid's own days.
+  const goToMonth = (offset: number) => {
+    const first = toLocalDateString(new Date(year, month + offset, 1));
+    const prefix = first.slice(0, 8);
+    const trainingDays = [...byDate.keys()].filter(date => date.startsWith(prefix)).sort();
+    setChosen(trainingDays[trainingDays.length - 1] ?? first);
   };
-
-  const nextMonth = () => {
-    setCurrentDate(new Date(year, month + 1, 1));
-  };
-
-  const jumpToToday = () => {
-    setCurrentDate(new Date());
-  };
-
-  // Group sessions by date YYYY-MM-DD
-  const sessionsByDate = useMemo(() => {
-    const map: { [date: string]: WorkoutSession[] } = {};
-    for (const session of sessions) {
-      if (!session.completed) continue;
-      const d = session.date;
-      if (!map[d]) map[d] = [];
-      map[d].push(session);
-    }
-    return map;
-  }, [sessions]);
-
-  // Generate calendar grid days
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const firstDayIndex = new Date(year, month, 1).getDay(); // 0 = Sunday
-
-  // Days array
-  const calendarDays = useMemo(() => {
-    const days: Array<{
-      dayNumber: number;
-      dateString: string;
-      isCurrentMonth: boolean;
-      sessions: WorkoutSession[];
-    }> = [];
-
-    // Previous month padding
-    const prevMonthDays = new Date(year, month, 0).getDate();
-    for (let i = firstDayIndex - 1; i >= 0; i--) {
-      const d = prevMonthDays - i;
-      const prevDate = new Date(year, month - 1, d);
-      const str = toLocalDateString(prevDate);
-      days.push({
-        dayNumber: d,
-        dateString: str,
-        isCurrentMonth: false,
-        sessions: sessionsByDate[str] || []
-      });
-    }
-
-    // Current month days
-    for (let d = 1; d <= daysInMonth; d++) {
-      const date = new Date(year, month, d);
-      const str = toLocalDateString(date);
-      days.push({
-        dayNumber: d,
-        dateString: str,
-        isCurrentMonth: true,
-        sessions: sessionsByDate[str] || []
-      });
-    }
-
-    // Next month padding to fill standard 35 or 42 grid cells
-    const remaining = 35 - days.length >= 0 ? 35 - days.length : 42 - days.length;
-    for (let d = 1; d <= remaining; d++) {
-      const nextDate = new Date(year, month + 1, d);
-      const str = toLocalDateString(nextDate);
-      days.push({
-        dayNumber: d,
-        dateString: str,
-        isCurrentMonth: false,
-        sessions: sessionsByDate[str] || []
-      });
-    }
-
-    return days;
-  }, [year, month, daysInMonth, firstDayIndex, sessionsByDate]);
-
-  // Calculate monthly stats
-  // The month's heaviest training day: the top of the heat map's scale.
-  const monthName = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-  const todayStr = getTodayDateString();
-
-  const workoutsThisMonth = useMemo(() => {
-    return sessions.filter(s => {
-      if (!s.completed) return false;
-      const [sYear, sMonth] = s.date.split('-');
-      return parseInt(sYear) === year && parseInt(sMonth) === month + 1;
-    });
-  }, [sessions, year, month]);
-
-  const totalVolumeThisMonth = workoutsThisMonth.reduce((acc, s) => acc + s.totalVolumeKg, 0);
-
-  const selectedDaySessions = selectedDayString ? sessionsByDate[selectedDayString] || [] : [];
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="grid grid-cols-3 gap-3">
-        <MonthStat icon={CalendarIcon} iconClass="bg-accent-ink/10 text-accent-ink" label="Workouts">
-          {workoutsThisMonth.length}
-        </MonthStat>
-        <MonthStat icon={Flame} iconClass="bg-good-ink/10 text-good-ink" label="Weekly Streak">
-          {formatWeeks(weeklyStreak(sessions, new Date()))}
-        </MonthStat>
-        <MonthStat icon={Award} iconClass="bg-legs/10 text-legs" label="Month Volume">
-          {Math.round(totalVolumeThisMonth / 1000)}k <span className="text-xs font-normal text-ink-muted">kg</span>
-        </MonthStat>
+    <div className="grid gap-6">
+      <div className="flex flex-wrap items-end justify-between gap-6">
+        <div className="flex items-center gap-2">
+          <h2 className="text-5xl leading-none text-ink mr-3">
+            {shown.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+          </h2>
+          <button onClick={() => goToMonth(-1)} title="Previous month" aria-label="Previous month" className="btn btn-secondary h-tap w-tap border border-edge">
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <button onClick={() => goToMonth(1)} title="Next month" aria-label="Next month" className="btn btn-secondary h-tap w-tap border border-edge">
+            <ChevronRight className="w-5 h-5" />
+          </button>
+          <button onClick={() => setChosen(today)} className="btn btn-secondary h-tap px-3 text-sm border border-edge">
+            Today
+          </button>
+        </div>
+        <div className="flex items-end gap-10">
+          <Figure label="Workouts" value={String(monthSessions.length)} cells={2} />
+          <Figure label="Volume" value={String(monthTonnes)} cells={4} unit="t" />
+        </div>
       </div>
 
-      <div className="card p-5 md:p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-3">
-            <h2 className="text-xl font-black text-ink tracking-tight">{monthName}</h2>
-            <button onClick={jumpToToday} className="btn btn-secondary px-2.5 py-1 text-xs font-semibold text-accent-ink rounded-chip">
-              Today
-            </button>
-          </div>
+      <div className="grid grid-cols-[minmax(0,7fr)_minmax(18rem,5fr)] gap-10">
+        <MonthBoard days={days} byDate={byDate} today={today} selected={selected} onSelect={setChosen} />
+        <DayColumn date={selected} sessions={byDate.get(selected) ?? []} onDeleteSession={onDeleteSession} />
+      </div>
+    </div>
+  );
+}
 
-          <div className="flex items-center space-x-1">
-            <button onClick={prevMonth} className="icon-btn" title="Previous month">
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <button onClick={nextMonth} className="icon-btn" title="Next month">
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
+interface MonthBoardProps {
+  days: ReturnType<typeof monthGrid>;
+  byDate: Map<string, WorkoutSession[]>;
+  today: string;
+  selected: string;
+  onSelect: (date: string) => void;
+}
 
-        <div className="flex items-center space-x-4 mb-4 text-xs font-semibold text-ink-muted border-b border-line pb-3">
-          {ROTATION.map(split => (
-            <span key={split} className="flex items-center space-x-1.5">
-              <span className={`w-2.5 h-2.5 rounded-pill inline-block ${SPLIT_STYLE[split].fill}`} />
-              <span>{split}</span>
-            </span>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-7 gap-1 text-center section-label text-ink-faint mb-2">
-          {WEEKDAYS.map(day => (
-            <span key={day}>{day}</span>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-7 gap-1.5">
-          {calendarDays.map((day, idx) => {
-            const isToday = day.dateString === todayStr;
-            const hasWorkout = day.sessions.length > 0;
-
-            return (
-              <button
-                key={idx}
-                onClick={() => setSelectedDayString(day.dateString)}
-                className={`min-h-[64px] md:min-h-[76px] p-2 rounded-panel flex flex-col items-center justify-between border transition-all text-left relative ${
-                  day.isCurrentMonth ? 'text-ink-soft' : 'text-ink-faint bg-inset/30 border-transparent'
-                } ${
-                  isToday
-                    ? 'border-accent-ink bg-accent-ink/5 font-bold'
-                    : hasWorkout
-                    ? 'bg-inset border-line hover:border-edge'
-                    : 'bg-inset/60 border-line/50 hover:border-edge'
-                }`}
-              >
-                <div className="w-full flex items-center justify-between">
-                  <span className={`text-xs font-mono font-bold ${isToday ? 'text-accent-ink' : ''}`}>
-                    {day.dayNumber}
-                  </span>
-                  {hasWorkout && (
-                    <span className="text-[10px] text-ink-faint font-mono hidden md:inline">
-                      {day.sessions.length}
-                    </span>
-                  )}
-                </div>
-
-                <div className="w-full flex flex-wrap gap-1 justify-center mt-1">
-                  {day.sessions.map((s, sIdx) => (
-                    <span
-                      key={sIdx}
-                      className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded-chip ${SPLIT_STYLE[s.splitType].fill} truncate max-w-full`}
-                    >
-                      {s.name}
+function MonthBoard({ days, byDate, today, selected, onSelect }: MonthBoardProps) {
+  return (
+    <section aria-label="Month">
+      <div className="grid grid-cols-7 gap-1.5 mb-2">
+        {WEEKDAYS.map(day => (
+          <span key={day} className="section-label px-2">
+            {day}
+          </span>
+        ))}
+      </div>
+      <div className="grid grid-cols-7 gap-1.5">
+        {days.map(day => {
+          const daySessions = byDate.get(day.date) ?? [];
+          const isSelected = day.date === selected;
+          return (
+            <button
+              key={day.date}
+              onClick={() => onSelect(day.date)}
+              aria-pressed={isSelected}
+              aria-label={`${formatDisplayDate(day.date)}${daySessions.length ? `, ${daySessions.map(s => s.splitType).join(' and ')}` : ''}`}
+              className={`aspect-square min-h-16 p-1.5 flex flex-col justify-between rounded-panel border text-left transition-colors ${
+                isSelected ? 'bg-surface border-ink' : 'bg-inset border-line hover:border-edge'
+              } ${day.inMonth ? '' : 'opacity-40'}`}
+            >
+              <span className={`font-mono text-lg leading-none ${day.date === today ? 'w-fit px-1 -mx-1 rounded-chip bg-good text-on-good' : 'text-ink-soft'}`}>
+                {day.dayNumber}
+              </span>
+              {daySessions.length > 0 && (
+                <span className="grid gap-1">
+                  {/* The split's name rides with its marker, so Push and Pull never rest on colour alone. */}
+                  {daySessions.map(s => (
+                    <span key={s.id} className="flex items-center gap-1 font-display text-xs font-semibold uppercase tracking-[0.04em] text-ink">
+                      <RouteMarker split={s.splitType} size="sm" />
+                      {s.splitType}
                     </span>
                   ))}
-                </div>
-              </button>
-            );
-          })}
-        </div>
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
-
-      {/* Selected Day Inspector Modal */}
-      {selectedDayString && (
-        <DayDetailModal
-          dateString={selectedDayString}
-          sessions={selectedDaySessions}
-          onClose={() => setSelectedDayString(null)}
-          onDeleteSession={id => {
-            onDeleteSession(id);
-            setSelectedDayString(null);
-          }}
-        />
-      )}
-    </div>
+    </section>
   );
-};
-
-interface MonthStatProps {
-  icon: LucideIcon;
-  iconClass: string;
-  label: string;
-  children: ReactNode;
 }
 
-function MonthStat({ icon: Icon, iconClass, label, children }: MonthStatProps) {
+interface DayColumnProps {
+  date: string;
+  sessions: WorkoutSession[];
+  onDeleteSession: (id: string) => void;
+}
+
+// The chosen day, workout by workout and set by set.
+function DayColumn({ date, sessions, onDeleteSession }: DayColumnProps) {
   return (
-    <div className="card rounded-panel p-4 flex items-center space-x-3">
-      <div className={`p-3 rounded-control ${iconClass}`}>
-        <Icon className="w-5 h-5" />
+    <section aria-labelledby="day-heading" className="grid gap-6 content-start">
+      <h3 id="day-heading" className="text-2xl text-ink">
+        {formatDisplayDate(date)}
+      </h3>
+      {sessions.length === 0 ? (
+        <p className="text-base text-ink-muted">No workout logged on this day.</p>
+      ) : (
+        sessions.map(session => <SessionRecord key={session.id} session={session} onDelete={() => onDeleteSession(session.id)} />)
+      )}
+    </section>
+  );
+}
+
+function SessionRecord({ session, onDelete }: { session: WorkoutSession; onDelete: () => void }) {
+  const exercises = session.exercises.filter(ex => ex.sets.some(s => s.completed));
+  return (
+    <article className="grid gap-4">
+      <div className="flex items-center gap-3 border-b border-line pb-3">
+        <RouteMarker split={session.splitType} />
+        <span className="font-display text-lg font-semibold uppercase tracking-[0.04em] text-ink">{session.splitType}</span>
+        <span className="ml-auto flex items-baseline gap-4">
+          <span className="flex items-baseline gap-1.5">
+            <Flaps text={String(session.durationMinutes)} cells={3} label={`${session.durationMinutes} minutes`} className="text-xl" />
+            <span className="section-label">min</span>
+          </span>
+          <span className="flex items-baseline gap-1.5">
+            <Flaps text={session.totalVolumeKg.toLocaleString('en-US')} cells={6} label={`${session.totalVolumeKg} kg`} className="text-xl" />
+            <span className="section-label">kg</span>
+          </span>
+        </span>
+        <button onClick={onDelete} title="Delete this workout" aria-label="Delete this workout" className="icon-btn hover:text-bad-ink">
+          <Trash2 className="w-4 h-4" />
+        </button>
       </div>
-      <div>
-        <div className="text-xs text-ink-muted font-semibold">{label}</div>
-        <div className="text-xl font-bold text-ink font-mono">{children}</div>
-      </div>
+      <ol className="grid gap-3">
+        {exercises.map(ex => (
+          <li key={ex.exerciseId} className="grid gap-1.5">
+            <span className="font-display text-lg font-semibold uppercase tracking-[0.04em] text-ink">{ex.exerciseName}</span>
+            <span className="flex flex-wrap gap-1.5">
+              {ex.sets
+                .filter(s => s.completed)
+                .map(s => (
+                  <span key={s.setNumber} className="flex items-center gap-2.5 h-tap-lg px-3 rounded-control border border-line bg-inset font-mono text-lg text-ink-muted">
+                    <span className="text-sm text-ink-faint">{s.setNumber}</span>
+                    {s.weightKg} × {formatReps(s)}
+                  </span>
+                ))}
+            </span>
+            {ex.notes && <span className="text-sm text-ink-muted">{ex.notes}</span>}
+          </li>
+        ))}
+      </ol>
+      {session.notes && <p className="text-base text-ink-soft border-t border-line pt-3">{session.notes}</p>}
+    </article>
+  );
+}
+
+function Figure({ label, value, cells, unit }: { label: string; value: string; cells: number; unit?: string }) {
+  return (
+    <div className="grid gap-2">
+      <span className="section-label">{label}</span>
+      <span className="flex items-baseline gap-2">
+        <Flaps text={value} cells={cells} label={`${value}${unit ? ` ${unit}` : ''}`} className="text-[2.25rem]" />
+        <span className={`section-label ${unit ? '' : 'invisible'}`}>{unit ?? 'x'}</span>
+      </span>
     </div>
   );
 }
 
-function formatWeeks(count: number): string {
-  return count === 1 ? '1 week' : `${count} weeks`;
+function monthOf(date: string): Date {
+  const [year, month] = date.split('-').map(Number);
+  return new Date(year!, month! - 1, 1);
+}
+
+function groupByDate(sessions: WorkoutSession[]): Map<string, WorkoutSession[]> {
+  const map = new Map<string, WorkoutSession[]>();
+  for (const session of sessions) map.set(session.date, [...(map.get(session.date) ?? []), session]);
+  return map;
 }

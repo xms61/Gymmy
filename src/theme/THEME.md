@@ -14,7 +14,7 @@ Entry: `src/theme/tokens.ts`: every color, font, corner radius, tap size and the
 - `src/index.css`: the base rules (body, headings, focus ring, selection, scrollbars), the shared component classes (`card`, `panel`, `section-label`, `btn` with `btn-primary | btn-good | btn-secondary | btn-danger`, `icon-btn`, `field`) and the flap cell (`flap`).
 - `src/components/ui/Flaps.tsx`: text on split-flap cells. Each cell is two leaves meeting at a hairline split; when its character changes, the old upper leaf falls and the new lower leaf lands, each in two stepped frames. The other cells hold still. Screen readers hear the text once, not cell by cell.
 - `src/components/ui/ConfirmHost.tsx`: `askToConfirm` and `showNotice`, the in-app replacements for the browser's confirm and alert boxes, which embedded browsers can answer "no" to without showing. Never call `window.confirm` or `alert`.
-- `src/components/ui/`: `Dialog` and `DialogHeader` (every modal; `Dialog` takes focus when it opens, keeps Tab inside, closes on Escape and gives focus back when it closes), `RouteMarker`, `SplitBadge`, `StatusBadge` and `SPLIT_STYLE` (the split and overload status colors).
+- `src/components/ui/`: `Dialog` and `DialogHeader` (every modal; `Dialog` takes focus when it opens, keeps Tab inside, closes on Escape and gives focus back when it closes), `RouteMarker` (a split as a round marker, in three sizes) and `StatusBadge` (the progression status in its ink).
 
 ## Rules
 - Components use token classes only. No palette colors (`slate-800`, `indigo-400`), no hex values, no `rounded-xl`: use `rounded-card | panel | control | chip | pill`.
@@ -25,7 +25,7 @@ Entry: `src/theme/tokens.ts`: every color, font, corner radius, tap size and the
 - `line` is for decorative dividers and card borders. Inputs, steppers and buttons that need a visible edge use `edge`.
 - A new color token goes in `COLOR_TOKENS` and in `DESIGN.colors`. Only add one when a component uses it.
 - The tokens must pass the contrast table in `tests/theme.test.ts`: 4.5:1 for text on its background (including the labels on split colors and plates), 3:1 for placeholders and for the `edge` of inputs and buttons.
-- Class names built from data are written out in full in a table (`SPLIT_STYLE`, `PLATE_STYLE`), because Tailwind only generates classes it finds as text.
+- Class names built from data are written out in full in a table (`SPLIT_FILL`, `MARKER_SIZE`, `PLATE_STYLE`), because Tailwind only generates classes it finds as text.
 
 ## Gotchas
 - `prefers-reduced-motion` turns off every animation and transition, including the flap turn.

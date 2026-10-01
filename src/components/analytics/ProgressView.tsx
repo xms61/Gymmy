@@ -1,10 +1,12 @@
-import React, { useState, useMemo } from 'react';
-import { Dumbbell, Sparkles } from 'lucide-react';
-import type { ExerciseDefinition } from '../../types/workout.ts';
+import { useMemo, useState } from 'react';
+import type { ExerciseDefinition, ProgressRecommendation } from '../../types/workout.ts';
 import { getRecommendation } from '../../services/overloadEngine.ts';
-import { exerciseHistory } from '../../services/progress.ts';
+import { exerciseHistory, type ExerciseHistoryEntry } from '../../services/progress.ts';
 import { logsFor, type ExerciseLogIndex } from '../../services/exerciseLogs.ts';
+import { ROTATION } from '../../services/rotation.ts';
 import { formatSessionDate } from '../../utils/date.ts';
+import { RouteMarker, StatusBadge } from '../ui/badges.tsx';
+import { Flaps } from '../ui/Flaps.tsx';
 import { TrendChart } from './TrendChart.tsx';
 
 interface ProgressViewProps {
@@ -12,169 +14,163 @@ interface ProgressViewProps {
   logIndex: ExerciseLogIndex;
 }
 
-export const ProgressView: React.FC<ProgressViewProps> = ({
-  exercises,
-  logIndex
-}) => {
-  const [selectedExId, setSelectedExId] = useState<string>(exercises[0]?.id || 'flat-bench');
+interface ExerciseProgress {
+  exercise: ExerciseDefinition;
+  history: ExerciseHistoryEntry[]; // oldest first
+  recommendation: ProgressRecommendation;
+}
 
-  const selectedExercise = useMemo(() => {
-    return exercises.find(e => e.id === selectedExId) || exercises[0];
-  }, [exercises, selectedExId]);
-
-  const history = useMemo(() => {
-    return selectedExercise ? exerciseHistory(logsFor(logIndex, selectedExercise)) : [];
-  }, [selectedExercise, logIndex]);
-
-  const recommendation = useMemo(() => {
-    if (!selectedExercise) return null;
-    return getRecommendation(selectedExercise, logsFor(logIndex, selectedExercise));
-  }, [selectedExercise, logIndex]);
-
-  // Overall PRs
-  const personalBest = useMemo(() => {
-    if (history.length === 0) return null;
-    const maxWeight = Math.max(...history.map(h => h.weight));
-    const max1RM = Math.max(...history.map(h => h.estimated1RM));
-    return { maxWeight, max1RM };
-  }, [history]);
+// Every exercise on a rail with its latest 1RM; the chosen one fills the board with its record,
+// its next target, both curves and every session.
+export function ProgressView({ exercises, logIndex }: ProgressViewProps) {
+  const progress = useMemo(
+    () =>
+      exercises.map(exercise => {
+        const logs = logsFor(logIndex, exercise);
+        return { exercise, history: exerciseHistory(logs), recommendation: getRecommendation(exercise, logs) };
+      }),
+    [exercises, logIndex]
+  );
+  const [selectedId, setSelectedId] = useState(() => exercises[0]?.id ?? '');
+  const selected = progress.find(p => p.exercise.id === selectedId) ?? progress[0];
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      {/* Exercise Selector Pills */}
+    <div className="grid grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)] gap-10 items-start">
+      <ExerciseRail progress={progress} selectedId={selected?.exercise.id} onSelect={setSelectedId} />
+      {selected && <ExerciseRecord progress={selected} />}
+    </div>
+  );
+}
+
+interface ExerciseRailProps {
+  progress: ExerciseProgress[];
+  selectedId: string | undefined;
+  onSelect: (id: string) => void;
+}
+
+function ExerciseRail({ progress, selectedId, onSelect }: ExerciseRailProps) {
+  return (
+    <nav aria-label="Exercises" className="grid gap-6">
+      {ROTATION.map(split => {
+        const rows = progress.filter(p => p.exercise.workoutType === split);
+        if (rows.length === 0) return null;
+        return (
+          <section key={split} aria-label={split}>
+            <h3 className="flex items-center gap-2.5 text-2xl text-ink">
+              <RouteMarker split={split} />
+              {split}
+            </h3>
+            <ol className="mt-2 border-t border-line">
+              {rows.map(({ exercise, history }) => {
+                const latest = history[history.length - 1];
+                return (
+                  <li key={exercise.id} className={`border-b border-line ${latest || exercise.id === selectedId ? '' : 'opacity-50'}`}>
+                    <button
+                      onClick={() => onSelect(exercise.id)}
+                      aria-current={exercise.id === selectedId ? 'true' : undefined}
+                      className={`w-full grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-2 py-2 text-left transition-colors ${
+                        exercise.id === selectedId ? 'bg-surface text-ink' : 'text-ink-soft hover:bg-surface'
+                      }`}
+                    >
+                      <span className="font-display text-lg font-semibold uppercase tracking-[0.04em] truncate">{exercise.name}</span>
+                      {latest ? (
+                        <Flaps text={String(latest.estimated1RM)} cells={5} label={`estimated 1RM ${latest.estimated1RM} kg`} className="text-xl" />
+                      ) : (
+                        <span className="section-label">No sessions</span>
+                      )}
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
+          </section>
+        );
+      })}
+    </nav>
+  );
+}
+
+function ExerciseRecord({ progress: { exercise, history, recommendation } }: { progress: ExerciseProgress }) {
+  const bestLoad = history.length ? Math.max(...history.map(h => h.weight)) : null;
+  const best1RM = history.length ? Math.max(...history.map(h => h.estimated1RM)) : null;
+  return (
+    <section aria-labelledby="record-heading" className="grid gap-8 min-w-0">
       <div>
-        <label className="block section-label mb-3">
-          Select Exercise
-        </label>
-        <div className="flex flex-wrap gap-2">
-          {exercises.map(ex => (
-            <button
-              key={ex.id}
-              onClick={() => setSelectedExId(ex.id)}
-              className={`btn px-3 py-1.5 text-xs ${
-                selectedExId === ex.id
-                  ? 'btn-primary'
-                  : 'bg-surface border border-line text-ink-muted hover:text-ink-soft'
-              }`}
-            >
-              {ex.name}
-            </button>
-          ))}
+        <h2 id="record-heading" className="text-6xl leading-[0.95] text-ink">
+          {exercise.name}
+        </h2>
+        <p className="mt-2 font-display text-lg font-medium uppercase tracking-[0.06em] text-ink-muted">
+          {exercise.workoutType} · {exercise.equipment} · {exercise.targetSets} × {exercise.targetRepsMin}–{exercise.targetRepsMax}
+        </p>
+      </div>
+
+      <div className="flex flex-wrap items-end gap-x-12 gap-y-6">
+        <Record label="Best load, kg" value={bestLoad} />
+        <Record label="Best est. 1RM, kg" value={best1RM} />
+        <div className="grid gap-2 min-w-0 max-w-[36ch]">
+          <span className="section-label">Next</span>
+          <span className="font-mono text-2xl text-ink">
+            {recommendation.recommendedWeightKg} kg × {recommendation.recommendedRepRange}
+          </span>
+          {recommendation.status !== 'maintain' && <StatusBadge status={recommendation.status} />}
+          <p className="text-base text-ink-soft">{recommendation.nextStepGoal}</p>
         </div>
       </div>
 
-      {/* Exercise Card & Overload Status */}
-      {selectedExercise && (
-        <div className="card p-6">
-          <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
-            <div>
-              <div className="flex items-center space-x-2">
-                <span className="text-xs font-bold text-accent-ink uppercase tracking-wider">
-                  {selectedExercise.workoutType} Day
-                </span>
-                <span className="text-ink-faint">•</span>
-                <span className="text-xs text-ink-muted capitalize">{selectedExercise.equipment}</span>
-              </div>
-              <h2 className="text-2xl font-black text-ink mt-1">{selectedExercise.name}</h2>
-              <p className="text-xs text-ink-muted mt-1">
-                Target: {selectedExercise.targetSets} sets of {selectedExercise.targetRepsMin}–{selectedExercise.targetRepsMax} reps
-              </p>
-            </div>
-
-            {personalBest && (
-              <div className="flex items-center space-x-3">
-                <div className="bg-inset border border-line rounded-panel p-3 text-center">
-                  <div className="text-[10px] uppercase font-bold text-ink-faint">Max Weight</div>
-                  <div className="text-lg font-mono font-black text-good-ink">{personalBest.maxWeight} kg</div>
-                </div>
-                <div className="bg-inset border border-line rounded-panel p-3 text-center">
-                  <div className="text-[10px] uppercase font-bold text-ink-faint">Est. 1RM</div>
-                  <div className="text-lg font-mono font-black text-accent-ink">{personalBest.max1RM} kg</div>
-                </div>
-              </div>
-            )}
+      {history.length === 0 ? (
+        <p className="text-base text-ink-muted">No sessions of this exercise yet. Its record starts with the first logged set.</p>
+      ) : (
+        <>
+          <div className="grid grid-cols-2 gap-6">
+            <TrendChart title="Estimated 1RM" unit="kg" points={history.map(h => ({ label: formatSessionDate(h.date), value: h.estimated1RM }))} />
+            <TrendChart title="Session volume" unit="kg" points={history.map(h => ({ label: formatSessionDate(h.date), value: h.volumeKg }))} />
           </div>
-
-          {/* Overload Guidance Banner */}
-          {recommendation && (
-            <div className="bg-inset border border-line rounded-panel p-4 mb-6 flex items-start space-x-3">
-              <div className="p-2 bg-accent-ink/10 text-accent-ink rounded-control mt-0.5">
-                <Sparkles className="w-5 h-5" />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between text-xs font-bold mb-1">
-                  <span className="text-accent-ink">Next Target Load: {recommendation.recommendedWeightKg} kg</span>
-                  <span className="text-ink-muted">Target Reps: {recommendation.recommendedRepRange}</span>
-                </div>
-                <p className="text-xs text-ink-soft font-medium mb-1.5">{recommendation.reason}</p>
-                <div className="text-xs font-semibold text-good-ink">
-                  Goal: {recommendation.nextStepGoal}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {history.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
-              <TrendChart
-                title="Estimated 1RM"
-                unit="kg"
-                points={history.map(h => ({ label: formatSessionDate(h.date), value: h.estimated1RM }))}
-              />
-              <TrendChart
-                title="Session volume"
-                unit="kg"
-                points={history.map(h => ({ label: formatSessionDate(h.date), value: h.volumeKg }))}
-              />
-            </div>
-          )}
-
-          {/* Progression History Table */}
-          <h3 className="section-label mb-3">
-            Session History Log ({history.length} recorded)
-          </h3>
-
-          {history.length === 0 ? (
-            <div className="text-center py-8 bg-inset rounded-panel border border-line">
-              <Dumbbell className="w-8 h-8 text-ink-faint mx-auto mb-2" />
-              <p className="text-xs text-ink-muted">No session history yet for this exercise.</p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {history.slice().reverse().map((h, idx) => (
-                <div
-                  key={idx}
-                  className="bg-inset border border-line rounded-panel p-3.5 flex flex-wrap items-center justify-between gap-3 text-xs"
-                >
-                  <div className="flex items-center space-x-3">
-                    <span className="font-mono text-ink-muted font-semibold">{formatSessionDate(h.date)}</span>
-                    <span className="px-2 py-0.5 bg-control text-ink-soft rounded-chip font-semibold">
-                      {h.sessionName}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center space-x-4">
-                    <div>
-                      <span className="text-ink-faint">Weight: </span>
-                      <strong className="font-mono text-ink">{h.weight} kg</strong>
-                    </div>
-
-                    <div>
-                      <span className="text-ink-faint">Reps: </span>
-                      <strong className="font-mono text-accent-ink">{h.repsString}</strong>
-                    </div>
-
-                    <div>
-                      <span className="text-ink-faint">Est. 1RM: </span>
-                      <strong className="font-mono text-good-ink">{h.estimated1RM} kg</strong>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+          <SessionHistory history={history} />
+        </>
       )}
+    </section>
+  );
+}
+
+function Record({ label, value }: { label: string; value: number | null }) {
+  return (
+    <div className="grid gap-2">
+      <span className="section-label">{label}</span>
+      <Flaps text={value === null ? '-' : String(value)} cells={5} label={value === null ? 'none yet' : `${value} kg`} className="text-[3.75rem] xl:text-[4.5rem]" />
     </div>
   );
-};
+}
+
+// Every session, newest first: the table the charts draw.
+function SessionHistory({ history }: { history: ExerciseHistoryEntry[] }) {
+  return (
+    <section aria-labelledby="history-heading">
+      <h3 id="history-heading" className="text-2xl text-ink">
+        Sessions
+      </h3>
+      <table className="mt-2 w-full border-t border-line text-left">
+        <thead>
+          <tr className="border-b border-line">
+            <th scope="col" className="section-label font-semibold px-2 py-2">Date</th>
+            <th scope="col" className="section-label font-semibold px-2 py-2 text-right">Load, kg</th>
+            <th scope="col" className="section-label font-semibold px-2 py-2">Reps</th>
+            <th scope="col" className="section-label font-semibold px-2 py-2 text-right">Est. 1RM, kg</th>
+          </tr>
+        </thead>
+        <tbody>
+          {history
+            .slice()
+            .reverse()
+            .map(h => (
+              <tr key={`${h.date}-${h.sessionName}`} className="border-b border-line">
+                <td className="px-2 py-2.5 font-display text-lg font-semibold uppercase tracking-[0.04em] text-ink-soft">{formatSessionDate(h.date)}</td>
+                <td className="px-2 py-2.5 font-mono text-lg text-ink text-right">{h.weight}</td>
+                <td className="px-2 py-2.5 font-mono text-lg text-ink-soft">{h.repsString}</td>
+                <td className="px-2 py-2.5 font-mono text-lg text-ink text-right">{h.estimated1RM}</td>
+              </tr>
+            ))}
+        </tbody>
+      </table>
+    </section>
+  );
+}
