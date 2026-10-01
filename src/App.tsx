@@ -15,7 +15,7 @@ import type { SyncStatus } from './services/sync.ts';
 import { HomeDashboard } from './components/dashboard/HomeDashboard.tsx';
 import { WorkoutCalendar } from './components/calendar/WorkoutCalendar.tsx';
 import { ProgressView } from './components/analytics/ProgressView.tsx';
-import { SettingsModal } from './components/settings/SettingsModal.tsx';
+import { SettingsView } from './components/settings/SettingsView.tsx';
 import { LiveTracker } from './components/tracker/LiveTracker.tsx';
 import { ResumeWorkoutBanner } from './components/tracker/ResumeWorkoutBanner.tsx';
 import { clearDraft, loadDraft } from './components/tracker/workoutDraft.ts';
@@ -24,7 +24,8 @@ import { isShortcutFree } from './components/keyboardShortcuts.ts';
 import { nextSplit } from './services/rotation.ts';
 import { askToConfirm } from './components/ui/ConfirmHost.tsx';
 
-type AppTab = 'dashboard' | 'calendar' | 'analytics';
+// Settings is a screen too, opened from the gear and the sync status rather than a tab.
+type AppTab = 'dashboard' | 'calendar' | 'analytics' | 'settings';
 
 // Starting a workout waits this long at most for the first sync, so a slow or unreachable server
 // never blocks training: after that the tracker uses the copy in this browser.
@@ -40,8 +41,8 @@ export function App() {
   const [sessions, setSessions] = useState<WorkoutSession[]>([]);
   const [exercises, setExercises] = useState<ExerciseDefinition[]>([]);
   const [activeTab, setActiveTab] = useState<AppTab>('dashboard');
+  const [unsavedTargets, setUnsavedTargets] = useState(false);
   const [activeWorkoutType, setActiveWorkoutType] = useState<SplitType | null>(null);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>(() => StorageService.getSyncStatus());
   // A workout left unfinished by a reload or a closed tab, offered for resuming.
   const [draft, setDraft] = useState<WorkoutDraft | null>(() => loadDraft());
@@ -57,12 +58,20 @@ export function App() {
     const onKeyDown = (event: KeyboardEvent) => {
       if (!isShortcutFree(event)) return;
       const tab = NAV_TABS[Number(event.key) - 1];
-      if (tab) setActiveTab(tab.id);
+      if (tab) void goTo(tab.id);
       else if (event.key === 's' && isFirstSyncDone) handleStartWorkout(nextSplit(sessions));
     };
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
   });
+
+  // Settings keeps edited targets only until it is left, so leaving with unsaved ones asks first.
+  const goTo = async (tab: AppTab) => {
+    if (tab === activeTab) return;
+    if (activeTab === 'settings' && unsavedTargets && !(await askToConfirm('Leave settings? Your target changes are not saved.', 'Leave'))) return;
+    setUnsavedTargets(false);
+    setActiveTab(tab);
+  };
 
   const refreshData = () => {
     setSessions(StorageService.getSessions());
@@ -150,7 +159,7 @@ export function App() {
             {NAV_TABS.map(({ id, label, icon: Icon }, index) => (
               <button
                 key={id}
-                onClick={() => setActiveTab(id)}
+                onClick={() => void goTo(id)}
                 title={`${label} (${index + 1})`}
                 aria-current={activeTab === id ? 'page' : undefined}
                 className={`flex items-center gap-2 px-5 font-display text-lg font-semibold uppercase tracking-[0.06em] transition-colors ${
@@ -165,7 +174,7 @@ export function App() {
 
           <div className="ml-auto flex items-center gap-2">
             <button
-              onClick={() => setIsSettingsOpen(true)}
+              onClick={() => setActiveTab('settings')}
               className="flex items-center gap-2 h-10 px-3 rounded-control font-display text-base font-semibold uppercase tracking-[0.06em] hover:bg-on-accent/10 transition-colors"
               title={describeSyncStatus(syncStatus)}
             >
@@ -175,8 +184,11 @@ export function App() {
             </button>
 
             <button
-              onClick={() => setIsSettingsOpen(true)}
-              className="h-10 w-10 grid place-items-center rounded-control hover:bg-on-accent/10 transition-colors"
+              onClick={() => setActiveTab('settings')}
+              aria-current={activeTab === 'settings' ? 'page' : undefined}
+              className={`h-16 w-14 grid place-items-center transition-colors ${
+                activeTab === 'settings' ? 'bg-on-accent text-accent' : 'hover:bg-on-accent/10'
+              }`}
               title="Settings"
               aria-label="Settings"
             >
@@ -212,18 +224,11 @@ export function App() {
         {activeTab === 'analytics' && (
           <ProgressView exercises={exercises} logIndex={logIndex} />
         )}
+
+        {activeTab === 'settings' && (
+          <SettingsView exercises={exercises} syncStatus={syncStatus} onRefreshData={refreshData} onUnsavedChange={setUnsavedTargets} />
+        )}
       </main>
-
-
-      {/* Settings Modal */}
-      {isSettingsOpen && (
-        <SettingsModal
-          exercises={exercises}
-          onClose={() => setIsSettingsOpen(false)}
-          onRefreshData={refreshData}
-          syncStatus={syncStatus}
-        />
-      )}
     </div>
   );
 }
