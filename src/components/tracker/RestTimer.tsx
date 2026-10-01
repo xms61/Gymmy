@@ -89,7 +89,7 @@ export function RestTimer({ initialSeconds, onFinish, onSkip }: RestTimerProps) 
   return (
     <section aria-label="Rest timer">
       <RestHeading state={isActive ? 'Resting' : 'Paused'} />
-      <Flaps text={clock} cells={5} label={`${clock} rest left`} className="mt-3 text-[4.5rem]" />
+      <Flaps text={clock} cells={4} label={`${clock} rest left`} className="mt-3 text-[4.5rem]" />
       <div className="mt-4 grid grid-cols-4 gap-1.5">{controls}</div>
     </section>
   );
@@ -100,7 +100,7 @@ export function RestIdle({ seconds }: { seconds: number }) {
   return (
     <section aria-label="Rest timer">
       <RestHeading state="Ready" />
-      <Flaps text={formatClock(seconds)} cells={5} label={`${formatClock(seconds)} rest after this set`} className="mt-3 text-[4.5rem] opacity-40" />
+      <Flaps text={formatClock(seconds)} cells={4} label={`${formatClock(seconds)} rest after this set`} className="mt-3 text-[4.5rem] opacity-40" />
       <p className="mt-3 text-base text-ink-muted">Starts when you log a set.</p>
     </section>
   );

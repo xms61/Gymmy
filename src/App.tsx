@@ -187,16 +187,18 @@ export function App() {
       </header>
 
       <main className="flex-1 max-w-6xl w-full mx-auto px-6 py-8">
-        {draft && <ResumeWorkoutBanner draft={draft} onResume={handleResumeWorkout} onDiscard={handleDiscardDraft} />}
+        {draft && activeTab !== 'dashboard' && <ResumeWorkoutBanner draft={draft} onResume={handleResumeWorkout} onDiscard={handleDiscardDraft} />}
 
         {activeTab === 'dashboard' && (
           <HomeDashboard
             sessions={sessions}
             exercises={exercises}
             logIndex={logIndex}
+            draft={draft}
             onStartWorkout={handleStartWorkout}
+            onResumeWorkout={handleResumeWorkout}
+            onDiscardDraft={handleDiscardDraft}
             canStart={isFirstSyncDone}
-            onNavigateToCalendar={() => setActiveTab('calendar')}
           />
         )}
 

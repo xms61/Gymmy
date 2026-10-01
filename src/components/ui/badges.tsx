@@ -53,13 +53,19 @@ const SPLIT_FILL: Record<SplitType, string> = {
   Other: 'bg-other'
 };
 
+const MARKER_SIZE = {
+  sm: 'w-6 h-6 text-sm ring-1',
+  md: 'w-8 h-8 text-lg ring-1',
+  lg: 'w-14 h-14 text-3xl ring-2 xl:w-20 xl:h-20 xl:text-5xl' // 3.5rem, 5rem from 1280px wide
+};
+
 // The round line marker of a split, like a route bullet on a station sign: its first letter on
 // the split color.
-export function RouteMarker({ split, className = '' }: { split: SplitType; className?: string }) {
+export function RouteMarker({ split, size = 'md' }: { split: SplitType; size?: keyof typeof MARKER_SIZE }) {
   return (
     <span
       aria-hidden="true"
-      className={`inline-grid place-items-center w-8 h-8 flex-none rounded-pill ring-1 ring-on-split/40 font-display text-lg font-bold text-on-split ${SPLIT_FILL[split]} ${className}`}
+      className={`inline-grid place-items-center flex-none rounded-pill ring-on-split/40 font-display font-bold text-on-split ${MARKER_SIZE[size]} ${SPLIT_FILL[split]}`}
     >
       {split[0]}
     </span>
@@ -79,7 +85,6 @@ export function SplitBadge({ split, label }: { split: SplitType; label: string }
 
 interface StatusStyle {
   label: string;
-  shortLabel: string;
   icon: LucideIcon;
   className: string;
 }
@@ -87,49 +92,38 @@ interface StatusStyle {
 const STATUS_STYLE: Record<OverloadStatus, StatusStyle> = {
   increase_load: {
     label: 'Add Weight',
-    shortLabel: '+Weight',
     icon: TrendingUp,
-    className: 'bg-good-ink/15 text-good-ink border-good-ink/40'
+    className: 'text-good-ink'
   },
   progress_reps: {
     label: 'Rep Goal Active',
-    shortLabel: '+Reps',
     icon: Flame,
-    className: 'bg-accent-ink/15 text-accent-ink border-accent-ink/40'
+    className: 'text-ink-soft'
   },
   maintain: {
     label: 'Rep Goal Active',
-    shortLabel: '+Reps',
     icon: Flame,
-    className: 'bg-accent-ink/15 text-accent-ink border-accent-ink/40'
+    className: 'text-ink-soft'
   },
   deload: {
     label: 'Deload Advised',
-    shortLabel: 'Deload',
     icon: Info,
-    className: 'bg-warn-ink/15 text-warn-ink border-warn-ink/40'
+    className: 'text-warn-ink'
   },
   reduce_load: {
     label: 'Lighter Weight',
-    shortLabel: 'Lighter',
     icon: TrendingDown,
-    className: 'bg-info-ink/15 text-info-ink border-info-ink/40'
+    className: 'text-info-ink'
   }
 };
 
-// The short form fits the dashboard's target list; the full form, with an icon, heads an exercise in the tracker.
-export function StatusBadge({ status, short = false }: { status: OverloadStatus; short?: boolean }) {
+// What the progression asks for, as an icon and a word in its status ink. Status is read, not
+// pressed, so it carries no box.
+export function StatusBadge({ status }: { status: OverloadStatus }) {
   const style = STATUS_STYLE[status];
-  if (short) {
-    return (
-      <span className={`px-2 py-0.5 rounded-chip font-display font-semibold text-xs uppercase tracking-[0.06em] border ${style.className}`}>
-        {style.shortLabel}
-      </span>
-    );
-  }
   const Icon = style.icon;
   return (
-    <span className={`h-tap px-3 rounded-chip flex items-center gap-1.5 border font-display text-sm font-semibold uppercase tracking-[0.06em] ${style.className}`}>
+    <span className={`flex items-center gap-1.5 font-display text-base font-semibold uppercase tracking-[0.06em] ${style.className}`}>
       <Icon className="w-4 h-4" />
       <span>{style.label}</span>
     </span>

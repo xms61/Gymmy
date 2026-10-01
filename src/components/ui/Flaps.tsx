@@ -2,12 +2,10 @@ import { useEffect, useRef } from 'react';
 
 interface FlapsProps {
   text: string;
-  cells?: number; // pads the text on the left with blank cells, so the row keeps its width
+  cells?: number; // pads on the left with blank cells up to this many, so the row keeps its width
   label?: string; // what a screen reader hears; defaults to the text
-  className?: string; // sets the size: one cell is 0.66em wide
+  className?: string; // sets the size: every cell is 0.66em wide, punctuation included
 }
-
-const NARROW = new Set(['.', ':', ',', '/']);
 
 // Text on split-flap cells. When a character changes, the upper leaf of the old one falls over
 // the split and the lower leaf of the new one lands under it; the other cells hold still.
@@ -34,7 +32,7 @@ export function Flaps({ text, cells = 0, label, className = '' }: FlapsProps) {
 
 function FlapCell({ char, old }: { char: string; old: string | null }) {
   return (
-    <span aria-hidden="true" className={`flap ${NARROW.has(char) ? 'flap-narrow' : ''}`}>
+    <span aria-hidden="true" className="flap">
       <Leaf char={char} half="top" />
       <Leaf char={old ?? char} half="bottom" />
       {old !== null && (

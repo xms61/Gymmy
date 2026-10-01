@@ -130,11 +130,6 @@
     background: rgb(var(--c-flap-low));
   }
 
-  /* A narrow cell for the decimal point, the colon and the slash. */
-  .flap-narrow {
-    width: 0.34em;
-  }
-
   /* The old character's upper leaf falls over the split, then the new lower leaf lands. */
   .flap-fall {
     animation: flapFall var(--flip) steps(2, jump-end) forwards;

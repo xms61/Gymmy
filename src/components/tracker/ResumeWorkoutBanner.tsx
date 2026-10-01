@@ -1,6 +1,7 @@
-import { History, Play, Trash2 } from 'lucide-react';
+import { Play, Trash2 } from 'lucide-react';
 import type { WorkoutDraft } from '../../types/workout.ts';
 import { toLocalDateString } from '../../utils/date.ts';
+import { RouteMarker } from '../ui/badges.tsx';
 
 interface ResumeWorkoutBannerProps {
   draft: WorkoutDraft;
@@ -8,44 +9,38 @@ interface ResumeWorkoutBannerProps {
   onDiscard: () => void;
 }
 
+// One board row above the calendar and progress screens. Home shows the draft on its sign instead.
 export function ResumeWorkoutBanner({ draft, onResume, onDiscard }: ResumeWorkoutBannerProps) {
   const sets = draft.exerciseLogs.flatMap(log => log.sets);
   const doneSets = sets.filter(s => s.completed).length;
 
   return (
-    <div className="mb-6 bg-accent/10 border border-accent-ink/40 rounded-panel p-4 flex flex-wrap items-center justify-between gap-3">
-      <div className="flex items-center space-x-3">
-        <div className="p-2 bg-accent-ink/15 text-accent-ink rounded-control">
-          <History className="w-5 h-5" />
-        </div>
+    <div role="status" className="mb-8 flex flex-wrap items-center justify-between gap-4 border-y border-line bg-surface px-4 py-3">
+      <div className="flex items-center gap-3">
+        <RouteMarker split={draft.workoutType} />
         <div>
-          <div className="text-sm font-bold text-ink">Unfinished {draft.workoutType} workout</div>
-          <div className="text-xs text-ink-muted">
-            Started {describeStart(draft.startTime)} · {doneSets} of {sets.length} sets done
+          <div className="font-display text-xl font-semibold uppercase tracking-[0.04em] text-ink">Unfinished {draft.workoutType}</div>
+          <div className="text-sm text-ink-muted">
+            Started {describeDraftStart(draft.startTime)} · {doneSets} of {sets.length} sets done
           </div>
         </div>
       </div>
-      <div className="flex items-center space-x-2">
-        <button
-          onClick={onDiscard}
-          className="flex items-center space-x-1.5 px-3 py-2 text-xs font-semibold text-ink-muted hover:text-bad-ink rounded-control transition"
-        >
-          <Trash2 className="w-3.5 h-3.5" />
-          <span>Discard</span>
+      <div className="flex items-center gap-2">
+        <button onClick={onDiscard} className="btn btn-secondary h-tap px-3 text-sm border border-edge">
+          <Trash2 className="w-4 h-4" />
+          Discard
         </button>
-        <button
-          onClick={onResume}
-          className="btn btn-good gap-1.5 px-4 py-2 text-xs"
-        >
-          <Play className="w-3.5 h-3.5" />
-          <span>Resume</span>
+        <button onClick={onResume} className="btn btn-good h-tap px-4 text-sm">
+          <Play className="w-4 h-4" />
+          Resume
         </button>
       </div>
     </div>
   );
 }
 
-function describeStart(startTime: string): string {
+// "at 14:38" today, "Wed 30 Sep at 14:38" on another day.
+export function describeDraftStart(startTime: string): string {
   const start = new Date(startTime);
   const time = start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   if (toLocalDateString(start) === toLocalDateString(new Date())) return `at ${time}`;
