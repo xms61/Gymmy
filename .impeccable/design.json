@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-01T13:38:34.186Z",
+  "generatedAt": "2026-10-01T18:25:30+00:00",
   "title": "Design System: Gymmy",
   "extensions": {
     "colorMeta": {
@@ -576,9 +576,21 @@
       }
     },
     "typographyMeta": {
+      "sign": {
+        "displayName": "Sign",
+        "purpose": "The split name on the home platform sign, on flap cells: 6rem from 1280px wide, 4.5rem below. The state word before it is 3rem, 2.25rem below 1280px."
+      },
       "flap": {
         "displayName": "Flap",
         "purpose": "Load, reps and the rest clock on split-flap cells; 6.5rem from 1280px wide, 1.25rem in session rows."
+      },
+      "flap-xl": {
+        "displayName": "Flap XL",
+        "purpose": "Load and reps on the workout board from 1280px wide."
+      },
+      "flap-row": {
+        "displayName": "Flap Row",
+        "purpose": "Home target rows and the record figures on home and the calendar header."
       },
       "display": {
         "displayName": "Display",
@@ -613,7 +625,12 @@
       {
         "name": "route-marker-ring",
         "value": "0 0 0 1px rgb(21 19 15 / 0.4)",
-        "purpose": "The 1px edge of a route marker. The only box-shadow; there are no drop shadows."
+        "purpose": "The edge of a small or medium route marker. The only box-shadows are marker rings; there are no drop shadows."
+      },
+      {
+        "name": "route-marker-ring-lg",
+        "value": "0 0 0 2px rgb(21 19 15 / 0.4)",
+        "purpose": "The edge of the large route marker on the home platform sign."
       }
     ],
     "motion": [
@@ -634,8 +651,8 @@
       },
       {
         "name": "reduced-motion",
-        "value": "animation: none; transition: none",
-        "purpose": "With prefers-reduced-motion the new value appears at once."
+        "value": "animation: none; transition: none; the falling leaf is hidden",
+        "purpose": "With prefers-reduced-motion the new value appears at once, with no old leaf left over it."
       }
     ],
     "breakpoints": [
@@ -711,21 +728,29 @@
       "css": ".ds-route { display: inline-grid; place-items: center; width: 2rem; height: 2rem; border-radius: 9999px; box-shadow: 0 0 0 1px rgb(21 19 15 / 0.4); color: #15130F; font-family: \"Barlow Condensed\", \"Arial Narrow\", sans-serif; font-size: 1.125rem; font-weight: 700; } .ds-push { background: #E8702A; } .ds-pull { background: #45A462; } .ds-legs { background: #4E8EEA; }"
     },
     {
-      "name": "Card",
-      "kind": "card",
-      "refersTo": "card",
-      "description": "Dialogs and containers: flap-face fill, 1px line border, 4px corners, no shadow.",
-      "html": "<div class=\"ds-card\"><p class=\"ds-card-msg\">Leave this workout? Its sets will not be saved.</p></div>",
-      "css": ".ds-card { background: #201E1A; border: 1px solid #2E2B26; border-radius: 4px; padding: 1.5rem; } .ds-card-msg { margin: 0; color: #F2EEE3; font-family: \"Barlow\", \"Segoe UI\", sans-serif; font-size: 1.125rem; line-height: 1.375; }"
+      "name": "Platform Sign",
+      "kind": "custom",
+      "refersTo": "platform-sign",
+      "description": "Home: the next workout as a yellow sign, the split name on flap cells, Start in board black.",
+      "html": "<section class=\"ds-sign\"><span class=\"ds-sign-marker\">P</span><div><h2 class=\"ds-sign-heading\"><span class=\"ds-sign-state\">NEXT</span><span class=\"ds-sign-flaps\"><span class=\"ds-flap\">P</span><span class=\"ds-flap\">U</span><span class=\"ds-flap\">L</span><span class=\"ds-flap\">L</span></span></h2><p class=\"ds-sign-detail\">AFTER PUSH ON WED 30 SEP</p></div><button class=\"ds-sign-start\">START</button></section>",
+      "css": ".ds-sign { display: flex; align-items: center; gap: 1.5rem; padding: 1.25rem 2rem; background: #F5C400; color: #15130F; border-radius: 4px; } .ds-sign-marker { display: inline-grid; place-items: center; width: 3.5rem; height: 3.5rem; border-radius: 9999px; background: #45A462; color: #15130F; box-shadow: 0 0 0 2px rgb(21 19 15 / 0.4); font-family: \"Barlow Condensed\", \"Arial Narrow\", sans-serif; font-weight: 700; font-size: 1.875rem; } .ds-sign-heading { display: flex; align-items: center; gap: 1.25rem; margin: 0; } .ds-sign-state { font-family: \"Barlow Condensed\", \"Arial Narrow\", sans-serif; font-weight: 600; font-size: 2.25rem; text-transform: uppercase; } .ds-sign-flaps { display: inline-flex; gap: 0.06em; font-size: 4.5rem; } .ds-flap { position: relative; display: inline-block; width: 0.66em; height: 1.16em; border: 1px solid #2E2B26; border-radius: 3px; background: linear-gradient(#201E1A 50%, #1A1814 50%); color: #F2EEE3; font-family: \"Barlow Condensed\", \"Arial Narrow\", sans-serif; font-weight: 600; line-height: 1.16em; text-align: center; } .ds-flap::after { content: \"\"; position: absolute; left: 0; right: 0; top: calc(50% - 0.5px); height: 1px; background: #15130F; } .ds-sign-detail { margin: 0.75rem 0 0; font-family: \"Barlow Condensed\", \"Arial Narrow\", sans-serif; font-size: 1.125rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; } .ds-sign-start { margin-left: auto; height: 4rem; padding: 0 1.5rem; border: 0; border-radius: 3px; background: #15130F; color: #F5C400; font-family: \"Barlow Condensed\", \"Arial Narrow\", sans-serif; font-weight: 600; font-size: 1.25rem; text-transform: uppercase; letter-spacing: 0.06em; cursor: pointer; transition: background-color 90ms; } .ds-sign-start:hover { background: rgb(21 19 15 / 0.85); } .ds-sign-start:focus-visible { outline: 2px solid #F5C400; outline-offset: 2px; }"
+    },
+    {
+      "name": "Calendar Day",
+      "kind": "custom",
+      "refersTo": "month-board",
+      "description": "A month-board cell: day number in data type, one marker with the split name per session; the chosen day on surface with an ink border.",
+      "html": "<div class=\"ds-days\"><button class=\"ds-day\"><span class=\"ds-day-num\">29</span></button><button class=\"ds-day\" aria-pressed=\"true\"><span class=\"ds-day-num\">30</span><span class=\"ds-day-session\"><span class=\"ds-day-marker\">P</span>PUSH</span></button></div>",
+      "css": ".ds-days { display: grid; grid-template-columns: repeat(2, 5.5rem); gap: 0.375rem; } .ds-day { aspect-ratio: 1; display: flex; flex-direction: column; justify-content: space-between; padding: 0.375rem; border: 1px solid #2E2B26; border-radius: 3px; background: #0D0C0A; color: #D8D4C8; text-align: left; cursor: pointer; transition: border-color 90ms; } .ds-day:hover { border-color: #7A766C; } .ds-day[aria-pressed=\"true\"] { background: #201E1A; border-color: #F2EEE3; } .ds-day:focus-visible { outline: 2px solid #F5C400; outline-offset: 2px; } .ds-day-num { font-family: \"Barlow Condensed\", \"Arial Narrow\", sans-serif; font-size: 1.125rem; line-height: 1; font-variant-numeric: tabular-nums; } .ds-day-session { display: flex; align-items: center; gap: 0.25rem; color: #F2EEE3; font-family: \"Barlow Condensed\", \"Arial Narrow\", sans-serif; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; } .ds-day-marker { display: inline-grid; place-items: center; width: 1.5rem; height: 1.5rem; border-radius: 9999px; background: #E8702A; color: #15130F; box-shadow: 0 0 0 1px rgb(21 19 15 / 0.4); font-weight: 700; font-size: 0.875rem; }"
     }
   ],
   "narrative": {
     "northStar": "The Departure Board",
-    "overview": "The workout is a station departure board. The current exercise owns the board, and each set is the next departure: when a value changes, its split-flap cells turn over to it. A matte warm-black board carries off-white characters on two-leaf flap cells with a hairline split. A yellow enamel signage band runs across the top. Barlow Condensed in capitals sets every heading, label and button.\n\nThe board is read between sets at arm's length on a laptop, so it is sparse and large: one exercise, its load and reps in flap digits, the rest countdown beside them, and the other exercises as single rows. Colour is rare. The flaps hold two inks; colour belongs to the band and to small round route markers for Push, Pull and Legs. Surfaces are flat, with square 3px corners, and values change by a stepped flip, never by a fade.\n\nThe live workout screen is the first and only surface built in this world. The dashboard, calendar, progress and settings screens still have their earlier layouts and only inherit the tokens; redoing them is milestones 3 to 5 of the [Departure Board exec plan](docs/exec-plans/active/2026-10-01-departure-board.md). They are a known gap, not a reference for new work.",
+    "overview": "The workout is a station departure board. The current exercise owns the board, and each set is the next departure: when a value changes, its split-flap cells turn over to it. A matte warm-black board carries off-white characters on two-leaf flap cells with a hairline split. A yellow enamel signage band runs across the top. Barlow Condensed in capitals sets every heading, label and button.\n\nThe board is read between sets at arm's length on a laptop, so it is sparse and large: one exercise, its load and reps in flap digits, the rest countdown beside them, and the other exercises as single rows. Colour is rare. The flaps hold two inks; colour belongs to the band, the home platform sign and round route markers for Push, Pull and Legs. Surfaces are flat, with square 3px corners, and values change by a stepped flip, never by a fade.\n\nEvery screen is built in this world: the live workout, home, the calendar, progress and settings ([Departure Board exec plan](docs/exec-plans/completed/2026-10-01-departure-board.md)).",
     "keyCharacteristics": [
       "Matte warm-black board with off-white flap characters.",
       "Split-flap cells: two leaves, the lower one a shade darker, a 1px split in board colour.",
-      "One yellow signage band; yellow elsewhere only on the focus ring and the text caret.",
+      "One yellow signage band, and on home one yellow platform sign for the next workout; yellow elsewhere only on the focus ring and the text caret.",
       "Round route markers carry the split colours.",
       "Barlow Condensed in capitals for display, labels, buttons and numbers; Barlow for prose.",
       "Flat: no drop shadows, gradients, glows or blur.",
@@ -740,12 +765,12 @@
       },
       {
         "name": "The Signage Rule",
-        "body": "Yellow is the band, the focus ring, the caret and selection. Buttons on the board are never yellow; the filled primary is Departure White.",
+        "body": "Yellow is the band, the home platform sign, the focus ring, the caret and selection. Buttons on the board are never yellow; the filled primary is Departure White. On a yellow sign, actions are board-black.",
         "section": "colors"
       },
       {
         "name": "The Route Marker Rule",
-        "body": "A split colour appears only as the fill of a round marker with its first letter in `on-split`.",
+        "body": "A split colour appears only as the fill of a round marker with its first letter in `on-split`, and the split's full name always sits beside the marker, so Push and Pull (both P) never rest on colour alone.",
         "section": "colors"
       },
       {
@@ -773,7 +798,7 @@
       "**Do** put changing numbers on flap cells and let them turn over in stepped motion.",
       "**Do** use Departure White (`good`) for the single filled primary action on the board.",
       "**Do** give every secondary action the bordered `control` button with an `edge` border.",
-      "**Do** keep yellow to the band, the focus ring, the caret and selection.",
+      "**Do** keep yellow to the band, the home platform sign, the focus ring, the caret and selection.",
       "**Do** show the split as a round route marker.",
       "**Do** dim exercises that are neither current nor next to 50% opacity.",
       "**Do** ask for confirmation in the in-app dialog.",
