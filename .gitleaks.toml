@@ -14,3 +14,9 @@ keywords = ["users", "home"]
   [[rules.allowlists]]
   regexTarget = "match"
   regexes = ['''\/home\/(?:node|runner)\/''']
+
+# localStorage key names such as gymmy_pending_ops_v1 sit in constants named *_KEY, which the generic
+# API key rule reads as secrets. They are public names listed in src/services/STORAGE.md.
+[[allowlists]]
+description = "localStorage key names"
+regexes = ['''^gymmy_[a-z0-9_]+_v\d+$''']

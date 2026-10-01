@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scripts/check-docs.mjs` checks links, frontmatter, reachability from `AGENTS.md`, the design-doc index and exec-plan sections. `scripts/check-tracked-files.mjs` refuses databases, spreadsheets, keys, `data/`, scratch notes, files over 1 MiB and home-folder paths; `.githooks/pre-commit` runs it on staged files. Both have tests.
 - CI runs both checks and gitleaks in two new jobs, `guard` and `docs`, and reads the Node version from `.nvmrc`. Pull requests get a template.
 
+### Fixed
+- CI's gitleaks scan of the whole history on `main` no longer reports the localStorage key names (`gymmy_pending_ops_v1`, `gymmy_rejected_ops_v1`) as API keys.
+
 ### Changed
 - Scratch notes go in `docs/scratch/`; work that spans sessions gets a committed exec plan instead of a note in the ignored `docs/plans/`.
 
