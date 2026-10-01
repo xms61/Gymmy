@@ -1,3 +1,8 @@
+---
+status: draft
+last-verified: 2026-09-24
+---
+
 # Testing
 
 Tests use Node's built-in runner (`node:test` with `node:assert/strict`). Node runs the `.ts` files directly by stripping types, so there is no test framework or build step.
@@ -7,8 +12,9 @@ Tests use Node's built-in runner (`node:test` with `node:assert/strict`). Node r
 | `npm test` | Unit and integration tests | `tests/**/*.test.ts` |
 | `npm run test:coverage` | Tests with coverage thresholds (lines/functions ≥ 85 %, branches ≥ 75 %) | flags in `package.json` |
 | `npm run test:ci` | Typecheck, then tests with coverage | `package.json` |
+| `node --test scripts/*.test.mjs` | Tests of the doc and tracked-files checks | `scripts/` |
 
-CI (`.github/workflows/ci.yml`) runs `npm run test:ci` and then `npm run build` on Node 22 for every pull request and every push to `main`.
+CI (`.github/workflows/ci.yml`) runs these, the repo checks and the build on Node 22 for every pull request and every push to `main` ([release process](../.github/RELEASE_PROCESS.md)).
 
 Coverage counts the `src/` and `server/` modules that tests import. React components have no automated tests; check UI changes in the running app (`npm run dev`).
 

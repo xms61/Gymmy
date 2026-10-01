@@ -1,3 +1,8 @@
+---
+status: draft
+last-verified: 2026-09-24
+---
+
 # Themes
 
 Entry: `src/theme/themes.ts`: every theme's name, description, design tokens (colors, fonts, corner radii, border, tap sizes, motion) and traits. The single source of truth for how the app looks. Themes: `classic` (the default), `brutalism` (Industrial Brutalism), `terminal` (Terminal CLI), `telemetry` (Mechanical Telemetry) and `journal` (Golden Era Journal, the only light theme).
