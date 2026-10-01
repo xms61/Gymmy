@@ -5,12 +5,12 @@ import type { SyncStatus } from '../../services/sync.ts';
 import type { ExerciseDefinition } from '../../types/workout.ts';
 import { clampTo, hasValidRepRange, LIMITS } from '../../validation.ts';
 import { describeSyncStatus, needsAttention, syncLabel } from '../syncStatusText.ts';
-import { AppearanceSection } from './AppearanceSection.tsx';
 import { BackupSection } from './BackupSection.tsx';
 import { RefusedChanges } from './RefusedChanges.tsx';
 import { Dialog, DialogHeader } from '../ui/Dialog.tsx';
+import { askToConfirm, showNotice } from '../ui/ConfirmHost.tsx';
 
-type SettingsTab = 'data' | 'exercises' | 'appearance';
+type SettingsTab = 'data' | 'exercises';
 
 // The fallback is used when the field is cleared, and every value is clamped to the limits the server accepts.
 const TARGET_FIELDS = [
@@ -23,8 +23,7 @@ type TargetField = (typeof TARGET_FIELDS)[number]['field'];
 
 const SETTINGS_TABS: { id: SettingsTab; label: string }[] = [
   { id: 'data', label: 'Data & Backup' },
-  { id: 'exercises', label: 'Exercise Targets' },
-  { id: 'appearance', label: 'Appearance' }
+  { id: 'exercises', label: 'Exercise Targets' }
 ];
 
 interface SettingsModalProps {
@@ -69,7 +68,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`flex-1 py-2 rounded-control text-xs font-bold transition ${
-                activeTab === tab.id ? 'bg-accent text-on-accent shadow-md' : 'text-ink-muted hover:text-ink'
+                activeTab === tab.id ? 'bg-accent text-on-accent' : 'text-ink-muted hover:text-ink'
               }`}
             >
               {tab.label}
@@ -124,12 +123,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </p>
 
               <button
-                onClick={() => {
-                  if (window.confirm('Clear all logged workout sessions? The server saves a copy of the database in data/ first.')) {
+                onClick={async () => {
+                  if (await askToConfirm('Clear all logged workout sessions? The server saves a copy of the database in data/ first.', 'Clear history')) {
                     StorageService.clearAllSessions();
                     onRefreshData();
-                    alert('All workout history was cleared.');
                     onClose();
+                    await showNotice('All workout history was cleared.');
                   }
                 }}
                 className="btn btn-danger w-full py-2.5 text-xs"
@@ -138,8 +137,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </button>
             </div>
           </div>
-        ) : activeTab === 'appearance' ? (
-          <AppearanceSection />
         ) : (
           <div className="space-y-4">
             <p className="text-xs text-ink-muted">

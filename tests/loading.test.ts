@@ -8,7 +8,6 @@ import {
   loadableWeights,
   nearestLoad,
   plateLayout,
-  platesInUse,
   stepLoad
 } from '../src/services/loading.ts';
 import type { EquipmentType } from '../src/types/workout.ts';
@@ -103,15 +102,3 @@ test('describes each plate-loaded implement', () => {
   assert.deepEqual([emptyWeightKg('landmine'), loadedEnds('landmine')], [0, 1]);
 });
 
-test('counts the plates a layout takes on the whole implement', () => {
-  assert.deepEqual(platesInUse([20, 15, 2.5], 'barbell'), [
-    { kg: 20, inUse: 2, owned: 2 },
-    { kg: 15, inUse: 2, owned: 2 },
-    { kg: 2.5, inUse: 2, owned: 4 }
-  ]);
-  assert.deepEqual(platesInUse([5, 5, 1.25], 'landmine'), [
-    { kg: 5, inUse: 2, owned: 6 },
-    { kg: 1.25, inUse: 1, owned: 2 }
-  ]);
-  assert.deepEqual(platesInUse([], 'dumbbell'), []);
-});

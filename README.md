@@ -1,6 +1,6 @@
 # Gymmy
 
-A mobile-first workout tracker for one Push/Pull/Legs routine, built with React, TypeScript, Tailwind CSS and Vite. It logs each set, suggests the next load with double progression, and keeps the training history in a local SQLite database.
+A desktop web workout tracker for one Push/Pull/Legs routine, built with React, TypeScript, Tailwind CSS and Vite. It logs each set, suggests the next load with double progression, and keeps the training history in a local SQLite database.
 
 ## Setup
 Requires Node.js 22.18 or newer. The dev server uses the built-in `node:sqlite` module, and the tests run TypeScript directly with Node.
@@ -42,7 +42,8 @@ How the code is laid out is in [ARCHITECTURE.md](ARCHITECTURE.md), and how the d
 - **History:** a monthly calendar colored by split (Push orange, Pull green, Legs blue), with each day's sets, loads, volume and notes, and a weekly streak: weeks in a row, Monday to Sunday, with at least one workout.
 - **Progress:** estimated 1RM (Brzycki formula), best load and volume for each exercise, with a chart of the estimated 1RM and one of the session volume over every session. Hover a chart, or focus it and use the arrow keys, to read a session's value.
 - **Backup and restore:** a JSON file with every workout and the exercise targets. Restoring previews the changes first and never deletes anything.
-- **Themes:** the Appearance tab in Settings switches between Classic, Terminal CLI (a green-phosphor console run from the keyboard: type `62.5x8@2` to log a set, `?` for every command, `j`/`k` and Space to move and tick sets, 1/2/3 for the tabs and `s` to start the next workout), Mechanical Telemetry (slate, cyan and amber on an instrument grid: readouts of last load, target, change and e1RM with a volume sparkline, a plate strip with the plates each set takes from your stock, an RIR gauge, a dial rest timer and a calendar heat map), Industrial Brutalism (iron, chalk and caution yellow, square corners, 56 px steppers, load stacked over reps, and a full-width rest timer) and Golden Era Journal (parchment, a ruled ledger for the sets, handwritten margin notes, ink stamps for done sets and finished workouts, and dates written out). The choice is stored on each device. The fonts are bundled, so they work offline.
+- **Design:** one look, the Departure Board: a black station board with the load, reps and rest on split-flap digits that turn over when they change, a yellow sign band across the workout, and the split colors on round route markers. The fonts are bundled, so they work offline.
+- **Keyboard:** in a workout, type `62.5x8@2` in the row at the foot to log a set, `?` for every command, `j`/`k` and Space to move and tick sets, `/` to jump to the row. Outside a workout, 1/2/3 switch tabs and `s` starts the next workout.
 
 ## Using it from a phone
 `npm run dev` only listens on this computer. To log sets from a phone on the same Wi-Fi, start it with `npm run dev -- --host`. The server then prints a link for each network address, ending in `#key=…`: open it once on the phone, and the phone keeps the key. Without it, other devices get "Needs access key" and cannot read or change your history. The key lives in `data/access-key`; delete that file and restart to issue a new one, which locks out every device that had the old one.

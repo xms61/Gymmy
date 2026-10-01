@@ -35,7 +35,7 @@ export function ResumeWorkoutBanner({ draft, onResume, onDiscard }: ResumeWorkou
         </button>
         <button
           onClick={onResume}
-          className="btn btn-primary gap-1.5 px-4 py-2 text-xs"
+          className="btn btn-good gap-1.5 px-4 py-2 text-xs"
         >
           <Play className="w-3.5 h-3.5" />
           <span>Resume</span>

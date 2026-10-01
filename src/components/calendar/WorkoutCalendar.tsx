@@ -6,7 +6,7 @@ import {
   Flame, 
   Award 
 } from 'lucide-react';
-import type { CSSProperties, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import type { WorkoutSession } from '../../types/workout.ts';
 import { DayDetailModal } from './DayDetailModal.tsx';
@@ -115,7 +115,6 @@ export const WorkoutCalendar: React.FC<WorkoutCalendarProps> = ({
 
   // Calculate monthly stats
   // The month's heaviest training day: the top of the heat map's scale.
-  const heaviestDayKg = Math.max(0, ...calendarDays.filter(d => d.isCurrentMonth).map(d => dayVolumeKg(d.sessions)));
   const monthName = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   const todayStr = getTodayDateString();
 
@@ -145,7 +144,7 @@ export const WorkoutCalendar: React.FC<WorkoutCalendarProps> = ({
         </MonthStat>
       </div>
 
-      <div className="card p-5 md:p-6 shadow-xl">
+      <div className="card p-5 md:p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-3">
             <h2 className="text-xl font-black text-ink tracking-tight">{monthName}</h2>
@@ -188,10 +187,7 @@ export const WorkoutCalendar: React.FC<WorkoutCalendarProps> = ({
               <button
                 key={idx}
                 onClick={() => setSelectedDayString(day.dateString)}
-                style={{ '--heat': heaviestDayKg > 0 ? dayVolumeKg(day.sessions) / heaviestDayKg : 0 } as CSSProperties}
-                className={`calendar-day min-h-[64px] md:min-h-[76px] p-2 rounded-panel flex flex-col items-center justify-between border transition-all text-left relative active:scale-95 ${
-                  hasWorkout ? `split-solid ${SPLIT_STYLE[day.sessions[0]!.splitType].solid}` : ''
-                } ${
+                className={`min-h-[64px] md:min-h-[76px] p-2 rounded-panel flex flex-col items-center justify-between border transition-all text-left relative ${
                   day.isCurrentMonth ? 'text-ink-soft' : 'text-ink-faint bg-inset/30 border-transparent'
                 } ${
                   isToday
@@ -216,7 +212,7 @@ export const WorkoutCalendar: React.FC<WorkoutCalendarProps> = ({
                   {day.sessions.map((s, sIdx) => (
                     <span
                       key={sIdx}
-                      className={`session-chip text-[9px] font-black uppercase px-1.5 py-0.5 rounded-chip ${SPLIT_STYLE[s.splitType].fill} shadow-sm truncate max-w-full`}
+                      className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded-chip ${SPLIT_STYLE[s.splitType].fill} truncate max-w-full`}
                     >
                       {s.name}
                     </span>
@@ -263,10 +259,6 @@ function MonthStat({ icon: Icon, iconClass, label, children }: MonthStatProps) {
       </div>
     </div>
   );
-}
-
-function dayVolumeKg(sessions: WorkoutSession[]): number {
-  return sessions.reduce((total, s) => total + s.totalVolumeKg, 0);
 }
 
 function formatWeeks(count: number): string {

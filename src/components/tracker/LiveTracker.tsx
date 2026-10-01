@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, Check, Clock } from 'lucide-react';
-import confetti from 'canvas-confetti';
+import { ArrowLeft } from 'lucide-react';
 import type {
   EquipmentType,
   ExerciseDefinition,
@@ -13,25 +12,24 @@ import type {
 import { isPlateLoaded, type PlateLoaded } from '../../services/loading.ts';
 import { getRecommendation } from '../../services/overloadEngine.ts';
 import { indexCompletedLogs, logsFor } from '../../services/exerciseLogs.ts';
-import { exerciseHistory } from '../../services/progress.ts';
 import { StorageService } from '../../services/storage.ts';
-import { RestTimer } from './RestTimer.tsx';
+import { RestIdle, RestTimer } from './RestTimer.tsx';
 import { PlateCalculatorModal } from './PlateCalculatorModal.tsx';
 import { ElapsedClock } from './ElapsedClock.tsx';
-import { ExerciseCard } from './ExerciseCard.tsx';
+import { ExerciseBoard } from './ExerciseBoard.tsx';
+import { SessionBoard } from './SessionBoard.tsx';
 import { CompletionSummary } from './CompletionSummary.tsx';
-import { steppedWeight, type SetChange } from './SetRow.tsx';
+import { steppedWeight, type SetChange } from './SetControls.tsx';
 import { CommandLine } from './CommandLine.tsx';
 import { COMMAND_HELP, lastDoneSet, moveCursor, nextOpenSet, parseSetCommand, type SetCommand, type SetPosition } from './setCommand.ts';
 import { formatReps, withRir } from '../../services/effort.ts';
 import { isShortcutFree } from '../keyboardShortcuts.ts';
-import { progressBarText } from '../terminalText.ts';
 import { workoutDurationMinutes } from './workoutTime.ts';
-import { toLocalDateString } from '../../utils/date.ts';
+import { formatSessionDate, toLocalDateString } from '../../utils/date.ts';
 import { unlockAudio } from '../../utils/audio.ts';
 import { clearDraft, saveDraft } from './workoutDraft.ts';
-import { SplitBadge } from '../ui/badges.tsx';
-import { useTheme } from '../../theme/ThemeProvider.tsx';
+import { RouteMarker } from '../ui/badges.tsx';
+import { askToConfirm } from '../ui/ConfirmHost.tsx';
 import { LIMITS, MAX_NOTES_LENGTH } from '../../validation.ts';
 
 interface LiveTrackerProps {
@@ -67,7 +65,7 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
     return new Map(
       workoutExercises.map(ex => {
         const logs = logsFor(logIndex, ex);
-        return [ex.id, { recommendation: getRecommendation(ex, logs), history: exerciseHistory(logs) }];
+        return [ex.id, getRecommendation(ex, logs)];
       })
     );
   }, [workoutExercises, history, allDefinitions]);
@@ -82,7 +80,7 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
       // Pre-fill working sets
       const sets: SetLog[] = Array.from({ length: ex.targetSets }).map((_, idx) => ({
         setNumber: idx + 1,
-        weightKg: progress.get(ex.id)?.recommendation.recommendedWeightKg ?? ex.defaultWeightKg,
+        weightKg: progress.get(ex.id)?.recommendedWeightKg ?? ex.defaultWeightKg,
         repsCompleted: ex.targetRepsMin,
         targetReps: `${ex.targetRepsMin}–${ex.targetRepsMax}`,
         completed: false
@@ -99,18 +97,10 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
   });
 
   // Rest Timer State
-  const [activeTimer, setActiveTimer] = useState<{
-    id: number;
-    show: boolean;
-    seconds: number;
-    exerciseName: string;
-    nextSetNumber: number;
-  }>({
+  const [activeTimer, setActiveTimer] = useState<{ id: number; show: boolean; seconds: number }>({
     id: 0,
     show: false,
-    seconds: 90,
-    exerciseName: '',
-    nextSetNumber: 1
+    seconds: 90
   });
 
   // Plate Calculator Modal State
@@ -120,7 +110,6 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
   const [completedSummary, setCompletedSummary] = useState<WorkoutSession | null>(null);
   // A ref, not state: a double tap fires both clicks before React re-renders.
   const hasFinishedRef = useRef(false);
-  const { theme } = useTheme();
 
   // Keeps the screen on during the workout (phones and laptops that sleep between sets), asking
   // again when the tab comes back, because the browser drops the lock when the tab is hidden.
@@ -186,19 +175,13 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
         restSecs = 300; // 5 minute transition break
       }
 
-      const nextSetNum = setIdx + 2 <= currentEx.sets.length ? setIdx + 2 : 1;
-      const nextExName =
-        setIdx + 1 < currentEx.sets.length
-          ? currentEx.exerciseName
-          : exerciseLogs[exIdx + 1]?.exerciseName || 'Next Exercise';
+      const afterThis = exerciseLogs.map((ex, eIdx) =>
+        eIdx === exIdx ? { ...ex, sets: ex.sets.map((s, sIdx) => (sIdx === setIdx ? { ...s, completed: true } : s)) } : ex
+      );
+      const next = nextOpenSet(afterThis, exIdx) ?? nextOpenSet(afterThis, 0);
+      if (next) setCursor(next);
 
-      setActiveTimer({
-        id: Date.now(),
-        show: true,
-        seconds: restSecs,
-        exerciseName: nextExName,
-        nextSetNumber: nextSetNum
-      });
+      setActiveTimer({ id: Date.now(), show: true, seconds: restSecs });
     }
   };
 
@@ -224,9 +207,9 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
     updateExercise(exIdx, ex => (ex.sets.length <= 1 ? ex : { ...ex, sets: ex.sets.slice(0, -1) }));
   };
 
-  // The command line and single-key shortcuts, for themes that have them.
+  // The set on the board. Logging a set moves it to the next open set.
+  const [cursor, setCursor] = useState<SetPosition>(() => (resumeFrom && nextOpenSet(resumeFrom.exerciseLogs, 0)) || { exerciseIndex: 0, setIndex: 0 });
   const commandInputRef = useRef<HTMLInputElement>(null);
-  const [cursor, setCursor] = useState<SetPosition>({ exerciseIndex: 0, setIndex: 0 });
   const [commandOutput, setCommandOutput] = useState<string[]>([]);
 
   const equipmentOf = (log: ExerciseSessionLog): EquipmentType =>
@@ -257,7 +240,7 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
         return [exerciseLogs[exerciseIndex]?.exerciseName ?? ''];
       }
       case 'rest':
-        setActiveTimer({ id: Date.now(), show: true, seconds: command.seconds, exerciseName: focused?.exerciseName ?? '', nextSetNumber: cursor.setIndex + 1 });
+        setActiveTimer({ id: Date.now(), show: true, seconds: command.seconds });
         return [`rest ${command.seconds} s`];
       case 'skipRest':
         setActiveTimer(prev => ({ ...prev, show: false }));
@@ -273,7 +256,7 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
         return [`note saved for ${focused?.exerciseName}`];
       case 'finish':
         if (completedSetsCount === 0) return ['log a set first'];
-        if (window.confirm('Finish this workout and save it?')) handleFinishWorkout();
+        void askToConfirm('Finish this workout and save it?', 'Finish', { danger: false }).then(confirmed => confirmed && handleFinishWorkout());
         return [];
       case 'leave':
         onCancel();
@@ -293,13 +276,12 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
     changeSet(target.exerciseIndex, target.setIndex, () => updated);
     const markDone = command.kind === 'done' || (command.kind === 'log' && command.markDone);
     if (markDone) toggleSetComplete(target.exerciseIndex, target.setIndex);
-    setCursor(target);
+    else setCursor(target);
     return [`${log.exerciseName} set ${target.setIndex + 1}: ${updated.weightKg} kg × ${formatReps(updated)}${markDone ? ', done' : ''}`];
   };
 
   // "/" or ":" jumps to the prompt, j and k move the set cursor, and Space ticks the set under it.
   useEffect(() => {
-    if (!theme.traits.commandLine) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (!isShortcutFree(event)) return;
       if (event.key === '/' || event.key === ':') {
@@ -315,18 +297,11 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
   });
-
-  useEffect(() => {
-    if (theme.traits.commandLine) document.querySelector('.set-row[data-cursor]')?.scrollIntoView({ block: 'nearest' });
-  }, [cursor, theme]);
-
-  // Calculate volume & progress stats
-  const totalSetsCount = exerciseLogs.reduce((acc, ex) => acc + ex.sets.length, 0);
+  // Finish needs at least one done set, and the saved session records its volume.
   const completedSetsCount = exerciseLogs.reduce(
     (acc, ex) => acc + ex.sets.filter(s => s.completed).length,
     0
   );
-  const progressPercent = totalSetsCount > 0 ? Math.round((completedSetsCount / totalSetsCount) * 100) : 0;
 
   const currentTotalVolumeKg = exerciseLogs.reduce((acc, ex) => {
     return (
@@ -361,102 +336,92 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
     StorageService.saveSession(completedSession);
     clearDraft();
     setCompletedSummary(completedSession);
+  };
 
-    if (theme.traits.celebration === 'confetti') {
-      confetti({
-        particleCount: 80,
-        spread: 70,
-        origin: { y: 0.6 },
-        disableForReducedMotion: true
-      });
-    }
+  const boardIndex = Math.min(cursor.exerciseIndex, exerciseLogs.length - 1);
+  const boardLog = exerciseLogs[boardIndex];
+  const boardDefinition = boardLog && workoutExercises.find(e => e.id === boardLog.exerciseId);
+  const selectSet = (exerciseIndex: number, setIndex: number) => setCursor({ exerciseIndex, setIndex });
+  const selectExercise = (exerciseIndex: number) => {
+    const sets = exerciseLogs[exerciseIndex]?.sets ?? [];
+    selectSet(exerciseIndex, Math.max(0, sets.findIndex(s => !s.completed)));
   };
 
   return (
-    <div className="min-h-screen bg-inset pb-28 text-ink-soft antialiased">
-      <header className="hazard-edge sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-line px-4 py-3">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <button onClick={onCancel} className="icon-btn" title="Leave workout">
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <div className="flex items-center space-x-2">
-              <SplitBadge split={workoutType} label={`${workoutType} Day`} />
-              <span className="flex items-center space-x-1 text-xs text-ink-muted font-mono">
-                <Clock className="w-3.5 h-3.5 text-accent-ink" />
-                <ElapsedClock startTime={startTime} />
-              </span>
-            </div>
-          </div>
-
+    <div className="h-screen flex flex-col bg-bg text-ink-soft">
+      <header className="flex-none bg-accent text-on-accent">
+        <div className="max-w-[90rem] mx-auto h-16 px-6 flex items-center gap-3">
+          <button onClick={onCancel} title="Leave workout" aria-label="Leave workout" className="p-2 rounded-control hover:bg-on-accent/10">
+            <ArrowLeft className="w-6 h-6" />
+          </button>
+          <RouteMarker split={workoutType} />
+          <h1 className="text-3xl leading-none">{workoutType}</h1>
+          <span className="font-display text-lg font-semibold uppercase tracking-[0.04em]">
+            {formatSessionDate(toLocalDateString(new Date(startTime)))}
+          </span>
+          <span title="Time since the workout started" className="ml-auto font-mono text-xl font-semibold">
+            <ElapsedClock startTime={startTime} />
+          </span>
           <button
             onClick={handleFinishWorkout}
             disabled={completedSetsCount === 0 || completedSummary !== null}
-            className="btn btn-good min-h-tap-lg px-4 py-2 text-sm shadow-lg shadow-good/30 disabled:shadow-none"
+            title={completedSetsCount === 0 ? 'Log a set first' : 'Finish and save the workout'}
+            className="btn h-11 px-5 text-lg bg-on-accent text-accent hover:bg-on-accent/85 disabled:bg-on-accent/20 disabled:text-on-accent/60"
           >
-            <Check className="w-4 h-4" />
-            <span>Finish Workout</span>
+            Finish
           </button>
-        </div>
-
-        <div className="max-w-4xl mx-auto mt-3">
-          <div className="flex items-center justify-between text-xs text-ink-muted mb-1">
-            <span>Progress: {completedSetsCount} / {totalSetsCount} sets</span>
-            <span className="font-mono font-semibold text-accent-ink">{progressPercent}%</span>
-          </div>
-          <div className="progress-text hidden font-mono text-sm text-accent-ink">{progressBarText(progressPercent, 20)}</div>
-          <div className="progress-bar w-full h-1.5 bg-control rounded-pill overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-accent-hover to-good-hover transition-all duration-300 rounded-pill"
-              style={{ width: `${progressPercent}%` }}
-            />
-          </div>
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto p-4 space-y-6 mt-2">
-        {exerciseLogs.map((exLog, exIdx) => (
-          <ExerciseCard
-            key={exLog.exerciseId}
-            log={exLog}
-            definition={workoutExercises.find(e => e.id === exLog.exerciseId)}
-            recommendation={progress.get(exLog.exerciseId)?.recommendation ?? null}
-            history={progress.get(exLog.exerciseId)?.history ?? []}
-            cursorSetIndex={theme.traits.commandLine && cursor.exerciseIndex === exIdx ? cursor.setIndex : null}
-            onToggleSet={setIdx => toggleSetComplete(exIdx, setIdx)}
-            onChangeSet={(setIdx, change) => changeSet(exIdx, setIdx, change)}
-            onAddSet={() => addSet(exIdx)}
-            onRemoveLastSet={() => removeLastSet(exIdx)}
-            onNotesChange={notes => updateExercise(exIdx, ex => ({ ...ex, notes }))}
-            onOpenPlates={(weightKg: number, equipment: EquipmentType) => {
-              if (isPlateLoaded(equipment)) setPlateCalc({ weightKg, equipment });
-            }}
-          />
-        ))}
-
-        <div className="card p-5 shadow-xl">
-          <label className="block section-label mb-2">Workout Notes (Optional)</label>
-          <textarea
-            value={sessionNotes}
-            onChange={e => setSessionNotes(e.target.value)}
-            placeholder="How did the session feel? Energy levels, soreness, personal breakthroughs..."
-            rows={3}
-            maxLength={MAX_NOTES_LENGTH}
-            className="field w-full bg-inset rounded-panel p-3 text-base sm:text-sm text-ink-soft"
-          />
+      <main className="flex-1 min-h-0 overflow-y-auto">
+        <div className="max-w-[90rem] mx-auto px-6 py-8 grid content-start gap-10 grid-cols-[minmax(0,1fr)_minmax(18rem,26rem)] xl:gap-12">
+          {boardLog && (
+            <ExerciseBoard
+              key={boardLog.exerciseId}
+              log={boardLog}
+              definition={boardDefinition}
+              recommendation={progress.get(boardLog.exerciseId) ?? null}
+              setIndex={boardIndex === cursor.exerciseIndex ? cursor.setIndex : 0}
+              onSelectSet={setIdx => selectSet(boardIndex, setIdx)}
+              onToggleSet={setIdx => toggleSetComplete(boardIndex, setIdx)}
+              onChangeSet={(setIdx, change) => changeSet(boardIndex, setIdx, change)}
+              onAddSet={() => addSet(boardIndex)}
+              onRemoveLastSet={() => removeLastSet(boardIndex)}
+              onNotesChange={notes => updateExercise(boardIndex, ex => ({ ...ex, notes }))}
+              onOpenPlates={(weightKg: number, equipment: EquipmentType) => {
+                if (isPlateLoaded(equipment)) setPlateCalc({ weightKg, equipment });
+              }}
+            />
+          )}
+  
+          <aside className="grid gap-8 content-start">
+            {activeTimer.show ? (
+              <RestTimer
+                key={activeTimer.id}
+                initialSeconds={activeTimer.seconds}
+                onFinish={() => setActiveTimer(prev => ({ ...prev, show: false }))}
+                onSkip={() => setActiveTimer(prev => ({ ...prev, show: false }))}
+              />
+            ) : (
+              <RestIdle seconds={boardDefinition?.defaultRestSeconds || 90} />
+            )}
+  
+            <SessionBoard logs={exerciseLogs} current={boardIndex} onSelect={selectExercise} />
+  
+            <label className="grid gap-2">
+              <span className="section-label">Workout notes</span>
+              <textarea
+                value={sessionNotes}
+                onChange={e => setSessionNotes(e.target.value)}
+                placeholder="Energy, soreness, anything worth remembering"
+                rows={3}
+                maxLength={MAX_NOTES_LENGTH}
+                className="field w-full p-3 text-base text-ink-soft"
+              />
+            </label>
+          </aside>
         </div>
       </main>
-
-      {activeTimer.show && (
-        <RestTimer
-          key={activeTimer.id}
-          initialSeconds={activeTimer.seconds}
-          exerciseName={activeTimer.exerciseName}
-          nextSetNumber={activeTimer.nextSetNumber}
-          onFinish={() => setActiveTimer(prev => ({ ...prev, show: false }))}
-          onClose={() => setActiveTimer(prev => ({ ...prev, show: false }))}
-        />
-      )}
 
       {plateCalc !== null && (
         <PlateCalculatorModal
@@ -466,14 +431,13 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
         />
       )}
 
-      {theme.traits.commandLine && (
-        <CommandLine prompt={`gymmy/${workoutType.toLowerCase()}$`} output={commandOutput} inputRef={commandInputRef} onSubmit={runCommand} />
-      )}
+      <CommandLine output={commandOutput} inputRef={commandInputRef} onSubmit={runCommand} />
 
       {completedSummary && <CompletionSummary session={completedSummary} onDone={onFinish} />}
     </div>
   );
 };
+
 
 function updatedSet(set: SetLog, command: Extract<SetCommand, { kind: 'log' | 'step' | 'done' }>, equipment: EquipmentType): SetLog {
   if (command.kind === 'done') return set;

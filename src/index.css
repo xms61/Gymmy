@@ -14,15 +14,18 @@
     background-color: rgb(var(--c-bg));
     color: rgb(var(--c-ink-soft));
     font-family: var(--font-body);
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    caret-color: rgb(var(--c-accent));
   }
 
   h1, h2, h3, h4 {
     font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
   }
 
-  *, ::before, ::after {
-    border-style: var(--border-style);
+  .font-mono {
+    font-variant-numeric: tabular-nums;
   }
 
   ::selection {
@@ -32,6 +35,11 @@
 
   ::placeholder {
     color: rgb(var(--c-ink-faint));
+  }
+
+  :focus-visible {
+    outline: 2px solid rgb(var(--c-accent));
+    outline-offset: 2px;
   }
 }
 
@@ -45,11 +53,11 @@
   }
 
   .section-label {
-    @apply text-xs font-bold uppercase tracking-wider text-ink-muted;
+    @apply font-display text-xs font-semibold uppercase tracking-[0.08em] text-ink-muted;
   }
 
   .btn {
-    @apply inline-flex items-center justify-center gap-2 font-bold rounded-control transition active:scale-95 disabled:cursor-not-allowed disabled:active:scale-100;
+    @apply inline-flex items-center justify-center gap-2 font-display font-semibold uppercase tracking-[0.06em] rounded-control transition-colors disabled:cursor-not-allowed;
   }
 
   .btn-primary {
@@ -69,60 +77,82 @@
   }
 
   .icon-btn {
-    @apply p-2 text-ink-muted hover:text-ink rounded-control hover:bg-control transition;
+    @apply p-2 text-ink-muted hover:text-ink rounded-control hover:bg-control transition-colors;
   }
 
   .field {
     @apply bg-surface border border-edge rounded-chip text-ink focus:border-accent focus:outline-none;
   }
 
-  /* InkStamp: ink pressed onto the page, so it multiplies with the paper underneath. */
-  .ink-stamp {
+  /*
+   * A split-flap cell: two leaves meeting at a hairline split. The lower leaf sits a shade darker,
+   * the way the lower flap catches less light. Each leaf holds the whole character and shows half.
+   */
+  .flap {
+    position: relative;
     display: inline-block;
-    padding: 0.125rem 0.375rem;
-    border: 3px double rgb(var(--c-stamp));
-    border-radius: var(--radius-chip);
-    color: rgb(var(--c-stamp));
+    width: 0.66em;
+    height: 1.16em;
+    border: 1px solid rgb(var(--c-line));
+    border-radius: var(--radius-panel);
+    overflow: hidden;
+    color: rgb(var(--c-ink));
     font-family: var(--font-data);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    line-height: 1.2;
-    text-transform: uppercase;
-    white-space: nowrap;
-    transform: rotate(-6deg);
-    mix-blend-mode: multiply;
-    animation: stampIn var(--motion) ease-out;
+    font-weight: 600;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    perspective: 3em;
   }
 
-  .ink-stamp-lg {
-    padding: 0.25rem 0.875rem;
-    border-width: 6px;
-    font-size: 1.5rem;
+  .flap::after {
+    content: '';
+    position: absolute;
+    inset: calc(50% - 0.5px) 0 auto;
+    height: 1px;
+    background: rgb(var(--c-bg));
+  }
+
+  .flap-leaf {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    backface-visibility: hidden;
+  }
+
+  .flap-top {
+    clip-path: inset(0 0 50% 0);
+    background: rgb(var(--c-surface));
+  }
+
+  .flap-bottom {
+    clip-path: inset(50% 0 0 0);
+    background: rgb(var(--c-flap-low));
+  }
+
+  /* A narrow cell for the decimal point, the colon and the slash. */
+  .flap-narrow {
+    width: 0.34em;
+  }
+
+  /* The old character's upper leaf falls over the split, then the new lower leaf lands. */
+  .flap-fall {
+    animation: flapFall var(--flip) steps(2, jump-end) forwards;
+  }
+
+  .flap-land {
+    animation: flapLand var(--flip) steps(2, jump-start) var(--flip) both;
   }
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.98); }
-  to { opacity: 1; transform: scale(1); }
+@keyframes flapFall {
+  from { transform: rotateX(0deg); }
+  to { transform: rotateX(-90deg); }
 }
 
-@keyframes stampIn {
-  from { opacity: 0; transform: rotate(-6deg) scale(1.6); }
-  to { opacity: 1; transform: rotate(-6deg) scale(1); }
-}
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.18s ease-out forwards;
-}
-
-.animate-slide-up {
-  animation: slideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+@keyframes flapLand {
+  from { transform: rotateX(90deg); }
+  to { transform: rotateX(0deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -130,11 +160,15 @@
     animation: none !important;
     transition: none !important;
   }
+
+  .flap-fall {
+    display: none;
+  }
 }
 
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -142,455 +176,10 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgb(var(--c-control));
-  border-radius: var(--radius-pill);
+  background: rgb(var(--c-control-hover));
+  border-radius: var(--radius-chip);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgb(var(--c-control-hover));
-}
-
-/*
- * Industrial Brutalism. The hook classes these rules use (set-row, rest-bar, split-solid, ...)
- * carry no style of their own, so the other themes look as before. Rules sit outside the
- * Tailwind layers, after the utilities, so they win over the utility classes they replace.
- */
-[data-theme="brutalism"] {
-  font-synthesis: none; /* Anton has one weight, and a synthesized bold smears it */
-}
-
-[data-theme="brutalism"] :is(h1, h2, h3, h4) {
-  font-weight: 400;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  line-height: 1.05;
-}
-
-/* No soft shadows and no blur. Focus rings stay: they use their own variable. */
-[data-theme="brutalism"] * {
-  --tw-shadow: 0 0 #0000;
-  --tw-shadow-colored: 0 0 #0000;
-  --tw-backdrop-blur: ;
-}
-
-/* A pressed control shifts down and right instead of shrinking. */
-[data-theme="brutalism"] :is(button, a):active:not(:disabled) {
-  transform: translate(2px, 2px);
-}
-
-/* Caution tape under the tracker's header and around the running rest timer. */
-[data-theme="brutalism"] .hazard-edge {
-  border-bottom-color: transparent;
-}
-
-[data-theme="brutalism"] .hazard-edge::after {
-  content: '';
-  position: absolute;
-  inset: auto 0 -8px 0;
-  height: 8px;
-  background: repeating-linear-gradient(-45deg, rgb(var(--c-accent)) 0 10px, rgb(var(--c-bg)) 10px 20px);
-}
-
-[data-theme="brutalism"] .hazard-frame {
-  border: 8px solid transparent;
-  background:
-    linear-gradient(rgb(var(--c-surface)), rgb(var(--c-surface))) padding-box,
-    repeating-linear-gradient(-45deg, rgb(var(--c-accent)) 0 12px, rgb(var(--c-bg)) 12px 24px) border-box;
-}
-
-/* Set rows stack load over reps, with the done button running the height of both. */
-[data-theme="brutalism"] .set-header {
-  display: none;
-}
-
-[data-theme="brutalism"] .set-row {
-  grid-template-columns: 2rem minmax(0, 1fr) var(--tap);
-  grid-template-areas: "number load done" "number reps done" "rir rir rir";
-  gap: 0.5rem 0.375rem;
-  padding: 0.5rem;
-}
-
-[data-theme="brutalism"] .set-row > .set-number { grid-area: number; }
-[data-theme="brutalism"] .set-row > .set-load { grid-area: load; }
-[data-theme="brutalism"] .set-row > .set-reps { grid-area: reps; }
-[data-theme="brutalism"] .set-row > .set-rir { grid-area: rir; }
-
-[data-theme="brutalism"] .set-row > .set-done {
-  grid-area: done;
-  align-self: stretch;
-}
-
-[data-theme="brutalism"] .set-done > button {
-  width: 100%;
-  height: 100%;
-}
-
-[data-theme="brutalism"] .set-numeral {
-  width: auto;
-  height: auto;
-  background-color: transparent;
-  color: rgb(var(--c-ink));
-  font-family: var(--font-display);
-  font-size: 2.25rem;
-  font-weight: 400;
-}
-
-[data-theme="brutalism"] .set-row[data-done="true"] .set-numeral {
-  color: rgb(var(--c-good-ink));
-}
-
-[data-theme="brutalism"] .stepper-unit {
-  display: block;
-  position: absolute;
-  top: 6px;
-  left: 7px;
-  pointer-events: none;
-}
-
-[data-theme="brutalism"] .stepper-field {
-  flex: 1 1 0;
-  min-width: 0;
-}
-
-[data-theme="brutalism"] .stepper input {
-  flex: 1 1 0;
-  width: auto;
-  min-width: 0;
-  font-size: 1.25rem;
-}
-
-[data-theme="brutalism"] .stepper button {
-  flex: none;
-  width: 2.5rem;
-  font-size: 1.25rem;
-}
-
-[data-theme="brutalism"] .exercise-card {
-  padding: 0.75rem;
-}
-
-[data-theme="brutalism"] .exercise-name {
-  font-size: 2.5rem;
-  line-height: 1;
-}
-
-[data-theme="brutalism"] .exercise-prescription {
-  display: block;
-}
-
-/* Rest timer: a full-width yellow bar when minimized, digits across the dialog when expanded. */
-[data-theme="brutalism"] .rest-bar {
-  inset: auto 0 0 0;
-  width: auto;
-  --c-surface: var(--c-accent);
-  --c-ink: var(--c-on-accent);
-  --c-ink-muted: var(--c-on-accent);
-  --c-accent-ink: var(--c-on-accent);
-  --c-control: var(--c-on-accent);
-  --c-control-hover: var(--c-on-accent);
-}
-
-[data-theme="brutalism"] .rest-bar button {
-  min-width: var(--tap);
-  min-height: var(--tap);
-}
-
-[data-theme="brutalism"] .rest-bar-time {
-  width: auto;
-  height: auto;
-  border: 0;
-  background: transparent;
-  font-family: var(--font-display);
-  font-size: 2rem;
-  font-weight: 400;
-}
-
-[data-theme="brutalism"] :is(.rest-glow, .rest-ring) {
-  display: none;
-}
-
-[data-theme="brutalism"] .rest-dial {
-  width: 100%;
-  height: auto;
-}
-
-[data-theme="brutalism"] .rest-readout {
-  position: static;
-}
-
-[data-theme="brutalism"] .rest-digits {
-  font-family: var(--font-display);
-  font-size: min(28vw, 8rem);
-  font-weight: 400;
-  line-height: 1;
-  letter-spacing: 0;
-}
-
-/* Split tiles and training days are solid blocks of the split color, with black text. */
-[data-theme="brutalism"] .split-solid {
-  --c-ink: var(--c-on-split);
-  --c-ink-soft: var(--c-on-split);
-  --c-ink-muted: var(--c-on-split);
-  --c-ink-faint: var(--c-on-split);
-  --c-accent-ink: var(--c-on-split);
-}
-
-[data-theme="brutalism"] .split-icon {
-  display: none;
-}
-
-[data-theme="brutalism"] .split-name {
-  font-family: var(--font-display);
-  font-size: 1.75rem;
-  font-weight: 400;
-  text-transform: uppercase;
-}
-
-[data-theme="brutalism"] .record-value {
-  font-family: var(--font-display);
-  font-size: 2.5rem;
-  font-weight: 400;
-  line-height: 1;
-}
-
-/*
- * Terminal CLI. A green-phosphor console: dashed borders from the tokens, no motion, a faint glow
- * on headings, text glyphs in place of badges, bars and drawings, and a status line for a nav bar.
- */
-[data-theme="terminal"] * {
-  --tw-shadow: 0 0 #0000;
-  --tw-shadow-colored: 0 0 #0000;
-  --tw-backdrop-blur: ;
-}
-
-[data-theme="terminal"] :is(h1, h2, h3, h4) {
-  font-weight: 400;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  text-shadow: 0 0 6px rgb(var(--c-accent) / 0.45);
-}
-
-[data-theme="terminal"] :is(.status-text, .progress-bar, .plates-drawing, .nav-icon) {
-  display: none;
-}
-
-[data-theme="terminal"] :is(.status-glyph, .progress-text, .plates-text, .summary-text, .nav-key) {
-  display: inline;
-}
-
-[data-theme="terminal"] :is(.progress-text, .plates-text, .summary-text) {
-  display: block;
-}
-
-[data-theme="terminal"] .nav-status {
-  display: inline;
-  align-self: center;
-}
-
-[data-theme="terminal"] nav button {
-  flex-direction: row;
-  text-transform: lowercase;
-}
-
-[data-theme="terminal"] .set-done > button {
-  width: auto;
-  background-color: transparent;
-  color: rgb(var(--c-accent-ink));
-}
-
-[data-theme="terminal"] .set-row[data-cursor] {
-  outline: 1px solid rgb(var(--c-accent));
-  outline-offset: 2px;
-}
-
-/* The command line owns the bottom of the screen, so the running rest timer moves to the top. */
-[data-theme="terminal"] .rest-bar {
-  inset: 0 0 auto 0;
-  width: auto;
-  border-width: 0 0 1px 0;
-}
-
-/*
- * Mechanical Telemetry. An instrument panel: technical uppercase labels, tabular figures, panels on
- * a faint 16 px grid, corner brackets on cards, and the gauges, readouts, plate strips and heat
- * map that the other themes keep hidden.
- */
-[data-theme="telemetry"] :is(h1, h2, h3, h4) {
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-[data-theme="telemetry"] .font-mono {
-  font-variant-numeric: tabular-nums;
-}
-
-[data-theme="telemetry"] .panel {
-  background-image:
-    linear-gradient(rgb(var(--c-rule)) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(var(--c-rule)) 1px, transparent 1px);
-  background-size: 16px 16px;
-}
-
-[data-theme="telemetry"] .card {
-  position: relative;
-}
-
-[data-theme="telemetry"] .card::before,
-[data-theme="telemetry"] .card::after {
-  content: '';
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  border: 0 solid rgb(var(--c-accent-ink));
-  pointer-events: none;
-}
-
-[data-theme="telemetry"] .card::before {
-  top: 0;
-  left: 0;
-  border-top-width: 2px;
-  border-left-width: 2px;
-}
-
-[data-theme="telemetry"] .card::after {
-  right: 0;
-  bottom: 0;
-  border-right-width: 2px;
-  border-bottom-width: 2px;
-}
-
-[data-theme="telemetry"] .exercise-readouts {
-  display: grid;
-}
-
-[data-theme="telemetry"] .set-plates {
-  display: flex;
-}
-
-[data-theme="telemetry"] :is(.rir-gauge, .rest-gauge) {
-  display: block;
-}
-
-[data-theme="telemetry"] .rest-ring {
-  display: none;
-}
-
-/* Training days glow amber in proportion to their volume, the month's heaviest day brightest. */
-[data-theme="telemetry"] .calendar-day {
-  background-color: rgb(var(--c-gauge) / calc(var(--heat, 0) * 0.45));
-}
-
-/*
- * Golden Era Journal. A paper notebook: hairline page shadows instead of glows, a ruled ledger
- * with a red margin line for the sets, and handwritten margin notes.
- */
-[data-theme="journal"] * {
-  --tw-shadow: 0 0 #0000;
-  --tw-shadow-colored: 0 0 #0000;
-}
-
-[data-theme="journal"] .card {
-  box-shadow: 0 1px 0 rgb(var(--c-rule));
-}
-
-[data-theme="journal"] :is(h1, h2, h3, h4) {
-  font-weight: 700;
-  letter-spacing: -0.01em;
-}
-
-[data-theme="journal"] .exercise-name {
-  padding-bottom: 0.125rem;
-  border-bottom: 3px double rgb(var(--c-rule));
-}
-
-[data-theme="journal"] .set-list {
-  padding-left: 0.75rem;
-  border-left: 2px solid rgb(var(--c-stamp) / 0.55);
-}
-
-[data-theme="journal"] .set-list > :not([hidden]) ~ :not([hidden]) {
-  margin-top: 0;
-}
-
-[data-theme="journal"] .set-header {
-  padding-bottom: 0.25rem;
-  border-bottom: 3px double rgb(var(--c-rule));
-}
-
-[data-theme="journal"] .set-row {
-  border-width: 0 0 1px 0;
-  border-color: rgb(var(--c-rule));
-  border-radius: 0;
-  background-color: transparent;
-}
-
-[data-theme="journal"] .set-numeral {
-  background-color: transparent;
-  color: rgb(var(--c-ink-muted));
-  font-style: italic;
-}
-
-[data-theme="journal"] .set-row .field {
-  border-width: 0 0 1px 0;
-  border-radius: 0;
-  background-color: transparent;
-}
-
-[data-theme="journal"] .set-row[data-done="true"] .set-done > button {
-  width: auto;
-  background-color: transparent;
-}
-
-[data-theme="journal"] :is(.exercise-cue, .exercise-notes textarea) {
-  border: 0;
-  background-color: transparent;
-  color: rgb(var(--c-info-ink));
-  font-family: var(--font-note);
-  font-size: 1.25rem;
-  line-height: 1.3;
-}
-
-[data-theme="journal"] .exercise-notes {
-  padding-left: 1.5rem;
-}
-
-/* A margin note grows with its text instead of scrolling inside one line. */
-[data-theme="journal"] .exercise-notes textarea {
-  field-sizing: content;
-  min-height: 2.5rem;
-  white-space: pre-wrap;
-}
-
-/* Calendar days carry a small ink dot per session instead of a labelled chip. */
-[data-theme="journal"] .session-chip {
-  width: 0.5rem;
-  height: 0.5rem;
-  padding: 0;
-  border-radius: var(--radius-pill);
-  font-size: 0;
-}
-
-/* From tablet width on, the exercise cue and the notes move into a right-hand margin. */
-@media (min-width: 768px) {
-  [data-theme="journal"] .exercise-card {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 14rem;
-    grid-template-areas: "head head" "guidance cue" "sets notes" "actions notes";
-    column-gap: 1.5rem;
-    align-items: start;
-  }
-
-  [data-theme="journal"] .exercise-head { grid-area: head; }
-  [data-theme="journal"] .exercise-guidance { grid-area: guidance; }
-  [data-theme="journal"] .exercise-cue { grid-area: cue; }
-  [data-theme="journal"] .set-list { grid-area: sets; }
-  [data-theme="journal"] .set-actions { grid-area: actions; }
-
-  [data-theme="journal"] .exercise-notes {
-    grid-area: notes;
-    margin-top: 0;
-    padding: 0 0 0 1rem;
-    border-left: 1px solid rgb(var(--c-rule));
-  }
+  background: rgb(var(--c-edge));
 }

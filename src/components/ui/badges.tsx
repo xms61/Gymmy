@@ -7,10 +7,8 @@ interface SplitStyle {
   tint: string;
   fill: string;
   border: string;
-  gradient: string;
   hoverBorder: string;
   groupHoverFill: string;
-  solid: string; // for themes that fill split tiles and training days with the split color
 }
 
 export const SPLIT_STYLE: Record<SplitType, SplitStyle> = {
@@ -19,42 +17,54 @@ export const SPLIT_STYLE: Record<SplitType, SplitStyle> = {
     tint: 'bg-push/15',
     fill: 'bg-push text-on-split',
     border: 'border-push/40',
-    gradient: 'from-push/20 to-push/5',
     hoverBorder: 'hover:border-push/50',
-    groupHoverFill: 'group-hover:bg-push group-hover:text-on-split',
-    solid: 'brutalism:bg-push'
+    groupHoverFill: 'group-hover:bg-push group-hover:text-on-split'
   },
   Pull: {
     text: 'text-pull',
     tint: 'bg-pull/15',
     fill: 'bg-pull text-on-split',
     border: 'border-pull/40',
-    gradient: 'from-pull/20 to-pull/5',
     hoverBorder: 'hover:border-pull/50',
-    groupHoverFill: 'group-hover:bg-pull group-hover:text-on-split',
-    solid: 'brutalism:bg-pull'
+    groupHoverFill: 'group-hover:bg-pull group-hover:text-on-split'
   },
   Legs: {
     text: 'text-legs',
     tint: 'bg-legs/15',
     fill: 'bg-legs text-on-split',
     border: 'border-legs/40',
-    gradient: 'from-legs/20 to-legs/5',
     hoverBorder: 'hover:border-legs/50',
-    groupHoverFill: 'group-hover:bg-legs group-hover:text-on-split',
-    solid: 'brutalism:bg-legs'
+    groupHoverFill: 'group-hover:bg-legs group-hover:text-on-split'
   },
   Other: {
     text: 'text-other',
     tint: 'bg-other/15',
     fill: 'bg-other text-on-split',
     border: 'border-other/40',
-    gradient: 'from-other/20 to-other/5',
     hoverBorder: 'hover:border-other/50',
-    groupHoverFill: 'group-hover:bg-other group-hover:text-on-split',
-    solid: 'brutalism:bg-other'
+    groupHoverFill: 'group-hover:bg-other group-hover:text-on-split'
   }
 };
+
+const SPLIT_FILL: Record<SplitType, string> = {
+  Push: 'bg-push',
+  Pull: 'bg-pull',
+  Legs: 'bg-legs',
+  Other: 'bg-other'
+};
+
+// The round line marker of a split, like a route bullet on a station sign: its first letter on
+// the split color.
+export function RouteMarker({ split, className = '' }: { split: SplitType; className?: string }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={`inline-grid place-items-center w-8 h-8 flex-none rounded-pill ring-1 ring-on-split/40 font-display text-lg font-bold text-on-split ${SPLIT_FILL[split]} ${className}`}
+    >
+      {split[0]}
+    </span>
+  );
+}
 
 export function SplitBadge({ split, label }: { split: SplitType; label: string }) {
   const style = SPLIT_STYLE[split];
@@ -70,7 +80,6 @@ export function SplitBadge({ split, label }: { split: SplitType; label: string }
 interface StatusStyle {
   label: string;
   shortLabel: string;
-  glyph: string; // for console themes
   icon: LucideIcon;
   className: string;
 }
@@ -79,35 +88,30 @@ const STATUS_STYLE: Record<OverloadStatus, StatusStyle> = {
   increase_load: {
     label: 'Add Weight',
     shortLabel: '+Weight',
-    glyph: '[+W]',
     icon: TrendingUp,
     className: 'bg-good-ink/15 text-good-ink border-good-ink/40'
   },
   progress_reps: {
     label: 'Rep Goal Active',
     shortLabel: '+Reps',
-    glyph: '[+R]',
     icon: Flame,
     className: 'bg-accent-ink/15 text-accent-ink border-accent-ink/40'
   },
   maintain: {
     label: 'Rep Goal Active',
     shortLabel: '+Reps',
-    glyph: '[+R]',
     icon: Flame,
     className: 'bg-accent-ink/15 text-accent-ink border-accent-ink/40'
   },
   deload: {
     label: 'Deload Advised',
     shortLabel: 'Deload',
-    glyph: '[DL]',
     icon: Info,
     className: 'bg-warn-ink/15 text-warn-ink border-warn-ink/40'
   },
   reduce_load: {
     label: 'Lighter Weight',
     shortLabel: 'Lighter',
-    glyph: '[-W]',
     icon: TrendingDown,
     className: 'bg-info-ink/15 text-info-ink border-info-ink/40'
   }
@@ -118,18 +122,16 @@ export function StatusBadge({ status, short = false }: { status: OverloadStatus;
   const style = STATUS_STYLE[status];
   if (short) {
     return (
-      <span className={`px-2 py-0.5 rounded-chip font-bold text-[10px] uppercase tracking-wider border ${style.className}`}>
-        <span className="status-text">{style.shortLabel}</span>
-        <span className="status-glyph hidden">{style.glyph}</span>
+      <span className={`px-2 py-0.5 rounded-chip font-display font-semibold text-xs uppercase tracking-[0.06em] border ${style.className}`}>
+        {style.shortLabel}
       </span>
     );
   }
   const Icon = style.icon;
   return (
-    <span className={`px-3 py-1 rounded-pill text-xs font-bold flex items-center space-x-1 border ${style.className}`}>
-      <Icon className="status-text w-3.5 h-3.5" />
-      <span className="status-text">{style.label}</span>
-      <span className="status-glyph hidden">{style.glyph}</span>
+    <span className={`h-tap px-3 rounded-chip flex items-center gap-1.5 border font-display text-sm font-semibold uppercase tracking-[0.06em] ${style.className}`}>
+      <Icon className="w-4 h-4" />
+      <span>{style.label}</span>
     </span>
   );
 }

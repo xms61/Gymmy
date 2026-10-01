@@ -4,7 +4,6 @@ import type { ExerciseDefinition } from '../../types/workout.ts';
 import { getRecommendation } from '../../services/overloadEngine.ts';
 import { exerciseHistory } from '../../services/progress.ts';
 import { logsFor, type ExerciseLogIndex } from '../../services/exerciseLogs.ts';
-import { useTheme } from '../../theme/ThemeProvider.tsx';
 import { formatSessionDate } from '../../utils/date.ts';
 import { TrendChart } from './TrendChart.tsx';
 
@@ -19,7 +18,6 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
 }) => {
   const [selectedExId, setSelectedExId] = useState<string>(exercises[0]?.id || 'flat-bench');
 
-  const { theme } = useTheme();
   const selectedExercise = useMemo(() => {
     return exercises.find(e => e.id === selectedExId) || exercises[0];
   }, [exercises, selectedExId]);
@@ -55,7 +53,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
               onClick={() => setSelectedExId(ex.id)}
               className={`btn px-3 py-1.5 text-xs ${
                 selectedExId === ex.id
-                  ? 'btn-primary shadow-lg shadow-accent/30'
+                  ? 'btn-primary'
                   : 'bg-surface border border-line text-ink-muted hover:text-ink-soft'
               }`}
             >
@@ -67,7 +65,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
 
       {/* Exercise Card & Overload Status */}
       {selectedExercise && (
-        <div className="card p-6 shadow-xl">
+        <div className="card p-6">
           <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
             <div>
               <div className="flex items-center space-x-2">
@@ -87,11 +85,11 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
               <div className="flex items-center space-x-3">
                 <div className="bg-inset border border-line rounded-panel p-3 text-center">
                   <div className="text-[10px] uppercase font-bold text-ink-faint">Max Weight</div>
-                  <div className="record-value text-lg font-mono font-black text-good-ink">{personalBest.maxWeight} kg</div>
+                  <div className="text-lg font-mono font-black text-good-ink">{personalBest.maxWeight} kg</div>
                 </div>
                 <div className="bg-inset border border-line rounded-panel p-3 text-center">
                   <div className="text-[10px] uppercase font-bold text-ink-faint">Est. 1RM</div>
-                  <div className="record-value text-lg font-mono font-black text-accent-ink">{personalBest.max1RM} kg</div>
+                  <div className="text-lg font-mono font-black text-accent-ink">{personalBest.max1RM} kg</div>
                 </div>
               </div>
             )}
@@ -121,12 +119,12 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
               <TrendChart
                 title="Estimated 1RM"
                 unit="kg"
-                points={history.map(h => ({ label: formatSessionDate(h.date, theme.traits.dates), value: h.estimated1RM }))}
+                points={history.map(h => ({ label: formatSessionDate(h.date), value: h.estimated1RM }))}
               />
               <TrendChart
                 title="Session volume"
                 unit="kg"
-                points={history.map(h => ({ label: formatSessionDate(h.date, theme.traits.dates), value: h.volumeKg }))}
+                points={history.map(h => ({ label: formatSessionDate(h.date), value: h.volumeKg }))}
               />
             </div>
           )}
@@ -149,7 +147,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                   className="bg-inset border border-line rounded-panel p-3.5 flex flex-wrap items-center justify-between gap-3 text-xs"
                 >
                   <div className="flex items-center space-x-3">
-                    <span className="font-mono text-ink-muted font-semibold">{formatSessionDate(h.date, theme.traits.dates)}</span>
+                    <span className="font-mono text-ink-muted font-semibold">{formatSessionDate(h.date)}</span>
                     <span className="px-2 py-0.5 bg-control text-ink-soft rounded-chip font-semibold">
                       {h.sessionName}
                     </span>

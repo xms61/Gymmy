@@ -1,14 +1,8 @@
 import type { Config } from 'tailwindcss';
-import plugin from 'tailwindcss/plugin';
-import { COLOR_TOKENS, THEME_IDS } from './src/theme/themes.ts';
+import { COLOR_TOKENS } from './src/theme/tokens.ts';
 
-// Every color, radius, font and size a component uses comes from the active theme's tokens (src/theme/themes.ts).
+// Every color, radius, font and size a component uses comes from the design tokens (src/theme/tokens.ts).
 const tokenColors = Object.fromEntries(COLOR_TOKENS.map(token => [token, `rgb(var(--c-${token}) / <alpha-value>)`]));
-
-// One variant per theme, e.g. `terminal:border-dashed`, for differences that tokens cannot express.
-const themeVariants = plugin(({ addVariant }) => {
-  for (const id of THEME_IDS) addVariant(id, `[data-theme="${id}"] &`);
-});
 
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
@@ -18,8 +12,7 @@ export default {
       fontFamily: {
         sans: 'var(--font-body)',
         mono: 'var(--font-data)',
-        display: 'var(--font-display)',
-        note: 'var(--font-note)'
+        display: 'var(--font-display)'
       },
       borderRadius: {
         card: 'var(--radius-card)',
@@ -28,10 +21,8 @@ export default {
         chip: 'var(--radius-chip)',
         pill: 'var(--radius-pill)'
       },
-      borderWidth: { DEFAULT: 'var(--border-width)' },
       spacing: { tap: 'var(--tap)', 'tap-lg': 'var(--tap-lg)' },
-      transitionDuration: { DEFAULT: 'var(--motion)' }
+      transitionDuration: { DEFAULT: 'var(--flip)' }
     }
-  },
-  plugins: [themeVariants]
+  }
 } satisfies Config;
