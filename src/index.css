@@ -11,6 +11,7 @@
   }
 
   body {
+    font-size: 1.0625rem; /* see fontSize.base in tailwind.config.ts */
     background-color: rgb(var(--c-bg));
     color: rgb(var(--c-ink-soft));
     font-family: var(--font-body);

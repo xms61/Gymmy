@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Desktop web only: the tabs moved from the bottom navigation into a header band, and the tracker keeps its rest timer beside the board at every width.
 
 ### Fixed
+- On the workout screen below 1280px wide, the load cells ran into the reps cells. The board's flaps are now 3.75rem there, 6.5rem from 1280px.
+- Body text is 17px instead of 16px, because at 16px the full stop in numbers like 62.5 looked like a comma on ordinary screens.
 - Discard, Leave, Delete and the other confirmations did nothing in browsers that suppress the confirm box. They now ask in a dialog on the page.
 - TypeScript 7. It refuses side-effect imports without type declarations, so the app's tsconfig now loads `vite/client`, which declares the CSS and font imports.
 - Vite 8, with `@vitejs/plugin-react` 6, the first version that supports it (Dependabot's #6 bumped Vite alone and failed `npm ci`).

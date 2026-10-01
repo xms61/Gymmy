@@ -28,6 +28,7 @@ Entry: `src/theme/tokens.ts`: every color, font, corner radius, tap size and the
 - Class names built from data are written out in full in a table (`SPLIT_FILL`, `MARKER_SIZE`, `PLATE_STYLE`), because Tailwind only generates classes it finds as text.
 
 ## Gotchas
+- Body text is 17px (`text-base` is redefined in `tailwind.config.ts`). At 16px both Barlow faces smear the full stop into a comma on 1x screens, so 62.5 reads as 62,5; 14, 15, 17 and 18px render it cleanly.
 - `prefers-reduced-motion` turns off every animation and transition, including the flap turn.
 - The dev server serves the font files from `node_modules`. A copy of the app whose `node_modules` is a symlink to a folder outside the project gets 403 for the fonts; build it and use `vite preview` instead.
 - Tailwind reads `tailwind.config.ts` when the dev server starts. After changing the tokens or the config, restart `npm run dev` if the page shows a CSS error.

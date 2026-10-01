@@ -87,7 +87,7 @@ typography:
     letterSpacing: "0.02em"
   body:
     fontFamily: "'Barlow', 'Segoe UI', sans-serif"
-    fontSize: "1rem"
+    fontSize: "1.0625rem"
     fontWeight: 400
     lineHeight: 1.625
   data:
@@ -267,11 +267,11 @@ A near-monochrome board of warm blacks and off-whites, with one signage yellow a
 
 ### Hierarchy
 - **Sign** (600, 4.5rem, 6rem from 1280px wide): the split name on the home platform sign, on flap cells; the state word before it (Next, Unfinished) at 2.25rem, 3rem from 1280px.
-- **Flap** (600, 4.5rem, 6.5rem from 1280px wide; 1): load and reps on the board and the rest clock. Home target rows and record figures use the same cells at 2.25rem, session rows at 1.25rem.
+- **Flap** (600, 4.5rem; 1): the rest clock. Load and reps on the board use 3.75rem, 6.5rem from 1280px wide, so five load cells and two reps cells fit side by side at 920px. Home target rows and record figures use the same cells at 2.25rem, session rows at 1.25rem.
 - **Display** (600, 3.75rem, 0.95, 0.02em, capitals): the name of the exercise that owns the board.
 - **Headline** (600, 1.875rem, 1, capitals): the band title: the app name, or the split of the workout.
 - **Title** (600, 1.5rem, capitals): section headings in the side column, such as Rest and This workout.
-- **Body** (400, 1rem, 1.625, at most 62ch): the progression sentence, notes and dialog messages. Dialog messages use 1.125rem in `ink`.
+- **Body** (400, 1.0625rem, 1.625, at most 62ch; 17px rather than 16px, because at 16px Barlow's full stop rasterises like a comma on 1x screens): the progression sentence, notes and dialog messages. Dialog messages use 1.125rem in `ink`.
 - **Data** (1.125rem, tabular): set tiles, the elapsed clock, the command row. 400 is not bundled for Barlow Condensed, so it renders at 500.
 - **Button** (600, 0.06em, capitals): 0.875rem on small controls up to 1.5rem on the Log set button.
 - **Label** (600, 0.75rem, 0.08em, capitals, `ink-muted`): the name of a field or value group, such as Load, kg or Workout notes.

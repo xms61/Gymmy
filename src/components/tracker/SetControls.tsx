@@ -25,7 +25,7 @@ export function FlapStepper({ heading, label, value, cells, stepTitles, warning,
     <div className="grid w-fit gap-3 content-start">
       <span className="section-label">{heading}</span>
       <label className="relative rounded-panel focus-within:outline focus-within:outline-2 focus-within:outline-offset-4 focus-within:outline-accent">
-        <Flaps text={String(value)} cells={cells} label={`${value}`} className="text-[4.5rem] xl:text-[6.5rem]" />
+        <Flaps text={String(value)} cells={cells} label={`${value}`} className="text-[3.75rem] xl:text-[6.5rem]" />
         <input
           type="number"
           step="any"

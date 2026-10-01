@@ -53,5 +53,4 @@ Shipped in four pull requests (xms61/Gymmy#40 to #43): one token set in place of
 
 Not done, and left open:
 - The flap turnover was only seen with reduced motion on in the review captures; check it with motion on.
-- Full stops in 16px Barlow body text look close to commas ("Stay at 62.5 kg"). A font or size check for prose numbers is a follow-up.
 
