@@ -1,3 +1,8 @@
+---
+status: draft
+last-verified: 2026-09-24
+---
+
 # Browser storage and sync
 
 Entry: `src/services/storage.ts`: `StorageService` holds the app's sessions and exercise definitions in the browser, and syncs them with the SQLite API (`server/SERVER.md`).

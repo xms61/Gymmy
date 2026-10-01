@@ -1,3 +1,8 @@
+---
+status: draft
+last-verified: 2026-09-24
+---
+
 # Server (SQLite API)
 
 Entry: `server/vitePlugin.ts`: a Vite plugin that serves `/api/*` from the dev and preview servers, backed by `data/gymmy.db`. There is no separate backend process; a static `dist/` build has no API.

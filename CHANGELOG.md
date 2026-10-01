@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- A knowledge base for agent work, taken from the setup of the ysto repo: `ARCHITECTURE.md` (code map, layers, invariants), core beliefs and a design-doc index, exec plans with a template (`docs/PLANS.md`, `docs/exec-plans/`), a tech-debt tracker, `docs/RELIABILITY.md`, `docs/SECURITY.md`, a quality score stub and the doc rules (`docs/KNOWLEDGE_BASE.md`). Every doc now carries `status` and `last-verified` frontmatter.
+- `scripts/check-docs.mjs` checks links, frontmatter, reachability from `AGENTS.md`, the design-doc index and exec-plan sections. `scripts/check-tracked-files.mjs` refuses databases, spreadsheets, keys, `data/`, scratch notes, files over 1 MiB and home-folder paths; `.githooks/pre-commit` runs it on staged files. Both have tests.
+- CI runs both checks and gitleaks in two new jobs, `guard` and `docs`, and reads the Node version from `.nvmrc`. Pull requests get a template.
+
+### Changed
+- Scratch notes go in `docs/scratch/`; work that spans sessions gets a committed exec plan instead of a note in the ignored `docs/plans/`.
+
 ### Security
 - With `--host`, the API now asks every other device for an access key. The server creates a random key in `data/access-key` on first start and prints each network address as a link ending in `#key=…`; opening it once stores the key in that browser and removes it from the address bar. Without the key, a phone or laptop on the same network gets 401 instead of being able to read, overwrite or clear the history, and the app's badge reads "Needs access key". Use on the computer running the server needs no key.
 

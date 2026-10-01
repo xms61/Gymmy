@@ -1,9 +1,14 @@
+---
+status: stub
+last-verified: 2026-09-24
+---
+
 # <Area name>
 
 <!--
 Copy this file next to the code it describes (e.g. server/db/DATABASE.md), fill it in,
-add a row for it to the doc map in AGENTS.md, and delete this comment.
-An agent reads it before every change in the area, so include only what such a change needs: entry points, rules, data shapes and gotchas.
+add a row for it to the doc map in AGENTS.md, set its status (docs/KNOWLEDGE_BASE.md), and delete this comment.
+An agent reads it before every change in the area, so include only what such a change needs: entry points, rules, data shapes and gotchas. Keep it under ~80 lines.
 Write facts and rules, not history. Update it in the same PR as the code.
 -->
 

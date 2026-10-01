@@ -22,7 +22,8 @@ __pycache__/
 *.db-shm
 Fundamentals Workout.xlsx
 
-# Local planning docs and agent scratch (never committed)
+# Local scratch notes (never committed; exec plans in docs/exec-plans/ are)
+docs/scratch/
 docs/plans/
 reports/
 *.tmp

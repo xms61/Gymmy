@@ -1,3 +1,8 @@
+---
+status: draft
+last-verified: 2026-09-24
+---
+
 # Code Style
 
 Code should read like the code around it. When this file and the surrounding code disagree, follow this file, and fix the surrounding code when you are already changing it.

@@ -1,3 +1,8 @@
+---
+status: draft
+last-verified: 2026-09-24
+---
+
 # Live tracker
 
 Entry: `src/components/tracker/LiveTracker.tsx`: the screen for logging one workout, from the first set to Finish. `App.tsx` opens it with a split type and, when resuming, a `WorkoutDraft`.

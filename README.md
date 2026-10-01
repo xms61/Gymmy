@@ -13,7 +13,9 @@ npm run dev
 The dev server opens `http://localhost:3000`. Gymmy reads no environment variables.
 
 ## Commands
-See the Commands table in [AGENTS.md](AGENTS.md). Every pull request and every push to `main` runs the typecheck, the tests and the production build on GitHub Actions (`.github/workflows/ci.yml`).
+See the Commands table in [AGENTS.md](AGENTS.md). Every pull request and every push to `main` runs the tracked-files and secret checks, the doc checks, the typecheck, the tests and the production build on GitHub Actions (`.github/workflows/ci.yml`). Enable the pre-commit hook once per clone with `git config core.hooksPath .githooks`; it refuses commits that hold training data, keys or paths from this machine.
+
+How the code is laid out is in [ARCHITECTURE.md](ARCHITECTURE.md), and how the docs are kept in [docs/KNOWLEDGE_BASE.md](docs/KNOWLEDGE_BASE.md).
 
 ## What it does
 - **Routine:** the exercises from sheet "List" of the routine spreadsheet, with a target set count, rep range, starting load and rest time for each. Targets can be edited in Settings.
