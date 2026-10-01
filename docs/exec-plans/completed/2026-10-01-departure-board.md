@@ -26,7 +26,7 @@ Gymmy gets one design in place of its five themes: the Departure Board, a statio
 - [x] 2026-10-01 Milestone 2: live workout screen as the board (finish review: three fix rounds; DESIGN.md written)
 - [x] 2026-10-01 Milestone 3: home dashboard as a platform sign
 - [x] 2026-10-01 Milestone 4: calendar as month and day side by side, progress as an exercise rail
-- [ ] Milestone 5: settings and dialogs
+- [x] 2026-10-01 Milestone 5: settings as its own screen, dialogs in the board's grammar
 
 ## Decision log
 - 2026-10-01: Departure Board chosen from a concept round (seed 59a8bffe), code-first because image generation was unavailable. Rejected: Calibrated Plates (plate hues collide with the split colours), the standard dark logger.
@@ -37,6 +37,8 @@ Gymmy gets one design in place of its five themes: the Departure Board, a statio
 - 2026-10-01: Confirmations use an in-app dialog (`ConfirmHost`), because the embedded browser answered `window.confirm` with no and Discard did nothing.
 - 2026-10-01: Home is a yellow platform sign for the next workout (or the unfinished one, with Resume and Discard), the targets as board rows under it, and the record along the foot. Chosen from a structure round (seed aa90a80a). Rejected: Split Board (too close to the workout screen), Week Timetable (the week would outrank starting the workout). DESIGN.md admits the sign as the one yellow area below the band.
 - 2026-10-01: Calendar shows the month and the chosen day side by side, Monday first, opening on the latest training day; the day pop-up is gone. Progress is a rail of every exercise with its 1RM, the chosen one beside it with records, next target, charts in ink and a session table. Chosen in structure rounds (seeds 60ce4b67, 0c5f67d8). Rejected: Split Ledger and Day Board for the calendar, History Rows and Record Board for progress.
+- 2026-10-01: Settings is its own screen, opened from the gear or the sync status, with the exercise targets as one table beside the data, backup and clear-history tools. The user chose it over keeping the pop-up.
+- 2026-10-01: A split's full name always sits beside its route marker (user's choice), because Push and Pull are both P and differ only by orange and green.
 - 2026-10-01: Barlow and Barlow Condensed, bundled with `@fontsource`, a grotesk drawn from road and rail signage with tabular figures. Rejected: the system sans (no character), the old themes' faces.
 
 ## Surprises
@@ -44,4 +46,13 @@ Gymmy gets one design in place of its five themes: the Departure Board, a statio
 - The dev server reads the tokens when it starts: a new token needs a restart.
 
 ## Validation
-`npm run test:ci`, `npm run build`, `node scripts/check-docs.mjs`; the tracker checked in `npm run dev` at 1440, 1280 and 920 px wide with a synthetic draft and `/api` blocked, without finishing a workout against `data/gymmy.db`.
+`npm run test:ci`, `npm run build`, `node scripts/check-docs.mjs`; every screen checked in `npm run dev` at 1440 and 920 px wide (the workout screen also at 1280) with synthetic history and drafts and `/api` blocked, without writing to `data/gymmy.db`.
+
+## Outcome
+Shipped in four pull requests (xms61/Gymmy#40 to #43): one token set in place of the five themes with the workout screen, then home, then calendar and progress, then settings with the dialogs, each picked in a structure round and checked by a finish review. The app is desktop web only. DESIGN.md records the system as built, and PRODUCT.md the product it serves.
+
+Not done, and left open:
+- The flap turnover was only seen with reduced motion on in the review captures; check it with motion on.
+- Full stops in 16px Barlow body text look close to commas ("Stay at 62.5 kg"). A font or size check for prose numbers is a follow-up.
+- `.impeccable/design.json` predates the later DESIGN.md changes; refresh it with `/impeccable document`.
+

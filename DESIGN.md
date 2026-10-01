@@ -213,7 +213,7 @@ The workout is a station departure board. The current exercise owns the board, a
 
 The board is read between sets at arm's length on a laptop, so it is sparse and large: one exercise, its load and reps in flap digits, the rest countdown beside them, and the other exercises as single rows. Colour is rare. The flaps hold two inks; colour belongs to the band, the home platform sign and round route markers for Push, Pull and Legs. Surfaces are flat, with square 3px corners, and values change by a stepped flip, never by a fade.
 
-The live workout screen, home, the calendar and progress are built in this world. Settings still has its earlier layout and only inherits the tokens; redoing it is milestone 5 of the [Departure Board exec plan](docs/exec-plans/active/2026-10-01-departure-board.md). It is a known gap, not a reference for new work.
+Every screen is built in this world: the live workout, home, the calendar, progress and settings ([Departure Board exec plan](docs/exec-plans/completed/2026-10-01-departure-board.md)).
 
 **Key Characteristics:**
 - Matte warm-black board with off-white flap characters.
@@ -329,10 +329,13 @@ Square, capitalised and flat.
 - **Command row:** a borderless transparent input in `data` type on the `inset` foot row, after a label.
 
 ### Navigation
-The band holds the app name, then tabs with an icon and a capitalised label at full band height. The current tab inverts to yellow text on a board-black fill; others take a 10% board-black wash on hover. The sync status and settings sit at the right end. In a workout, the band holds back, the route marker, the split, the date, the elapsed clock and Finish.
+The band holds the app name, then tabs with an icon and a capitalised label at full band height. The current tab inverts to yellow text on a board-black fill; others take a 10% board-black wash on hover. The sync status and the settings gear sit at the right end; on the settings screen the gear inverts like a current tab. In a workout, the band holds back, the route marker, the split, the date, the elapsed clock and Finish.
+
+### Settings screen
+A screen, not a pop-up, opened from the gear or the sync status. Left (3/5): Exercise targets at Display size (3rem below 1280px wide) with Save targets (Departure White) beside the heading, reading No changes until a value changes, then a table grouped under each split's route marker and name, one row per exercise with sets, min reps and max reps as centred number fields; a row whose min is above its max gives its two rep fields a `bad-ink` border and says so in one line. Number fields carry no spinner arrows. Leaving the screen with unsaved targets asks first through the confirm host. Right (2/5): Data (the sync state in its status ink, one sentence, the database and browser copy), Backup and restore (two bordered secondary buttons, a review strip before an import) and Clear history (a danger button behind the confirm host), each under a Title-size heading on a hairline.
 
 ### Dialog
-Every modal is a card on the board-black scrim, at most 90% of the window tall. It takes focus, keeps Tab inside, closes on Escape and returns focus. Confirmations and notices go through the in-app confirm host: the message in `ink`, then Cancel and the confirm action at the right. The browser's confirm and alert boxes are not used.
+Every modal is a card on the board-black scrim, at most 90% of the window tall. Dialogs with a `DialogHeader` (the plate calculator) open with the title at Headline size, one muted line under it, a close button, and a hairline below. The finish summary instead opens with the route marker and "Push saved", then LOGGED on flaps, the date, time and volume between hairlines, and a full-width Done. A confirmation has no header: the message in `ink`, then its buttons. The plate calculator shows the load on 3.75rem flaps with minus and plus under it, the bar drawn with the plate colours, and one row per plate size. It takes focus, keeps Tab inside, closes on Escape and returns focus. Confirmations and notices go through the in-app confirm host: the message in `ink`, then Cancel and the confirm action at the right. The browser's confirm and alert boxes are not used.
 
 ### Split-flap cells (signature)
 Each character sits on its own cell: an upper leaf on `surface` and a lower leaf on `flap-low`, each holding the whole character and clipped to its half, with a 1px board-black split across the middle and a 1px `line` outline. When a character changes, the old upper leaf falls to the split in two steps, then the new lower leaf lands in two steps (90ms each, `steps(2)`); unchanged cells hold still. Rows pad on the left with blank cells so their width does not change. A screen reader hears the whole value once. With reduced motion, the new value appears at once.

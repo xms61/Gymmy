@@ -31,7 +31,7 @@ A progression engine built around one real gym, not a generic logger. Load sugge
 - Offline-first: the browser keeps a localStorage copy and an outbox of changes made while the server is unreachable. No cloud service, no remote sync.
 - Other devices need the access key from `data/access-key`.
 - The routine is expected to change: exercises, splits and equipment may be edited over time, so features must not hard-code today's exercise list beyond the seed data. Exercise `id`s, localStorage keys, `/api/*` paths and SQLite table and column names are never renamed (see [AGENTS.md](AGENTS.md)).
-- One design, the Departure Board ([src/theme/THEME.md](src/theme/THEME.md)), replaced the five themes on 2026-10-01. The workout screen is done; the other screens follow ([exec plan](docs/exec-plans/active/2026-10-01-departure-board.md)).
+- One design, the Departure Board ([src/theme/THEME.md](src/theme/THEME.md)), replaced the five themes on 2026-10-01. Every screen is in it ([exec plan](docs/exec-plans/completed/2026-10-01-departure-board.md), [DESIGN.md](DESIGN.md)).
 - A web app for desktop browsers. Phone layouts are not a design target: no bottom navigation, no phone-only controls. Other devices on the network can still open it through the access-key link.
 - Stays single-user. Sharing, accounts and other people's routines are out of scope.
 

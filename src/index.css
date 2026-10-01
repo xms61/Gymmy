@@ -84,6 +84,17 @@
     @apply bg-surface border border-edge rounded-chip text-ink focus:border-accent focus:outline-none;
   }
 
+  /* Number fields are typed into; the browser's spinner arrows are not part of the board. */
+  .field[type='number'] {
+    appearance: textfield;
+  }
+
+  .field[type='number']::-webkit-inner-spin-button,
+  .field[type='number']::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
   /*
    * A split-flap cell: two leaves meeting at a hairline split. The lower leaf sits a shade darker,
    * the way the lower flap catches less light. Each leaf holds the whole character and shows half.

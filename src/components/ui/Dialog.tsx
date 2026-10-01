@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ReactNode, type RefObject } from 'react';
-import { X, type LucideIcon } from 'lucide-react';
+import { X } from 'lucide-react';
 
 interface DialogProps {
   children: ReactNode;
@@ -85,25 +85,18 @@ function keepTabInside(panel: HTMLElement, event: KeyboardEvent): void {
 interface DialogHeaderProps {
   title: string;
   subtitle?: string;
-  icon?: LucideIcon;
   onClose: () => void;
 }
 
-export function DialogHeader({ title, subtitle, icon: Icon, onClose }: DialogHeaderProps) {
+// The dialog's title at Headline size with one line under it, and a close button.
+export function DialogHeader({ title, subtitle, onClose }: DialogHeaderProps) {
   return (
-    <div className="flex items-center justify-between mb-5">
-      <div className="flex items-center space-x-2">
-        {Icon && (
-          <div className="p-2 bg-control rounded-control text-ink-soft">
-            <Icon className="w-5 h-5" />
-          </div>
-        )}
-        <div>
-          <h3 className="text-lg font-bold text-ink">{title}</h3>
-          {subtitle && <p className="text-xs text-ink-muted">{subtitle}</p>}
-        </div>
+    <div className="flex items-start justify-between gap-4 mb-6 border-b border-line pb-3">
+      <div>
+        <h3 className="text-3xl leading-none text-ink">{title}</h3>
+        {subtitle && <p className="mt-2 text-base text-ink-muted">{subtitle}</p>}
       </div>
-      <button onClick={onClose} className="icon-btn" title="Close">
+      <button onClick={onClose} className="icon-btn" title="Close" aria-label="Close">
         <X className="w-5 h-5" />
       </button>
     </div>

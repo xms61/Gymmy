@@ -17,18 +17,18 @@ export function RefusedChanges({ count }: { count: number }) {
   };
 
   return (
-    <div role="alert" className="mb-3 p-3 rounded-control border border-warn-ink/40 bg-warn-ink/10 space-y-2">
-      <p className="text-xs text-warn-ink font-semibold">
+    <div role="alert" className="grid gap-3 border-y border-warn-ink/40 px-3 py-3">
+      <p className="text-base text-warn-ink">
         The server refused {count === 1 ? '1 change' : `${count} changes`}, so {count === 1 ? 'it is' : 'they are'} not in
         data/gymmy.db. This browser keeps a copy.
       </p>
       <div className="flex gap-2">
-        <button onClick={handleDownload} className="btn btn-secondary px-3 py-1.5 text-xs">
-          <Download className="w-3.5 h-3.5" />
+        <button onClick={handleDownload} className="btn btn-secondary h-tap px-3 text-sm border border-edge">
+          <Download className="w-4 h-4" />
           <span>Download</span>
         </button>
-        <button onClick={handleDismiss} className="btn px-3 py-1.5 text-xs text-ink-muted hover:text-ink">
-          <X className="w-3.5 h-3.5" />
+        <button onClick={handleDismiss} className="btn btn-secondary h-tap px-3 text-sm border border-edge">
+          <X className="w-4 h-4" />
           <span>Dismiss</span>
         </button>
       </div>

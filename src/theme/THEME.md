@@ -5,7 +5,7 @@ last-verified: 2026-10-01
 
 # Design tokens
 
-Gymmy has one design, the Departure Board: a matte black station board, off-white characters on split-flap cells, a yellow signage band, and the Push, Pull and Legs colours kept to small round route markers. The system as built is recorded in [DESIGN.md](../../DESIGN.md); the screens still to be redone are in the [exec plan](../../docs/exec-plans/active/2026-10-01-departure-board.md).
+Gymmy has one design, the Departure Board: a matte black station board, off-white characters on split-flap cells, a yellow signage band, and the Push, Pull and Legs colours kept to small round route markers. The system as built is recorded in [DESIGN.md](../../DESIGN.md); how it came about is in the [exec plan](../../docs/exec-plans/completed/2026-10-01-departure-board.md).
 
 Entry: `src/theme/tokens.ts`: every color, font, corner radius, tap size and the flip duration. The single source of truth for how the app looks.
 - `tokensCss.ts`: turns the tokens into one `:root { --c-…; --font-…; }` rule. `vite.config.ts` puts it in `<head>` of `index.html`, so the first paint has the right colors.
