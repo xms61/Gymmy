@@ -1,6 +1,6 @@
 ---
 status: draft
-last-verified: 2026-09-24
+last-verified: 2026-10-01
 ---
 
 # Server (SQLite API)
@@ -27,7 +27,7 @@ Entry: `server/vitePlugin.ts`: a Vite plugin that serves `/api/*` from the dev a
   - A connection that doesn't come from this machine's loopback address must send the access key in `X-Gymmy-Key`, or gets 401. That only happens with `npm run dev -- --host` (or `preview --host`), where any device on the network could otherwise read, overwrite or clear the history. The check uses the socket's peer address, which a client can't choose the way it chooses `Host`. The browser takes the key from the printed link (`src/services/accessKey.ts`).
   - `Origin`, when sent, must equal this server.
   - A POST must be `application/json`, even without a body (`/api/clear`).
-- `vite.config.ts` denies `data/**` to Vite's file serving (`server.fs.deny`) and turns off Vite's CORS answers, so no page can download `data/gymmy.db` as a static file. Keep both when changing the config. Both servers send `X-Frame-Options: DENY`, so other sites cannot frame the app.
+- `vite.config.ts` denies `data/**` to Vite's file serving (`server.fs.deny`) and turns off Vite's CORS answers, so no page can download `data/gymmy.db` or `data/access-key` as a static file. Keep both when changing the config. The deny patterns are globs and need forward slashes, so the data path goes through Vite's `normalizePath`; a Windows path with backslashes matches nothing. Both servers send `X-Frame-Options: DENY`, so other sites cannot frame the app.
 
 ## Data / API
 | Route | Body | Response |
@@ -51,4 +51,5 @@ Errors: 401 for another device without the access key, 403 for a foreign `Host` 
 ## Tests
 - `tests/server/db.test.ts`: migrating a 1.0.0 database (order, sessions kept, backup), reopening it, and all-or-nothing exercise writes.
 - `tests/server/api.test.ts`: every route against a temp-dir database, including validation failures, reopening an existing file, and the host, origin and content-type checks.
+- `tests/server/viteConfig.test.ts`: the resolved dev-server config refuses `data/` files and still serves `src/`.
 - `tests/validation.test.ts`: which session and exercise shapes are accepted, and the error for each invalid field.

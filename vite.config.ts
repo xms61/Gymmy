@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { defineConfig, type Plugin } from 'vite';
+import { defineConfig, normalizePath, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from 'tailwindcss';
 import autoprefixer from 'autoprefixer';
@@ -20,9 +20,10 @@ function themeTokensPlugin(): Plugin {
   };
 }
 
-// data/ holds the real training history, and Vite would otherwise serve it as a static file.
-// Setting fs.deny replaces Vite's defaults, so they are listed again.
-const DATA_DIR = fileURLToPath(new URL('./data', import.meta.url));
+// data/ holds the real training history and the access key, and Vite would otherwise serve it as a
+// static file. Setting fs.deny replaces Vite's defaults, so they are listed again. The patterns are
+// globs, which need forward slashes: a Windows path with backslashes matches nothing.
+const DATA_DIR = normalizePath(fileURLToPath(new URL('./data', import.meta.url)));
 const DENIED_FILES = ['.env', '.env.*', '*.{crt,pem}', '**/.git/**', `${DATA_DIR}/**`];
 
 // Another site could load the app in a hidden frame, where its requests count as same-origin.
