@@ -2,50 +2,6 @@ import { Flame, Info, TrendingDown, TrendingUp, type LucideIcon } from 'lucide-r
 import type { OverloadStatus, SplitType } from '../../types/workout.ts';
 
 // Class names are written out in full so Tailwind finds them.
-interface SplitStyle {
-  text: string;
-  tint: string;
-  fill: string;
-  border: string;
-  hoverBorder: string;
-  groupHoverFill: string;
-}
-
-export const SPLIT_STYLE: Record<SplitType, SplitStyle> = {
-  Push: {
-    text: 'text-push',
-    tint: 'bg-push/15',
-    fill: 'bg-push text-on-split',
-    border: 'border-push/40',
-    hoverBorder: 'hover:border-push/50',
-    groupHoverFill: 'group-hover:bg-push group-hover:text-on-split'
-  },
-  Pull: {
-    text: 'text-pull',
-    tint: 'bg-pull/15',
-    fill: 'bg-pull text-on-split',
-    border: 'border-pull/40',
-    hoverBorder: 'hover:border-pull/50',
-    groupHoverFill: 'group-hover:bg-pull group-hover:text-on-split'
-  },
-  Legs: {
-    text: 'text-legs',
-    tint: 'bg-legs/15',
-    fill: 'bg-legs text-on-split',
-    border: 'border-legs/40',
-    hoverBorder: 'hover:border-legs/50',
-    groupHoverFill: 'group-hover:bg-legs group-hover:text-on-split'
-  },
-  Other: {
-    text: 'text-other',
-    tint: 'bg-other/15',
-    fill: 'bg-other text-on-split',
-    border: 'border-other/40',
-    hoverBorder: 'hover:border-other/50',
-    groupHoverFill: 'group-hover:bg-other group-hover:text-on-split'
-  }
-};
-
 const SPLIT_FILL: Record<SplitType, string> = {
   Push: 'bg-push',
   Pull: 'bg-pull',
@@ -72,16 +28,6 @@ export function RouteMarker({ split, size = 'md' }: { split: SplitType; size?: k
   );
 }
 
-export function SplitBadge({ split, label }: { split: SplitType; label: string }) {
-  const style = SPLIT_STYLE[split];
-  return (
-    <span
-      className={`px-2.5 py-0.5 rounded-pill text-xs font-extrabold uppercase tracking-wider border ${style.tint} ${style.text} ${style.border}`}
-    >
-      {label}
-    </span>
-  );
-}
 
 interface StatusStyle {
   label: string;

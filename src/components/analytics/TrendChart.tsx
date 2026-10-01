@@ -44,11 +44,11 @@ export function TrendChart({ title, unit, points }: TrendChartProps) {
   };
 
   return (
-    <figure className="panel p-4">
+    <figure className="border-t border-line pt-3">
       <figcaption className="flex items-baseline justify-between gap-2 mb-2">
         <span className="section-label">{title}</span>
-        <span className="text-xs text-ink-muted">
-          Latest <strong className="font-mono text-ink">{formatValue(latest.value)} {unit}</strong>
+        <span className="text-sm text-ink-muted">
+          Latest <strong className="font-mono text-lg text-ink">{formatValue(latest.value)} {unit}</strong>
         </span>
       </figcaption>
       <div ref={frameRef} className="relative">
@@ -63,14 +63,14 @@ export function TrendChart({ title, unit, points }: TrendChartProps) {
             onPointerLeave={() => setActive(null)}
             onKeyDown={onKeyDown}
             onBlur={() => setActive(null)}
-            className="block text-accent-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink"
+            className="block text-ink focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
           >
             {axis.ticks.map(tick => {
               const y = PAD.top + pointY(tick, axis, plotHeight);
               return (
                 <g key={tick}>
                   <line x1={PAD.left} x2={width - PAD.right} y1={y} y2={y} className="stroke-line" strokeWidth={1} />
-                  <text x={PAD.left - 6} y={y} dy="0.32em" textAnchor="end" className="fill-ink-muted font-mono text-[10px]">
+                  <text x={PAD.left - 6} y={y} dy="0.32em" textAnchor="end" className="fill-ink-muted font-mono text-xs">
                     {formatValue(tick)}
                   </text>
                 </g>
@@ -81,17 +81,17 @@ export function TrendChart({ title, unit, points }: TrendChartProps) {
             {active !== null && (
               <line x1={shownX} x2={shownX} y1={PAD.top} y2={PAD.top + plotHeight} className="stroke-edge" strokeWidth={1} />
             )}
-            <circle cx={shownX} cy={shownY} r={5} className="fill-current stroke-inset" strokeWidth={2} />
+            <circle cx={shownX} cy={shownY} r={5} className="fill-current stroke-bg" strokeWidth={2} />
           </svg>
         )}
         {active !== null && (
           <div
-            className="absolute pointer-events-none -translate-x-1/2 -translate-y-full bg-surface border border-edge rounded-chip px-2 py-1 text-[11px] whitespace-nowrap"
+            className="absolute pointer-events-none -translate-x-1/2 -translate-y-full bg-surface border border-edge rounded-chip px-2 py-1 text-xs whitespace-nowrap"
             style={{ left: Math.min(Math.max(shownX, 60), width - 60), top: shownY - 8 }}
           >
             <div className="text-ink-muted">{points[active]!.label}</div>
             <div className="flex items-center gap-1.5 font-mono font-bold text-ink">
-              <span className="inline-block w-3 h-0.5 bg-accent-ink" />
+              <span className="inline-block w-3 h-0.5 bg-ink" />
               {formatValue(points[active]!.value)} {unit}
             </div>
           </div>

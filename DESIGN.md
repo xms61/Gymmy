@@ -213,7 +213,7 @@ The workout is a station departure board. The current exercise owns the board, a
 
 The board is read between sets at arm's length on a laptop, so it is sparse and large: one exercise, its load and reps in flap digits, the rest countdown beside them, and the other exercises as single rows. Colour is rare. The flaps hold two inks; colour belongs to the band, the home platform sign and round route markers for Push, Pull and Legs. Surfaces are flat, with square 3px corners, and values change by a stepped flip, never by a fade.
 
-The live workout screen and home are built in this world. The calendar, progress and settings screens still have their earlier layouts and only inherit the tokens; redoing them is milestones 4 and 5 of the [Departure Board exec plan](docs/exec-plans/active/2026-10-01-departure-board.md). They are a known gap, not a reference for new work.
+The live workout screen, home, the calendar and progress are built in this world. Settings still has its earlier layout and only inherits the tokens; redoing it is milestone 5 of the [Departure Board exec plan](docs/exec-plans/active/2026-10-01-departure-board.md). It is a known gap, not a reference for new work.
 
 **Key Characteristics:**
 - Matte warm-black board with off-white flap characters.
@@ -241,21 +241,21 @@ A near-monochrome board of warm blacks and off-whites, with one signage yellow a
 
 ### Neutral
 - **Board Black** (`bg`): the page background and the hairline split of each flap.
-- **Flap Face** (`surface`): the upper leaf of a flap, cards, fields, the current set tile and the current session row.
+- **Flap Face** (`surface`): the upper leaf of a flap, cards, fields, the current set tile, the current session row, the chosen calendar day and the chosen progress rail row.
 - **Flap Underside** (`flap-low`): the lower leaf of a flap only.
 - **Well Black** (`inset`): panels, idle set tiles and the command row at the foot.
 - **Control Grey** (`control`, `control-hover`): the fill of bordered secondary buttons and unpicked RIR choices.
 - **Line** (`line`): card borders, flap outlines and dividers between session rows.
 - **Edge** (`edge`): the visible border of inputs, steppers and secondary buttons (3:1 against the board).
 - **Inks** (`ink`, `ink-soft`, `ink-muted`, `ink-faint`): four text levels, from flap characters and headings down to placeholders.
-- **Departure White** (`good`, `good-hover`, `on-good`): an off-white flap used as the board's one filled primary button and as a picked RIR choice.
+- **Departure White** (`good`, `good-hover`, `on-good`): an off-white flap used as the board's one filled primary button, as a picked RIR choice, and as the chip behind today's date in the calendar.
 
 ### Named Rules
 **The Two Inks Rule.** Flap cells show `ink` characters on `surface` over `flap-low`, nothing else. Colour never goes on a flap.
 
 **The Signage Rule.** Yellow is the band, the home platform sign, the focus ring, the caret and selection. Buttons on the board are never yellow; the filled primary is Departure White. On a yellow sign, actions are board-black.
 
-**The Route Marker Rule.** A split colour appears only as the fill of a round marker with its first letter in `on-split`.
+**The Route Marker Rule.** A split colour appears only as the fill of a round marker with its first letter in `on-split`, and the split's full name always sits beside the marker, so Push and Pull (both P) never rest on colour alone.
 
 ## Typography
 
@@ -346,7 +346,16 @@ Every set of the board's exercise as a tile: set number in `ink-faint`, then loa
 A yellow `accent` panel with 4px corners across the content column, always one line: a large route marker (3.5rem, 5rem from 1280px wide), then one heading line, the state word (Next or Unfinished; 2.25rem, 3rem from 1280px) and the split name on flap cells (4.5rem, 6rem from 1280px) that turn over when the rotation moves on, with one detail line under it. The flaps keep their two inks on the yellow. The actions sit at the right as board-black buttons (Start, or Discard outlined and Resume filled). It is the only yellow area below the band. Under it, the split's targets are board rows: exercise name, target load and rep range on 2.25rem flaps (BW for a bodyweight lift with no load; the rep range takes two cells either side of the dash, so the dashes of every row stand in one column), and a status only when the target changes. The record runs along the foot: weekly streak, workouts and volume on flaps, then start buttons for the other two splits.
 
 ### Route marker
-A circle filled with the split colour, the split's first letter in bold Barlow Condensed `on-split`, and a ring: 1.5rem (`sm`) on start buttons, 2rem (`md`) in the band and beside saved-workout titles, 3.5rem (`lg`, 5rem from 1280px wide) on the platform sign.
+A circle filled with the split colour, the split's first letter in bold Barlow Condensed `on-split`, and a ring: 1.5rem (`sm`) on start buttons and in calendar day cells, 2rem (`md`) in the band, beside saved-workout titles and on the progress rail's split headings, 3.5rem (`lg`, 5rem from 1280px wide) on the platform sign.
+
+### Month board (calendar)
+The month and the chosen day side by side, no pop-up. Left: a Monday-first grid of square board cells (`inset`, `line` border), the day number in data type at the top left, and a route marker for each session that day; the chosen day is `surface` with an `ink` border, days of the neighbouring months sit at 40% opacity, and today's number sits on a small Departure White chip. Each training day shows a small route marker with the split's name beside it, one line per session. Right: the chosen date as the column's one heading, then each session as a row: route marker and split name, its time and volume on flaps and a delete button, then each exercise with its done sets as Set strip tiles (set number in `ink-faint`, load × reps in data type at 1.125rem, `ink-muted`, `tap-lg` tall) and its notes. The month's workouts and volume sit on flaps in the header. It opens on the latest training day, in its month; moving to another month opens that month's latest training day, or its 1st.
+
+### Exercise rail (progress)
+A rail of every exercise, grouped under its split's route marker, each row its name and latest estimated 1RM on flaps; the chosen row is on `surface`, and exercises with no sessions read "No sessions" at 50% opacity. Beside it, the chosen exercise: its name at Display size, its best load and best estimated 1RM on flaps (3.75rem, 4.5rem from 1280px wide), the next target and its status, two trend charts, then every session as a table row, newest first.
+
+### Trend chart
+A 2px `ink` line over a 10% `ink` wash on hairline gridlines, with the latest point ringed in board black. A crosshair follows the pointer or the arrow keys and names the session in a small tooltip. Charts are never yellow; the session table below is the chart's text version.
 
 ## Do's and Don'ts
 

@@ -39,7 +39,7 @@ How the code is laid out is in [ARCHITECTURE.md](ARCHITECTURE.md), and how the d
   - Rest timer set per exercise, with a 5-minute break between Deadlifts and Pull-Ups.
   - Chime and vibration when the rest ends.
   - Plate calculator for barbell, dumbbell and landmine lifts: which of the home plates go on each end, and the nearest loads when a weight can't be made. The weight steppers step through the loads the plates make, and a weight they can't make is marked.
-- **History:** a monthly calendar colored by split (Push orange, Pull green, Legs blue), with each day's sets, loads, volume and notes, and a weekly streak: weeks in a row, Monday to Sunday, with at least one workout.
+- **History:** a Monday-first month calendar with a route marker for each workout (Push orange, Pull green, Legs blue), and beside it the chosen day's sets, loads, volume and notes. The weekly streak (weeks in a row, Monday to Sunday, with at least one workout) is on home.
 - **Progress:** estimated 1RM (Brzycki formula), best load and volume for each exercise, with a chart of the estimated 1RM and one of the session volume over every session. Hover a chart, or focus it and use the arrow keys, to read a session's value.
 - **Backup and restore:** a JSON file with every workout and the exercise targets. Restoring previews the changes first and never deletes anything.
 - **Design:** one look, the Departure Board: a black station board with the load, reps and rest on split-flap digits that turn over when they change, a yellow sign band across the workout, and the split colors on round route markers. The fonts are bundled, so they work offline.
