@@ -11,6 +11,7 @@ This file is the map, not the manual. The repository is the system of record: wh
 | [docs/design-docs/core-beliefs.md](docs/design-docs/core-beliefs.md) | Your first task in this repo, or when two docs seem to disagree |
 | [docs/design-docs/index.md](docs/design-docs/index.md) | Making a technical decision, or asking why something is built the way it is |
 | [README.md](README.md) | Changing what the app does for the user (features, setup) |
+| [PRODUCT.md](PRODUCT.md) | Design work: who uses Gymmy, its purpose and the constraints UI changes must keep |
 | [docs/PLANS.md](docs/PLANS.md) | Starting work that spans several sessions or areas |
 | [docs/exec-plans/active/](docs/exec-plans/active/) | Resuming work, or before starting something that may already be planned |
 | [docs/exec-plans/tech-debt-tracker.md](docs/exec-plans/tech-debt-tracker.md) | Taking a shortcut, or looking for known gaps |
@@ -24,7 +25,8 @@ This file is the map, not the manual. The repository is the system of record: wh
 | [src/components/tracker/TRACKER.md](src/components/tracker/TRACKER.md) | Touching the live workout screen, drafts, the rest timer or its chime |
 | [src/services/STORAGE.md](src/services/STORAGE.md) | Touching browser storage, the outbox or `StorageService` |
 | [server/SERVER.md](server/SERVER.md) | Touching the `/api` routes, the SQLite schema or `src/validation.ts` |
-| [src/theme/THEME.md](src/theme/THEME.md) | Touching colors, fonts, themes, `tailwind.config.ts`, `src/index.css` or `src/components/ui/` |
+| [DESIGN.md](DESIGN.md) | Designing or restyling any screen: the Departure Board system and its rules |
+| [src/theme/THEME.md](src/theme/THEME.md) | Touching colors, fonts, `tailwind.config.ts`, `src/index.css` or `src/components/ui/` |
 
 ## Commands
 | Task | Command |

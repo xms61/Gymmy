@@ -35,7 +35,7 @@ Entry: `src/services/storage.ts`: `StorageService` holds the app's sessions and 
 | `gymmy_workout_draft_v1` | The workout in progress (`WorkoutDraft`). Owned by `src/components/tracker/workoutDraft.ts`, not `StorageService`: it is never synced, and is cleared when the workout is finished or left. |
 | `gymmy_local_sessions_adopted_v1` | Timestamp. Set after the one-time check for sessions that 1.0.0 left only in localStorage. |
 | `gymmy_access_key_v1` | The server's access key, on devices other than the one running the server. Taken from the `#key=` link the server prints (`src/services/accessKey.ts`), removed from the address bar, and sent as `X-Gymmy-Key` with every request. |
-| `gymmy_theme_v1` | The theme chosen on this device (`ThemeId`). Owned by `src/theme/themePreference.ts` and read by the boot script in `<head>`; never synced, so each device keeps its own. |
+| `gymmy_theme_v1` | Retired. The theme picker wrote it until Gymmy had one design; nothing reads it now (`RETIRED_THEME_STORAGE_KEY` in `src/theme/tokens.ts`). Listed so the name is never reused. |
 
 The key names are stored data: never rename them (see `AGENTS.md`).
 

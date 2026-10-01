@@ -1,0 +1,793 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-01T13:38:34.186Z",
+  "title": "Design System: Gymmy",
+  "extensions": {
+    "colorMeta": {
+      "bg": {
+        "role": "neutral",
+        "displayName": "Board Black",
+        "canonical": "oklch(18.8% 0.009 84.6)",
+        "tonalRamp": [
+          "#0D0B07",
+          "#272520",
+          "#44423D",
+          "#63615C",
+          "#85827D",
+          "#A7A59F",
+          "#CCC9C3",
+          "#F1EEE8"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Flap Face",
+        "canonical": "oklch(23.6% 0.008 84.6)",
+        "tonalRamp": [
+          "#0D0B08",
+          "#272521",
+          "#44423D",
+          "#63615C",
+          "#84827D",
+          "#A7A59F",
+          "#CBC9C3",
+          "#F1EEE8"
+        ]
+      },
+      "flap-low": {
+        "role": "neutral",
+        "displayName": "Flap Underside",
+        "canonical": "oklch(21.0% 0.008 84.6)",
+        "tonalRamp": [
+          "#0D0B07",
+          "#272521",
+          "#44423D",
+          "#63615C",
+          "#85827D",
+          "#A7A59F",
+          "#CCC9C3",
+          "#F1EEE8"
+        ]
+      },
+      "inset": {
+        "role": "neutral",
+        "displayName": "Well Black",
+        "canonical": "oklch(15.5% 0.004 84.6)",
+        "tonalRamp": [
+          "#0C0B09",
+          "#262523",
+          "#43423F",
+          "#62615E",
+          "#83827F",
+          "#A6A5A2",
+          "#CAC9C6",
+          "#F0EEEB"
+        ]
+      },
+      "control": {
+        "role": "neutral",
+        "displayName": "Control Grey",
+        "canonical": "oklch(29.0% 0.010 80.6)",
+        "tonalRamp": [
+          "#0D0B07",
+          "#282520",
+          "#45423C",
+          "#64615B",
+          "#85827C",
+          "#A8A49E",
+          "#CCC9C2",
+          "#F2EEE7"
+        ]
+      },
+      "control-hover": {
+        "role": "neutral",
+        "displayName": "Control Grey Hover",
+        "canonical": "oklch(34.2% 0.011 84.6)",
+        "tonalRamp": [
+          "#0D0B06",
+          "#28251F",
+          "#45423B",
+          "#64615A",
+          "#85827B",
+          "#A8A59D",
+          "#CCC9C1",
+          "#F2EEE6"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Line",
+        "canonical": "oklch(29.0% 0.010 80.6)",
+        "tonalRamp": [
+          "#0D0B07",
+          "#282520",
+          "#45423C",
+          "#64615B",
+          "#85827C",
+          "#A8A49E",
+          "#CCC9C2",
+          "#F2EEE7"
+        ]
+      },
+      "edge": {
+        "role": "neutral",
+        "displayName": "Edge",
+        "canonical": "oklch(56.6% 0.016 88.7)",
+        "tonalRamp": [
+          "#0E0B05",
+          "#28251C",
+          "#454239",
+          "#656157",
+          "#868278",
+          "#A9A59A",
+          "#CDC9BE",
+          "#F3EEE3"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "oklch(94.9% 0.015 90.2)",
+        "tonalRamp": [
+          "#0E0B05",
+          "#28251D",
+          "#454239",
+          "#646158",
+          "#868278",
+          "#A9A59B",
+          "#CDC9BE",
+          "#F2EEE3"
+        ]
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Soft Ink",
+        "canonical": "oklch(87.0% 0.017 91.6)",
+        "tonalRamp": [
+          "#0E0B04",
+          "#28251C",
+          "#454238",
+          "#656157",
+          "#868277",
+          "#A9A599",
+          "#CDC9BD",
+          "#F2EEE2"
+        ]
+      },
+      "ink-muted": {
+        "role": "neutral",
+        "displayName": "Muted Ink",
+        "canonical": "oklch(71.9% 0.018 91.6)",
+        "tonalRamp": [
+          "#0E0B04",
+          "#28251B",
+          "#454238",
+          "#656156",
+          "#868277",
+          "#A9A599",
+          "#CDC9BD",
+          "#F3EEE2"
+        ]
+      },
+      "ink-faint": {
+        "role": "neutral",
+        "displayName": "Faint Ink",
+        "canonical": "oklch(60.7% 0.012 89.8)",
+        "tonalRamp": [
+          "#0D0B06",
+          "#27251E",
+          "#44423B",
+          "#646159",
+          "#85827A",
+          "#A8A59C",
+          "#CCC9C0",
+          "#F2EEE5"
+        ]
+      },
+      "accent": {
+        "role": "primary",
+        "displayName": "Signage Yellow",
+        "canonical": "oklch(84.0% 0.172 90.4)",
+        "tonalRamp": [
+          "#240000",
+          "#441600",
+          "#643700",
+          "#865800",
+          "#A97A00",
+          "#CE9E00",
+          "#F4C300",
+          "#FFE94D"
+        ]
+      },
+      "accent-hover": {
+        "role": "primary",
+        "displayName": "Signage Yellow Hover",
+        "canonical": "oklch(88.3% 0.165 92.3)",
+        "tonalRamp": [
+          "#220000",
+          "#411900",
+          "#613900",
+          "#835A00",
+          "#A67C00",
+          "#CAA000",
+          "#EFC51F",
+          "#FFEB57"
+        ]
+      },
+      "on-accent": {
+        "role": "primary",
+        "displayName": "Text on Signage Yellow",
+        "canonical": "oklch(18.8% 0.009 84.6)",
+        "tonalRamp": [
+          "#0D0B07",
+          "#272520",
+          "#44423D",
+          "#63615C",
+          "#85827D",
+          "#A7A59F",
+          "#CCC9C3",
+          "#F1EEE8"
+        ]
+      },
+      "accent-ink": {
+        "role": "primary",
+        "displayName": "Signage Yellow Ink",
+        "canonical": "oklch(84.0% 0.172 90.4)",
+        "tonalRamp": [
+          "#240000",
+          "#441600",
+          "#643700",
+          "#865800",
+          "#A97A00",
+          "#CE9E00",
+          "#F4C300",
+          "#FFE94D"
+        ]
+      },
+      "good": {
+        "role": "neutral",
+        "displayName": "Departure White",
+        "canonical": "oklch(94.9% 0.015 90.2)",
+        "tonalRamp": [
+          "#0E0B05",
+          "#28251D",
+          "#454239",
+          "#646158",
+          "#868278",
+          "#A9A59B",
+          "#CDC9BE",
+          "#F2EEE3"
+        ]
+      },
+      "good-hover": {
+        "role": "neutral",
+        "displayName": "Departure White Hover",
+        "canonical": "oklch(100.0% 0.000 89.9)",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#A5A5A5",
+          "#C9C9C9",
+          "#EEEEEE"
+        ]
+      },
+      "on-good": {
+        "role": "neutral",
+        "displayName": "Text on Departure White",
+        "canonical": "oklch(18.8% 0.009 84.6)",
+        "tonalRamp": [
+          "#0D0B07",
+          "#272520",
+          "#44423D",
+          "#63615C",
+          "#85827D",
+          "#A7A59F",
+          "#CCC9C3",
+          "#F1EEE8"
+        ]
+      },
+      "good-ink": {
+        "role": "tertiary",
+        "displayName": "Status Green",
+        "canonical": "oklch(78.8% 0.092 150.1)",
+        "tonalRamp": [
+          "#001400",
+          "#003008",
+          "#124F26",
+          "#367045",
+          "#589265",
+          "#7AB687",
+          "#9EDBAA",
+          "#C3FFCE"
+        ]
+      },
+      "warn-ink": {
+        "role": "tertiary",
+        "displayName": "Warning Amber",
+        "canonical": "oklch(82.4% 0.149 73.3)",
+        "tonalRamp": [
+          "#2A0000",
+          "#4C0800",
+          "#6E2D00",
+          "#924F00",
+          "#B67100",
+          "#DC9416",
+          "#FFB94B",
+          "#FFDE74"
+        ]
+      },
+      "bad-ink": {
+        "role": "tertiary",
+        "displayName": "Danger Red",
+        "canonical": "oklch(73.2% 0.165 28.3)",
+        "tonalRamp": [
+          "#380000",
+          "#5E0000",
+          "#840000",
+          "#AB2C24",
+          "#D35246",
+          "#FB7768",
+          "#FF9B8B",
+          "#FFC1AF"
+        ]
+      },
+      "info-ink": {
+        "role": "tertiary",
+        "displayName": "Info Blue",
+        "canonical": "oklch(78.8% 0.088 254.5)",
+        "tonalRamp": [
+          "#00062F",
+          "#00244E",
+          "#1D4370",
+          "#3D6392",
+          "#5D85B7",
+          "#7FA8DC",
+          "#A2CDFF",
+          "#C6F2FF"
+        ]
+      },
+      "push": {
+        "role": "secondary",
+        "displayName": "Push Orange",
+        "canonical": "oklch(67.7% 0.168 46.7)",
+        "tonalRamp": [
+          "#360000",
+          "#5C0000",
+          "#820300",
+          "#A83500",
+          "#D05A01",
+          "#F87E3B",
+          "#FFA362",
+          "#FFC988"
+        ]
+      },
+      "pull": {
+        "role": "secondary",
+        "displayName": "Pull Green",
+        "canonical": "oklch(64.5% 0.133 150.9)",
+        "tonalRamp": [
+          "#001600",
+          "#003400",
+          "#005416",
+          "#007536",
+          "#389857",
+          "#5EBC79",
+          "#84E29C",
+          "#A9FFC0"
+        ]
+      },
+      "legs": {
+        "role": "secondary",
+        "displayName": "Legs Blue",
+        "canonical": "oklch(64.8% 0.153 257.7)",
+        "tonalRamp": [
+          "#00004A",
+          "#00186D",
+          "#003C91",
+          "#1E5EB6",
+          "#4281DC",
+          "#64A5FF",
+          "#88CBFF",
+          "#ACF1FF"
+        ]
+      },
+      "other": {
+        "role": "secondary",
+        "displayName": "Other Violet",
+        "canonical": "oklch(68.9% 0.124 294.3)",
+        "tonalRamp": [
+          "#140038",
+          "#2C0D59",
+          "#48307C",
+          "#6650A0",
+          "#8772C5",
+          "#AA95EB",
+          "#CEB9FF",
+          "#F3DEFF"
+        ]
+      },
+      "on-split": {
+        "role": "secondary",
+        "displayName": "Text on Route Colour",
+        "canonical": "oklch(18.8% 0.009 84.6)",
+        "tonalRamp": [
+          "#0D0B07",
+          "#272520",
+          "#44423D",
+          "#63615C",
+          "#85827D",
+          "#A7A59F",
+          "#CCC9C3",
+          "#F1EEE8"
+        ]
+      },
+      "plate-25": {
+        "role": "tertiary",
+        "displayName": "Plate 25 kg",
+        "canonical": "oklch(57.3% 0.194 29.0)",
+        "tonalRamp": [
+          "#3E0000",
+          "#660000",
+          "#8D0000",
+          "#B6120D",
+          "#DE4436",
+          "#FF6B59",
+          "#FF917D",
+          "#FFB7A1"
+        ]
+      },
+      "plate-20": {
+        "role": "tertiary",
+        "displayName": "Plate 20 kg",
+        "canonical": "oklch(54.8% 0.174 259.6)",
+        "tonalRamp": [
+          "#050053",
+          "#000D76",
+          "#00379B",
+          "#195BC1",
+          "#3D7EE8",
+          "#60A3FF",
+          "#83C8FF",
+          "#A7EFFF"
+        ]
+      },
+      "plate-15": {
+        "role": "tertiary",
+        "displayName": "Plate 15 kg",
+        "canonical": "oklch(83.4% 0.158 89.0)",
+        "tonalRamp": [
+          "#230000",
+          "#431700",
+          "#633700",
+          "#855800",
+          "#A87A00",
+          "#CD9E00",
+          "#F3C331",
+          "#FFE861"
+        ]
+      },
+      "plate-10": {
+        "role": "tertiary",
+        "displayName": "Plate 10 kg",
+        "canonical": "oklch(53.1% 0.122 149.9)",
+        "tonalRamp": [
+          "#001500",
+          "#003300",
+          "#005219",
+          "#1D7439",
+          "#44965A",
+          "#69BA7C",
+          "#8DE09F",
+          "#B2FFC3"
+        ]
+      },
+      "plate-5": {
+        "role": "tertiary",
+        "displayName": "Plate 5 kg",
+        "canonical": "oklch(94.9% 0.015 90.2)",
+        "tonalRamp": [
+          "#0E0B05",
+          "#28251D",
+          "#454239",
+          "#646158",
+          "#868278",
+          "#A9A59B",
+          "#CDC9BE",
+          "#F2EEE3"
+        ]
+      },
+      "plate-2-5": {
+        "role": "tertiary",
+        "displayName": "Plate 2.5 kg",
+        "canonical": "oklch(34.7% 0.007 106.7)",
+        "tonalRamp": [
+          "#0B0B08",
+          "#252522",
+          "#42423E",
+          "#61615D",
+          "#83837E",
+          "#A5A5A1",
+          "#C9C9C4",
+          "#EFEFEA"
+        ]
+      },
+      "plate-1-25": {
+        "role": "tertiary",
+        "displayName": "Plate 1.25 kg",
+        "canonical": "oklch(47.0% 0.010 99.0)",
+        "tonalRamp": [
+          "#0C0B07",
+          "#262520",
+          "#43423C",
+          "#62615B",
+          "#84827C",
+          "#A6A59F",
+          "#CAC9C2",
+          "#F0EFE8"
+        ]
+      },
+      "on-plate": {
+        "role": "tertiary",
+        "displayName": "Text on Dark Plates",
+        "canonical": "oklch(100.0% 0.000 89.9)",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#A5A5A5",
+          "#C9C9C9",
+          "#EEEEEE"
+        ]
+      },
+      "on-plate-light": {
+        "role": "tertiary",
+        "displayName": "Text on Light Plates",
+        "canonical": "oklch(18.8% 0.009 84.6)",
+        "tonalRamp": [
+          "#0D0B07",
+          "#272520",
+          "#44423D",
+          "#63615C",
+          "#85827D",
+          "#A7A59F",
+          "#CCC9C3",
+          "#F1EEE8"
+        ]
+      },
+      "bar": {
+        "role": "tertiary",
+        "displayName": "Bar",
+        "canonical": "oklch(71.9% 0.018 91.6)",
+        "tonalRamp": [
+          "#0E0B04",
+          "#28251B",
+          "#454238",
+          "#656156",
+          "#868277",
+          "#A9A599",
+          "#CDC9BD",
+          "#F3EEE2"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "flap": {
+        "displayName": "Flap",
+        "purpose": "Load, reps and the rest clock on split-flap cells; 6.5rem from 1280px wide, 1.25rem in session rows."
+      },
+      "display": {
+        "displayName": "Display",
+        "purpose": "The name of the exercise that owns the board, in capitals."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "The band title."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Side-column section headings."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Progression sentence, notes, dialog messages; at most 62ch."
+      },
+      "data": {
+        "displayName": "Data",
+        "purpose": "Set tiles, elapsed clock, command row; tabular figures."
+      },
+      "button": {
+        "displayName": "Button",
+        "purpose": "Capitalised button labels, 0.875rem to 1.5rem."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Field and value-group names in ink-muted capitals."
+      }
+    },
+    "shadows": [
+      {
+        "name": "route-marker-ring",
+        "value": "0 0 0 1px rgb(21 19 15 / 0.4)",
+        "purpose": "The 1px edge of a route marker. The only box-shadow; there are no drop shadows."
+      }
+    ],
+    "motion": [
+      {
+        "name": "flip",
+        "value": "90ms",
+        "purpose": "One half-turn of a flap; also the duration of colour transitions on hover."
+      },
+      {
+        "name": "flap-fall",
+        "value": "rotateX(0deg to -90deg) 90ms steps(2, jump-end) forwards",
+        "purpose": "The old upper leaf falls to the split."
+      },
+      {
+        "name": "flap-land",
+        "value": "rotateX(90deg to 0deg) 90ms steps(2, jump-start) after a 90ms delay",
+        "purpose": "The new lower leaf lands after the fall."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "animation: none; transition: none",
+        "purpose": "With prefers-reduced-motion the new value appears at once."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "xl",
+        "value": "1280px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Log Set Button",
+      "kind": "button",
+      "refersTo": "button-good",
+      "description": "The single filled primary on the board: Departure White, full width.",
+      "html": "<button class=\"ds-btn-good\">LOG SET 2</button>",
+      "css": ".ds-btn-good { display: inline-flex; align-items: center; justify-content: center; width: 100%; height: 4rem; background: #F2EEE3; color: #15130F; border: 0; border-radius: 3px; font-family: \"Barlow Condensed\", \"Arial Narrow\", sans-serif; font-size: 1.5rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; cursor: pointer; transition: background-color 90ms; } .ds-btn-good:hover { background: #FFFFFF; } .ds-btn-good:focus-visible { outline: 2px solid #F5C400; outline-offset: 2px; } .ds-btn-good:disabled { background: #2E2B26; color: #85827A; cursor: not-allowed; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Every secondary action: Skip, timer adjustments, steppers, Plates, Not done, Cancel.",
+      "html": "<button class=\"ds-btn-secondary\">SKIP</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; height: 3rem; padding: 0 1rem; background: #2E2B26; color: #D8D4C8; border: 1px solid #7A766C; border-radius: 3px; font-family: \"Barlow Condensed\", \"Arial Narrow\", sans-serif; font-size: 1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; cursor: pointer; transition: background-color 90ms; } .ds-btn-secondary:hover { background: #3B3832; } .ds-btn-secondary:focus-visible { outline: 2px solid #F5C400; outline-offset: 2px; }"
+    },
+    {
+      "name": "Danger Button",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Destructive confirms such as Discard and Delete.",
+      "html": "<button class=\"ds-btn-danger\">DISCARD</button>",
+      "css": ".ds-btn-danger { display: inline-flex; align-items: center; justify-content: center; height: 3rem; padding: 0 1.25rem; background: rgb(255 122 107 / 0.15); color: #FF7A6B; border: 1px solid rgb(255 122 107 / 0.4); border-radius: 3px; font-family: \"Barlow Condensed\", \"Arial Narrow\", sans-serif; font-size: 1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; cursor: pointer; transition: background-color 90ms; } .ds-btn-danger:hover { background: rgb(255 122 107 / 0.25); } .ds-btn-danger:focus-visible { outline: 2px solid #F5C400; outline-offset: 2px; }"
+    },
+    {
+      "name": "Field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "Notes and text inputs: flap-face fill, edge border, yellow border on focus.",
+      "html": "<textarea class=\"ds-field\" rows=\"2\" placeholder=\"Energy, soreness, anything worth remembering\"></textarea>",
+      "css": ".ds-field { display: block; width: 100%; padding: 0.5rem 0.75rem; background: #201E1A; color: #D8D4C8; border: 1px solid #7A766C; border-radius: 2px; font-family: \"Barlow\", \"Segoe UI\", sans-serif; font-size: 1rem; resize: none; } .ds-field::placeholder { color: #85827A; } .ds-field:focus { border-color: #F5C400; outline: none; }"
+    },
+    {
+      "name": "Signage Band",
+      "kind": "nav",
+      "refersTo": "band",
+      "description": "The yellow band with the app name and tabs; the current tab inverts.",
+      "html": "<header class=\"ds-band\"><span class=\"ds-band-title\">GYMMY</span><nav class=\"ds-band-tabs\"><button class=\"ds-band-tab\" aria-current=\"page\">HOME</button><button class=\"ds-band-tab\">CALENDAR</button><button class=\"ds-band-tab\">PROGRESS</button></nav></header>",
+      "css": ".ds-band { display: flex; align-items: center; gap: 2rem; height: 4rem; padding: 0 1.5rem; background: #F5C400; color: #15130F; } .ds-band-title { font-family: \"Barlow Condensed\", \"Arial Narrow\", sans-serif; font-size: 1.875rem; font-weight: 600; letter-spacing: 0.02em; line-height: 1; } .ds-band-tabs { display: flex; align-self: stretch; } .ds-band-tab { padding: 0 1.25rem; background: transparent; color: inherit; border: 0; font-family: \"Barlow Condensed\", \"Arial Narrow\", sans-serif; font-size: 1.125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; cursor: pointer; transition: background-color 90ms; } .ds-band-tab:hover { background: rgb(21 19 15 / 0.1); } .ds-band-tab[aria-current=\"page\"] { background: #15130F; color: #F5C400; } .ds-band-tab:focus-visible { outline: 2px solid #F5C400; outline-offset: 2px; }"
+    },
+    {
+      "name": "Split-flap Readout",
+      "kind": "custom",
+      "refersTo": "flap-cell",
+      "description": "Values on two-leaf flap cells with a hairline split; changes turn over in stepped motion.",
+      "html": "<span class=\"ds-flaps\"><span class=\"ds-flap\"><span class=\"ds-t\">6</span><span class=\"ds-b\">6</span></span><span class=\"ds-flap\"><span class=\"ds-t\">2</span><span class=\"ds-b\">2</span></span><span class=\"ds-flap ds-narrow\"><span class=\"ds-t\">.</span><span class=\"ds-b\">.</span></span><span class=\"ds-flap\"><span class=\"ds-t\">5</span><span class=\"ds-b\">5</span></span></span>",
+      "css": ".ds-flaps { display: inline-flex; gap: 0.06em; font-size: 4.5rem; line-height: 1; } .ds-flap { position: relative; display: inline-block; width: 0.66em; height: 1.16em; border: 1px solid #2E2B26; border-radius: 3px; overflow: hidden; color: #F2EEE3; font-family: \"Barlow Condensed\", \"Arial Narrow\", sans-serif; font-weight: 600; font-variant-numeric: tabular-nums; } .ds-narrow { width: 0.34em; } .ds-t, .ds-b { position: absolute; inset: 0; display: grid; place-items: center; } .ds-t { clip-path: inset(0 0 50% 0); background: #201E1A; } .ds-b { clip-path: inset(50% 0 0 0); background: #1A1814; } .ds-flap::after { content: \"\"; position: absolute; left: 0; right: 0; top: calc(50% - 0.5px); height: 1px; background: #15130F; }"
+    },
+    {
+      "name": "Set Tile",
+      "kind": "chip",
+      "refersTo": "set-tile",
+      "description": "One set in the strip under the board; the set on the board takes the flap face and an ink border.",
+      "html": "<button class=\"ds-tile\"><span class=\"ds-n\">1</span>60 × 8</button><button class=\"ds-tile\" aria-current=\"true\"><span class=\"ds-n\">2</span>62.5 × 8</button>",
+      "css": ".ds-tile { display: inline-flex; align-items: center; gap: 0.625rem; height: 3rem; padding: 0 0.75rem; margin-right: 0.5rem; background: #0D0C0A; color: #F2EEE3; border: 1px solid #2E2B26; border-radius: 3px; font-family: \"Barlow Condensed\", \"Arial Narrow\", sans-serif; font-size: 1.125rem; font-weight: 500; font-variant-numeric: tabular-nums; cursor: pointer; transition: border-color 90ms; } .ds-n { font-size: 0.875rem; color: #85827A; } .ds-tile:hover { border-color: #7A766C; } .ds-tile[aria-current=\"true\"] { background: #201E1A; border-color: #F2EEE3; } .ds-tile:focus-visible { outline: 2px solid #F5C400; outline-offset: 2px; }"
+    },
+    {
+      "name": "Route Marker",
+      "kind": "custom",
+      "refersTo": "route-marker",
+      "description": "The split as a round route bullet: its first letter on the split colour.",
+      "html": "<span class=\"ds-route ds-push\">P</span> <span class=\"ds-route ds-pull\">P</span> <span class=\"ds-route ds-legs\">L</span>",
+      "css": ".ds-route { display: inline-grid; place-items: center; width: 2rem; height: 2rem; border-radius: 9999px; box-shadow: 0 0 0 1px rgb(21 19 15 / 0.4); color: #15130F; font-family: \"Barlow Condensed\", \"Arial Narrow\", sans-serif; font-size: 1.125rem; font-weight: 700; } .ds-push { background: #E8702A; } .ds-pull { background: #45A462; } .ds-legs { background: #4E8EEA; }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Dialogs and containers: flap-face fill, 1px line border, 4px corners, no shadow.",
+      "html": "<div class=\"ds-card\"><p class=\"ds-card-msg\">Leave this workout? Its sets will not be saved.</p></div>",
+      "css": ".ds-card { background: #201E1A; border: 1px solid #2E2B26; border-radius: 4px; padding: 1.5rem; } .ds-card-msg { margin: 0; color: #F2EEE3; font-family: \"Barlow\", \"Segoe UI\", sans-serif; font-size: 1.125rem; line-height: 1.375; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Departure Board",
+    "overview": "The workout is a station departure board. The current exercise owns the board, and each set is the next departure: when a value changes, its split-flap cells turn over to it. A matte warm-black board carries off-white characters on two-leaf flap cells with a hairline split. A yellow enamel signage band runs across the top. Barlow Condensed in capitals sets every heading, label and button.\n\nThe board is read between sets at arm's length on a laptop, so it is sparse and large: one exercise, its load and reps in flap digits, the rest countdown beside them, and the other exercises as single rows. Colour is rare. The flaps hold two inks; colour belongs to the band and to small round route markers for Push, Pull and Legs. Surfaces are flat, with square 3px corners, and values change by a stepped flip, never by a fade.\n\nThe live workout screen is the first and only surface built in this world. The dashboard, calendar, progress and settings screens still have their earlier layouts and only inherit the tokens; redoing them is milestones 3 to 5 of the [Departure Board exec plan](docs/exec-plans/active/2026-10-01-departure-board.md). They are a known gap, not a reference for new work.",
+    "keyCharacteristics": [
+      "Matte warm-black board with off-white flap characters.",
+      "Split-flap cells: two leaves, the lower one a shade darker, a 1px split in board colour.",
+      "One yellow signage band; yellow elsewhere only on the focus ring and the text caret.",
+      "Round route markers carry the split colours.",
+      "Barlow Condensed in capitals for display, labels, buttons and numbers; Barlow for prose.",
+      "Flat: no drop shadows, gradients, glows or blur.",
+      "Stepped flap motion at 90ms per half-turn.",
+      "Desktop browser only."
+    ],
+    "rules": [
+      {
+        "name": "The Two Inks Rule",
+        "body": "Flap cells show `ink` characters on `surface` over `flap-low`, nothing else. Colour never goes on a flap.",
+        "section": "colors"
+      },
+      {
+        "name": "The Signage Rule",
+        "body": "Yellow is the band, the focus ring, the caret and selection. Buttons on the board are never yellow; the filled primary is Departure White.",
+        "section": "colors"
+      },
+      {
+        "name": "The Route Marker Rule",
+        "body": "A split colour appears only as the fill of a round marker with its first letter in `on-split`.",
+        "section": "colors"
+      },
+      {
+        "name": "The Capitals Rule",
+        "body": "Headings, labels, buttons and tabs are Barlow Condensed in capitals with positive tracking. Prose stays in sentence case Barlow.",
+        "section": "typography"
+      },
+      {
+        "name": "The Once Only Rule",
+        "body": "A value is labelled once. A label names the field it sits on; no headline sits above another headline.",
+        "section": "typography"
+      },
+      {
+        "name": "The One Board Rule",
+        "body": "One exercise owns the board at a time. Other exercises are single rows: the current row on `surface`, the next row with open sets in full ink, the rest at 50% opacity.",
+        "section": "layout"
+      },
+      {
+        "name": "The Flat Board Rule",
+        "body": "No drop shadows, gradients, glows or backdrop blur. A surface steps forward by tone, never by shadow.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** put changing numbers on flap cells and let them turn over in stepped motion.",
+      "**Do** use Departure White (`good`) for the single filled primary action on the board.",
+      "**Do** give every secondary action the bordered `control` button with an `edge` border.",
+      "**Do** keep yellow to the band, the focus ring, the caret and selection.",
+      "**Do** show the split as a round route marker.",
+      "**Do** dim exercises that are neither current nor next to 50% opacity.",
+      "**Do** ask for confirmation in the in-app dialog.",
+      "**Do** use only token classes, as [THEME.md](src/theme/THEME.md) sets out."
+    ],
+    "donts": [
+      "**Don't** fade, slide or scale a changing value; it flips in steps.",
+      "**Don't** put colour on a flap or a third ink on the flaps.",
+      "**Don't** fill a button on the board with yellow.",
+      "**Don't** add drop shadows, gradients, glows or blur.",
+      "**Don't** round corners beyond 4px, except the circle of a route marker.",
+      "**Don't** label a value twice or stack a small heading above a heading.",
+      "**Don't** use window.confirm or window.alert.",
+      "**Don't** design phone layouts or bottom navigation."
+    ]
+  }
+}

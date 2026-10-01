@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseThemeId, THEME_IDS, THEME_STORAGE_KEY, THEMES, type ColorToken } from '../src/theme/themes.ts';
-import { hexToChannels, themeBootScript, themeStylesheet } from '../src/theme/themeCss.ts';
+import { DESIGN, type ColorToken } from '../src/theme/tokens.ts';
+import { hexToChannels, tokenStylesheet } from '../src/theme/tokensCss.ts';
 
 test('writes colors as rgb channels so Tailwind opacity modifiers work', () => {
   const CASES: [hex: string, expected: string][] = [
@@ -20,57 +20,13 @@ test('refuses a color that is not #rrggbb', () => {
   }
 });
 
-test('scopes every theme to its data-theme attribute', () => {
-  const css = themeStylesheet(Object.values(THEMES));
-  for (const theme of Object.values(THEMES)) {
-    assert.match(css, new RegExp(`\\[data-theme="${theme.id}"\\] \\{[^}]*--c-bg: ${hexToChannels(theme.colors.bg)};`));
+test('puts every token on :root', () => {
+  const css = tokenStylesheet(DESIGN);
+  assert.match(css, /^:root \{/);
+  for (const [token, hex] of Object.entries(DESIGN.colors)) {
+    assert.ok(css.includes(`--c-${token}: ${hexToChannels(hex)};`), token);
   }
-});
-
-test('reads only known theme ids', () => {
-  assert.equal(parseThemeId('brutalism'), 'brutalism');
-  for (const value of [null, '', 'Brutalism', 'constructor', 42]) {
-    assert.equal(parseThemeId(value), null, String(value));
-  }
-});
-
-test('every theme id has a theme', () => {
-  assert.deepEqual(Object.keys(THEMES).sort(), [...THEME_IDS].sort());
-  for (const id of THEME_IDS) assert.equal(THEMES[id].id, id);
-});
-
-// Runs the boot script against a fake page, the way the browser runs it in <head>.
-function runBootScript(readStored: () => string | null): { theme: string; toolbarColor: string } {
-  const page = { theme: 'classic', toolbarColor: '#090D16' };
-  const document = {
-    documentElement: { setAttribute: (_name: string, value: string) => (page.theme = value) },
-    querySelector: () => ({ setAttribute: (_name: string, value: string) => (page.toolbarColor = value) })
-  };
-  const localStorage = { getItem: (key: string) => (key === THEME_STORAGE_KEY ? readStored() : null) };
-  new Function('document', 'localStorage', themeBootScript(Object.values(THEMES), THEME_STORAGE_KEY))(document, localStorage);
-  return page;
-}
-
-test('the boot script applies the stored theme before the first paint', () => {
-  assert.deepEqual(runBootScript(() => 'brutalism'), { theme: 'brutalism', toolbarColor: THEMES.brutalism.colors.bg });
-});
-
-test('the boot script keeps the default for a missing, unknown or unreadable choice', () => {
-  const unchanged = { theme: 'classic', toolbarColor: '#090D16' };
-  assert.deepEqual(runBootScript(() => null), unchanged);
-  assert.deepEqual(runBootScript(() => 'toString'), unchanged);
-  assert.deepEqual(
-    runBootScript(() => {
-      throw new Error('storage blocked');
-    }),
-    unchanged
-  );
-});
-
-test('turns off animations only for a theme without motion', () => {
-  const still = { ...THEMES.classic, motionMs: 0 };
-  assert.match(themeStylesheet([still]), /animation: none !important/);
-  assert.doesNotMatch(themeStylesheet([THEMES.classic]), /animation: none/);
+  assert.ok(css.includes(`--flip: ${DESIGN.flipMs}ms;`));
 });
 
 // WCAG 2 contrast ratio between two #rrggbb colors.
@@ -99,8 +55,6 @@ const CONTRAST_RULES: [foreground: ColorToken, background: ColorToken, minimum: 
   ['warn-ink', 'surface', 4.5],
   ['bad-ink', 'surface', 4.5],
   ['info-ink', 'surface', 4.5],
-  ['stamp', 'surface', 4.5],
-  ['gauge', 'surface', 3],
   ['on-accent', 'accent', 4.5],
   ['on-good', 'good', 4.5],
   ['on-split', 'push', 4.5],
@@ -115,14 +69,13 @@ const CONTRAST_RULES: [foreground: ColorToken, background: ColorToken, minimum: 
   ['on-plate', 'plate-2-5', 4.5],
   ['on-plate', 'plate-1-25', 4.5],
   ['ink-faint', 'surface', 3],
+  ['ink-faint', 'bg', 3],
   ['edge', 'surface', 3]
 ];
 
-test('every theme keeps its text and edges readable', () => {
-  for (const theme of Object.values(THEMES)) {
-    for (const [foreground, background, minimum] of CONTRAST_RULES) {
-      const ratio = contrastRatio(theme.colors[foreground], theme.colors[background]);
-      assert.ok(ratio >= minimum, `${theme.id}: ${foreground} on ${background} is ${ratio.toFixed(2)}:1, needs ${minimum}:1`);
-    }
+test('text and edges stay readable', () => {
+  for (const [foreground, background, minimum] of CONTRAST_RULES) {
+    const ratio = contrastRatio(DESIGN.colors[foreground], DESIGN.colors[background]);
+    assert.ok(ratio >= minimum, `${foreground} on ${background} is ${ratio.toFixed(2)}:1, needs ${minimum}:1`);
   }
 });

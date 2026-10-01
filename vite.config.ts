@@ -4,19 +4,14 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from 'tailwindcss';
 import autoprefixer from 'autoprefixer';
 import { gymmySqlitePlugin } from './server/vitePlugin.ts';
-import { THEME_STORAGE_KEY, THEMES } from './src/theme/themes.ts';
-import { themeBootScript, themeStylesheet } from './src/theme/themeCss.ts';
+import { DESIGN } from './src/theme/tokens.ts';
+import { tokenStylesheet } from './src/theme/tokensCss.ts';
 
-// Puts the theme tokens and the stored theme choice in <head>, so the first paint already has
-// the right colors.
-function themeTokensPlugin(): Plugin {
-  const themes = Object.values(THEMES);
+// Puts the design tokens in <head>, so the first paint already has the right colors.
+function designTokensPlugin(): Plugin {
   return {
-    name: 'gymmy-theme-tokens',
-    transformIndexHtml: () => [
-      { tag: 'style', attrs: { id: 'theme-tokens' }, children: themeStylesheet(themes), injectTo: 'head' },
-      { tag: 'script', children: themeBootScript(themes, THEME_STORAGE_KEY), injectTo: 'head' }
-    ]
+    name: 'gymmy-design-tokens',
+    transformIndexHtml: () => [{ tag: 'style', attrs: { id: 'design-tokens' }, children: tokenStylesheet(DESIGN), injectTo: 'head' }]
   };
 }
 
@@ -31,7 +26,7 @@ const NO_FRAMING = { 'X-Frame-Options': 'DENY', 'Content-Security-Policy': "fram
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), gymmySqlitePlugin(), themeTokensPlugin()],
+  plugins: [react(), gymmySqlitePlugin(), designTokensPlugin()],
   css: {
     postcss: {
       plugins: [tailwindcss(), autoprefixer()]

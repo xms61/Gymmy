@@ -31,16 +31,13 @@ export function formatDisplayDate(dateString: string): string {
   });
 }
 
-export type DateStyle = 'numeric' | 'written';
-
-// A session date in a list: "2026-09-24", or "Thursday, 24 September" for themes that write dates out.
-export function formatSessionDate(dateString: string, style: DateStyle): string {
-  if (style === 'numeric') return dateString;
+// A session date in a list: "Thu 24 Sep".
+export function formatSessionDate(dateString: string): string {
   const date = localDate(dateString);
-  return `${date.toLocaleDateString('en-US', { weekday: 'long' })}, ${date.getDate()} ${date.toLocaleDateString('en-US', { month: 'long' })}`;
+  return `${date.toLocaleDateString('en-US', { weekday: 'short' })} ${formatDayMonth(dateString)}`;
 }
 
-// "24 Sep", for a stamp.
+// "24 Sep".
 export function formatDayMonth(dateString: string): string {
   const date = localDate(dateString);
   return `${date.getDate()} ${date.toLocaleDateString('en-US', { month: 'short' })}`;

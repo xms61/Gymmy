@@ -86,7 +86,7 @@ export function TrendChart({ title, unit, points }: TrendChartProps) {
         )}
         {active !== null && (
           <div
-            className="absolute pointer-events-none -translate-x-1/2 -translate-y-full bg-surface border border-edge rounded-chip px-2 py-1 text-[11px] whitespace-nowrap shadow-lg"
+            className="absolute pointer-events-none -translate-x-1/2 -translate-y-full bg-surface border border-edge rounded-chip px-2 py-1 text-[11px] whitespace-nowrap"
             style={{ left: Math.min(Math.max(shownX, 60), width - 60), top: shownY - 8 }}
           >
             <div className="text-ink-muted">{points[active]!.label}</div>

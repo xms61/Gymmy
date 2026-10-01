@@ -13,14 +13,14 @@ Gymmy is a single-user Push/Pull/Legs workout tracker. A React client, bundled b
 ## Code map
 - `server/`: the `/api` backend ([SERVER.md](server/SERVER.md)). `vitePlugin.ts` is the HTTP plumbing, `api.ts` routes and validates, `db.ts` holds the schema, migrations and every query, and `accessKey.ts` guards the API from other devices. It imports only `src/validation.ts`, `src/types/` and `src/data/seedData.ts` from the client.
 - `src/`: the React client. `main.tsx` mounts `App.tsx`, which holds the screens and the sync status.
-  - `src/components/`: the screens and their parts, one folder per screen: `dashboard/`, `tracker/` (the live workout, [TRACKER.md](src/components/tracker/TRACKER.md)), `calendar/`, `analytics/` and `settings/`. `ui/` holds the shared primitives (dialog, gauge, badges).
+  - `src/components/`: the screens and their parts, one folder per screen: `dashboard/`, `tracker/` (the live workout, [TRACKER.md](src/components/tracker/TRACKER.md)), `calendar/`, `analytics/` and `settings/`. `ui/` holds the shared primitives (dialog, flap cells, badges).
   - `src/services/`: the logic, with no React. `storage.ts` and `sync.ts` are the browser storage and the outbox ([STORAGE.md](src/services/STORAGE.md)). `overloadEngine.ts` (load suggestions), `loading.ts` (loads the equipment makes), `rotation.ts`, `progress.ts`, `streak.ts`, `effort.ts`, `exerciseLogs.ts` and `backup.ts` are pure functions over sessions.
-  - `src/theme/`: the themes, their tokens and the stored choice ([THEME.md](src/theme/THEME.md)).
+  - `src/theme/`: the design tokens and fonts ([THEME.md](src/theme/THEME.md)).
   - `src/data/`: the seed routine (`seedData.ts`) and the home equipment (`gymInventory.ts`).
   - `src/types/workout.ts`: the shared data types. `src/validation.ts`: the parsers and `LIMITS` that both the browser and the server use.
   - `src/utils/`: dates and the rest-timer chime.
 - `tests/`: `node:test` tests of the pure modules, and `tests/server/` for the API against temp-dir databases ([TESTING.md](docs/TESTING.md)).
-- `vite.config.ts`: wires in the API plugin and puts the theme tokens and boot script in `<head>`.
+- `vite.config.ts`: wires in the API plugin and puts the design tokens in `<head>`.
 - `scripts/`: the repo checks (`check-docs.mjs`, `check-tracked-files.mjs`) and their tests.
 - `docs/`: the knowledge base ([KNOWLEDGE_BASE.md](docs/KNOWLEDGE_BASE.md)).
 

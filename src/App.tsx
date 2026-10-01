@@ -22,7 +22,7 @@ import { clearDraft, loadDraft } from './components/tracker/workoutDraft.ts';
 import { describeSyncStatus, needsAttention, syncLabel } from './components/syncStatusText.ts';
 import { isShortcutFree } from './components/keyboardShortcuts.ts';
 import { nextSplit } from './services/rotation.ts';
-import { useTheme } from './theme/ThemeProvider.tsx';
+import { askToConfirm } from './components/ui/ConfirmHost.tsx';
 
 type AppTab = 'dashboard' | 'calendar' | 'analytics';
 
@@ -50,11 +50,10 @@ export function App() {
   const [isFirstSyncDone, setIsFirstSyncDone] = useState(false);
 
   const logIndex = useMemo(() => indexCompletedLogs(sessions, exercises), [sessions, exercises]);
-  const { theme } = useTheme();
 
-  // Themes with a command line: 1, 2 and 3 switch tabs, and s starts the next workout in the rotation.
+  // 1, 2 and 3 switch tabs, and s starts the next workout in the rotation.
   useEffect(() => {
-    if (!theme.traits.commandLine || activeWorkoutType) return;
+    if (activeWorkoutType) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (!isShortcutFree(event)) return;
       const tab = NAV_TABS[Number(event.key) - 1];
@@ -86,8 +85,8 @@ export function App() {
     setResumeFrom(null);
   };
 
-  const handleStartWorkout = (type: SplitType) => {
-    if (draft && !window.confirm(`Discard the unfinished ${draft.workoutType} workout and start a new ${type} workout?`)) {
+  const handleStartWorkout = async (type: SplitType) => {
+    if (draft && !(await askToConfirm(`Discard the unfinished ${draft.workoutType} workout and start a new ${type} workout?`, 'Discard and start'))) {
       return;
     }
     discardDraft();
@@ -100,8 +99,8 @@ export function App() {
     setActiveWorkoutType(draft.workoutType);
   };
 
-  const handleDiscardDraft = () => {
-    if (window.confirm('Discard the unfinished workout? Its sets will not be saved.')) discardDraft();
+  const handleDiscardDraft = async () => {
+    if (await askToConfirm('Discard the unfinished workout? Its sets will not be saved.', 'Discard')) discardDraft();
   };
 
   const handleFinishWorkout = () => {
@@ -111,15 +110,15 @@ export function App() {
     setActiveTab('calendar');
   };
 
-  const handleLeaveWorkout = () => {
-    if (window.confirm('Leave this workout? Its sets will not be saved.')) {
+  const handleLeaveWorkout = async () => {
+    if (await askToConfirm('Leave this workout? Its sets will not be saved.', 'Leave')) {
       discardDraft();
       setActiveWorkoutType(null);
     }
   };
 
-  const handleDeleteSession = (id: string) => {
-    if (window.confirm('Delete this workout session?')) {
+  const handleDeleteSession = async (id: string) => {
+    if (await askToConfirm('Delete this workout session?', 'Delete')) {
       StorageService.deleteSession(id);
     }
   };
@@ -140,36 +139,46 @@ export function App() {
 
   return (
     <div className="min-h-screen flex flex-col antialiased">
-      <header className="sticky top-0 z-30 bg-bg/90 backdrop-blur-md border-b border-line px-4 py-3">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-panel bg-gradient-to-tr from-accent to-accent-ink flex items-center justify-center shadow-lg shadow-accent/30">
-              <Dumbbell className="w-5 h-5 text-on-accent" />
-            </div>
-            <div>
-              <h1 className="text-xl font-black text-ink tracking-tight flex items-center space-x-1">
-                <span>Gymmy</span>
-                <span className="w-2 h-2 rounded-pill bg-good-ink animate-pulse" />
-              </h1>
-              <span className="text-[11px] text-ink-muted font-medium">Fundamentals Tracker</span>
-            </div>
-          </div>
+      <header className="sticky top-0 z-30 bg-accent text-on-accent">
+        <div className="max-w-[90rem] mx-auto h-16 px-6 flex items-center gap-8">
+          <h1 className="flex items-center gap-2.5 text-3xl leading-none">
+            <Dumbbell className="w-7 h-7" />
+            Gymmy
+          </h1>
 
-          <div className="flex items-center space-x-2">
+          <nav aria-label="Screens" className="flex items-stretch self-stretch">
+            {NAV_TABS.map(({ id, label, icon: Icon }, index) => (
+              <button
+                key={id}
+                onClick={() => setActiveTab(id)}
+                title={`${label} (${index + 1})`}
+                aria-current={activeTab === id ? 'page' : undefined}
+                className={`flex items-center gap-2 px-5 font-display text-lg font-semibold uppercase tracking-[0.06em] transition-colors ${
+                  activeTab === id ? 'bg-on-accent text-accent' : 'hover:bg-on-accent/10'
+                }`}
+              >
+                <Icon className="w-5 h-5" />
+                {label}
+              </button>
+            ))}
+          </nav>
+
+          <div className="ml-auto flex items-center gap-2">
             <button
               onClick={() => setIsSettingsOpen(true)}
-              className="flex items-center space-x-1.5 px-2.5 py-1.5 rounded-control bg-surface border border-line text-[11px] text-ink-soft hover:border-edge transition"
+              className="flex items-center gap-2 h-10 px-3 rounded-control font-display text-base font-semibold uppercase tracking-[0.06em] hover:bg-on-accent/10 transition-colors"
               title={describeSyncStatus(syncStatus)}
             >
-              <Database className="w-3.5 h-3.5 text-accent-ink" />
-              <span className="hidden sm:inline font-medium">{syncLabel(syncStatus)}</span>
-              <span className={`w-1.5 h-1.5 rounded-pill ${needsAttention(syncStatus) ? 'bg-warn-ink' : 'bg-good-ink'}`} />
+              <Database className="w-4 h-4" />
+              {syncLabel(syncStatus)}
+              {needsAttention(syncStatus) && <span className="w-2 h-2 rounded-pill bg-on-accent" aria-label="needs attention" />}
             </button>
 
             <button
               onClick={() => setIsSettingsOpen(true)}
-              className="p-2.5 text-ink-muted hover:text-ink rounded-panel bg-surface border border-line hover:border-edge transition"
+              className="h-10 w-10 grid place-items-center rounded-control hover:bg-on-accent/10 transition-colors"
               title="Settings"
+              aria-label="Settings"
             >
               <SettingsIcon className="w-5 h-5" />
             </button>
@@ -177,7 +186,7 @@ export function App() {
         </div>
       </header>
 
-      <main className="flex-1 max-w-4xl w-full mx-auto p-4 md:p-6 pb-28">
+      <main className="flex-1 max-w-6xl w-full mx-auto px-6 py-8">
         {draft && <ResumeWorkoutBanner draft={draft} onResume={handleResumeWorkout} onDiscard={handleDiscardDraft} />}
 
         {activeTab === 'dashboard' && (
@@ -203,28 +212,6 @@ export function App() {
         )}
       </main>
 
-      <nav className="fixed bottom-0 left-0 right-0 z-30 bg-inset/95 backdrop-blur-md border-t border-line py-2 px-6">
-        <div className="max-w-md mx-auto flex items-center justify-around">
-          {NAV_TABS.map(({ id, label, icon: Icon }, index) => (
-            <button
-              key={id}
-              onClick={() => setActiveTab(id)}
-              className={`flex flex-col items-center space-y-1 py-1 px-4 rounded-control transition ${
-                activeTab === id ? 'text-accent-ink font-bold' : 'text-ink-muted hover:text-ink-soft'
-              }`}
-            >
-              <Icon className="nav-icon w-5 h-5" />
-              <span className="text-[11px]">
-                <span className="nav-key hidden">[{index + 1}]</span>
-                {label}
-              </span>
-            </button>
-          ))}
-          <span className="nav-status hidden text-[11px] text-ink-muted">
-            sqlite:{syncStatus.connected ? 'ok' : 'offline'} pending:{syncStatus.pendingChanges}
-          </span>
-        </div>
-      </nav>
 
       {/* Settings Modal */}
       {isSettingsOpen && (

@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- One design, the Departure Board, replaces the five themes and the Appearance tab. The live workout screen is rebuilt as a board: the current exercise owns it, with load and reps on split-flap digits, the rest countdown beside it and the rest of the workout as one-line rows. Other screens take the new colors and fonts; their own layouts follow. The keyboard command line and shortcuts now work for everyone. Finishing shows a flap "Logged" instead of confetti, and `canvas-confetti` and the old themes' fonts are gone.
+- Desktop web only: the tabs moved from the bottom navigation into a header band, and the tracker keeps its rest timer beside the board at every width.
+
+### Fixed
+- Discard, Leave, Delete and the other confirmations did nothing in browsers that suppress the confirm box. They now ask in a dialog on the page.
 - TypeScript 7. It refuses side-effect imports without type declarations, so the app's tsconfig now loads `vite/client`, which declares the CSS and font imports.
 - Vite 8, with `@vitejs/plugin-react` 6, the first version that supports it (Dependabot's #6 bumped Vite alone and failed `npm ci`).
 - React 19 (`react`, `react-dom` and their types, upgraded together because each pair's types require the other's major version). The command line's input ref is typed as nullable, as React 19's `useRef` returns.

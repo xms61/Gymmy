@@ -18,12 +18,11 @@ test('shows a stored date as the same calendar day', () => {
   assert.equal(formatDisplayDate('2026-09-07'), 'Monday, Sep 7, 2026');
 });
 
-test('writes a session date out only for themes that ask for it', () => {
-  assert.equal(formatSessionDate('2026-09-24', 'numeric'), '2026-09-24');
-  assert.equal(formatSessionDate('2026-09-24', 'written'), 'Thursday, 24 September');
-  assert.equal(formatSessionDate('2026-01-01', 'written'), 'Thursday, 1 January');
+test('writes a session date as weekday, day and month', () => {
+  assert.equal(formatSessionDate('2026-09-24'), 'Thu 24 Sep');
+  assert.equal(formatSessionDate('2026-01-01'), 'Thu 1 Jan');
 });
 
-test('shortens a date to day and month for a stamp', () => {
+test('shortens a date to day and month', () => {
   assert.equal(formatDayMonth('2026-09-24'), '24 Sep');
 });
