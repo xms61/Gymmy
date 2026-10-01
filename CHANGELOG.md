@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- TypeScript 7. It refuses side-effect imports without type declarations, so the app's tsconfig now loads `vite/client`, which declares the CSS and font imports.
 - Vite 8, with `@vitejs/plugin-react` 6, the first version that supports it (Dependabot's #6 bumped Vite alone and failed `npm ci`).
 - React 19 (`react`, `react-dom` and their types, upgraded together because each pair's types require the other's major version). The command line's input ref is typed as nullable, as React 19's `useRef` returns.
 

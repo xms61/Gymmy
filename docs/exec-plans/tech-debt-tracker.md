@@ -9,5 +9,5 @@ Known shortcuts and gaps, written down so they are paid off on purpose instead o
 
 | Debt | Where | Cost of leaving it | Found | Plan |
 | :-- | :-- | :-- | :-- | :-- |
-| No linter or formatter | `package.json`, `.github/workflows/ci.yml` | The layer rules in ARCHITECTURE.md and the code style are checked only in review, and formatting drifts between files | 2026-10-01 | Add ESLint (with `no-restricted-imports` for the layers) and Prettier in their own PR, formatting the whole codebase in one commit |
+| No linter or formatter | `package.json`, `.github/workflows/ci.yml` | The layer rules in ARCHITECTURE.md and the code style are checked only in review, and formatting drifts between files | 2026-10-01 | Add ESLint (with `no-restricted-imports` for the layers) and Prettier in their own PR, formatting the whole codebase in one commit. Check first that typescript-eslint supports TypeScript 7; when ysto added it, typescript-eslint supported TypeScript below 6.1 only |
 | React components have no automated tests | `src/components/` | UI regressions are found only by hand in `npm run dev` | 2026-10-01 | Add Vitest with jsdom and Testing Library for the tracker first, since it holds the most logic |
