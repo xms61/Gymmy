@@ -32,6 +32,11 @@ reports/
 # Logs
 *.log
 
+# Personal Claude Code settings and its worktrees
+.claude/settings.local.json
+.claude/worktrees/
+CLAUDE.local.md
+
 # Editors and OS
 .idea/
 .vscode/*

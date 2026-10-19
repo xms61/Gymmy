@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-// Checks the knowledge base described in docs/KNOWLEDGE_BASE.md: links resolve, every doc is
-// reachable from AGENTS.md, docs carry status frontmatter, indexes list their folder, exec plans
-// have their sections. Exits non-zero on errors; stale docs are warnings for the gardening pass.
+// Checks the knowledge base described in docs/KNOWLEDGE_BASE.md: links resolve, every doc is reachable from
+// AGENTS.md, docs carry status frontmatter, folder indexes list their docs, exec plans have their sections, and
+// every `npm run` command names a script in package.json.
+// Exits non-zero on errors. Warnings (stale docs) are the doc-gardening pass's work list.
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join, posix, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -12,7 +13,7 @@ const STALE_AFTER_DAYS = 90;
 const STATUSES = ['stub', 'draft', 'verified'];
 const SKIPPED_DIRS = new Set([
   '.git',
-  '.claude',
+  '.claude/worktrees',
   '.impeccable',
   '.venv',
   'node_modules',
@@ -24,7 +25,10 @@ const SKIPPED_DIRS = new Set([
   'docs/scratch',
   'docs/plans',
 ]);
-const META_FILES = new Set(['AGENTS.md', 'CLAUDE.md', 'README.md', 'CHANGELOG.md', 'docs/CHANGELOG-archive.md']);
+// Entry points, changelogs and agent config: their links are checked, but they need no frontmatter and no
+// inbound link.
+const META_FILES = new Set(['AGENTS.md', 'CLAUDE.md', 'README.md', 'REVIEW.md', 'CHANGELOG.md', 'docs/CHANGELOG-archive.md']);
+const META_DIRS = ['.github/', '.claude/'];
 const INDEXED_DIRS = ['docs/design-docs'];
 const PLAN_SECTIONS = {
   'docs/exec-plans/active': ['Purpose', 'Progress', 'Decision log'],
@@ -43,25 +47,42 @@ function listMarkdown(root, dir = '') {
   return files;
 }
 
-// meta: entry points and changelogs; generated/reference: not hand-written; plan: exec plans; doc: the rest.
+// meta: entry points and agent config; generated/reference: not hand-written; plan: exec plans; doc: the rest.
 function kindOf(path) {
-  if (META_FILES.has(path) || path.startsWith('.github/')) return 'meta';
+  if (META_FILES.has(path) || META_DIRS.some((dir) => path.startsWith(dir))) return 'meta';
   if (path.startsWith('docs/generated/')) return 'generated';
   if (path.startsWith('docs/references/')) return 'reference';
   if (Object.keys(PLAN_SECTIONS).includes(posix.dirname(path))) return 'plan';
   return 'doc';
 }
 
-function withoutCode(text) {
-  return text.replace(/^(```|~~~)[^\n]*\n[\s\S]*?^\1[^\n]*$/gm, '').replace(/`[^`\n]*`/g, '');
+function withoutInlineCode(line) {
+  return line.replace(/`[^`\n]*`/g, '');
+}
+
+// The lines outside fenced code blocks, inline code removed, with their 1-based line numbers.
+function proseLines(text) {
+  const lines = [];
+  let fence = null;
+  text.split(/\r?\n/).forEach((line, index) => {
+    const marker = line.match(/^\s*(```|~~~)/)?.[1];
+    if (marker && (!fence || marker === fence)) {
+      fence = fence ? null : marker;
+      return;
+    }
+    if (!fence) lines.push({ number: index + 1, text: withoutInlineCode(line) });
+  });
+  return lines;
 }
 
 function linkTargets(text) {
   const targets = [];
-  for (const match of withoutCode(text).matchAll(/\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g)) {
-    const target = match[1];
-    if (/^[a-z][a-z0-9+.-]*:/i.test(target) || target.startsWith('#')) continue;
-    targets.push(decodeURIComponent(target.split('#')[0]));
+  for (const { text: line } of proseLines(text)) {
+    for (const match of line.matchAll(/\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g)) {
+      const target = match[1];
+      if (/^[a-z][a-z0-9+.-]*:/i.test(target) || target.startsWith('#')) continue;
+      targets.push(decodeURIComponent(target.split('#')[0]));
+    }
   }
   return targets;
 }
@@ -82,19 +103,22 @@ function parseFrontmatter(text) {
   return fields;
 }
 
-function isoDate(date) {
-  return [date.getFullYear(), date.getMonth() + 1, date.getDate()].map((n) => String(n).padStart(2, '0')).join('-');
+function utcIso(date) {
+  return date.toISOString().slice(0, 10);
 }
 
-function frontmatterProblems(fields, todayIso) {
-  if (!fields) return { errors: ['missing frontmatter (status, last-verified)'], warnings: [] };
+// Dates are UTC, the date CI runs in. One day of slack accepts a date written on a clock ahead of UTC.
+function frontmatterProblems(fields, today) {
+  if (!fields)
+    return { errors: ['missing frontmatter; start the file with status (stub, draft or verified) and last-verified'], warnings: [] };
   const errors = [];
   if (!STATUSES.includes(fields.status)) errors.push(`status must be one of ${STATUSES.join(', ')}`);
   const lastVerified = fields['last-verified'] ?? '';
   const verifiedMs = /^\d{4}-\d{2}-\d{2}$/.test(lastVerified) ? Date.parse(lastVerified) : NaN;
   if (Number.isNaN(verifiedMs)) return { errors: [...errors, 'last-verified must be a YYYY-MM-DD date'], warnings: [] };
-  if (lastVerified > todayIso) errors.push('last-verified is in the future');
-  const ageDays = Math.round((Date.parse(todayIso) - verifiedMs) / DAY_MS);
+  if (lastVerified > utcIso(new Date(today.getTime() + DAY_MS)))
+    errors.push("last-verified is in the future; use today's UTC date");
+  const ageDays = Math.round((Date.parse(utcIso(today)) - verifiedMs) / DAY_MS);
   const warnings =
     fields.status === 'verified' && ageDays > STALE_AFTER_DAYS
       ? [`verified ${ageDays} days ago; re-check it against the code`]
@@ -120,7 +144,7 @@ function reachableFrom(entry, texts) {
 
 function indexProblems(dir, texts, statuses) {
   const indexPath = `${dir}/index.md`;
-  if (!texts.has(indexPath)) return [`${indexPath}: missing index`];
+  if (!texts.has(indexPath)) return [`${indexPath}: missing index; add one with a row per doc in ${dir}/`];
   const rowStatus = new Map();
   for (const line of texts
     .get(indexPath)
@@ -146,22 +170,46 @@ function indexProblems(dir, texts, statuses) {
 }
 
 function missingSections(text, sections) {
-  const headings = new Set([...withoutCode(text).matchAll(/^##\s+(.+?)\s*$/gm)].map((m) => m[1].toLowerCase()));
+  const headings = new Set(
+    proseLines(text)
+      .map(({ text: line }) => line.match(/^##\s+(.+?)\s*$/)?.[1].toLowerCase())
+      .filter(Boolean),
+  );
   return sections.filter((section) => !headings.has(section.toLowerCase()));
+}
+
+// The npm scripts package.json defines; none when it is missing or unreadable.
+function npmScripts(root) {
+  try {
+    return new Set(Object.keys(JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).scripts ?? {}));
+  } catch {
+    return new Set();
+  }
+}
+
+// `npm run <script>` commands, in code too, since that is where commands are written. Options before the name
+// (`npm run -s verify`) and a trailing full stop aren't part of it.
+function npmRunCommands(text) {
+  const commands = [];
+  text.split(/\r?\n/).forEach((line, index) => {
+    for (const match of line.matchAll(/\bnpm run (?:--?[\w-]+(?:=\S+)?\s+)*(\w[\w:-]*(?:\.[\w:-]+)*)/g))
+      commands.push({ number: index + 1, script: match[1] });
+  });
+  return commands;
 }
 
 export function checkDocs(root, today = new Date()) {
   const errors = [];
   const warnings = [];
-  const todayIso = isoDate(today);
   const texts = new Map(listMarkdown(root).map((path) => [path, readFileSync(join(root, path), 'utf8')]));
   if (!texts.has(ENTRY)) return { errors: [`${ENTRY}: missing`], warnings };
 
   const entryLines = texts.get(ENTRY).trimEnd().split(/\r?\n/).length;
   if (entryLines > ENTRY_MAX_LINES)
-    errors.push(`${ENTRY}: ${entryLines} lines, the limit is ${ENTRY_MAX_LINES}; move detail into docs/`);
+    errors.push(`${ENTRY}: ${entryLines} lines, the limit is ${ENTRY_MAX_LINES}; move detail into docs/ and link it`);
 
   const reachable = reachableFrom(ENTRY, texts);
+  const scripts = npmScripts(root);
   const statuses = new Map();
   for (const [path, text] of texts) {
     const kind = kindOf(path);
@@ -169,15 +217,22 @@ export function checkDocs(root, today = new Date()) {
     for (const target of linkTargets(text)) {
       if (!existsSync(join(root, resolveLink(path, target)))) errors.push(`${path}: broken link to ${target}`);
     }
+    for (const { number, script } of npmRunCommands(text)) {
+      if (!scripts.has(script))
+        errors.push(
+          `${path}:${number}: \`npm run ${script}\` names no script in package.json; fix the command, or add the script to package.json`,
+        );
+    }
     if (kind === 'plan') {
       const missing = missingSections(text, PLAN_SECTIONS[posix.dirname(path)]);
       if (missing.length) errors.push(`${path}: missing sections: ${missing.join(', ')}`);
     }
     if (kind !== 'doc') continue;
-    if (!reachable.has(path)) errors.push(`${path}: not linked from ${ENTRY} or any doc it links to`);
+    if (!reachable.has(path))
+      errors.push(`${path}: not linked from ${ENTRY} or any doc it links to; add it to the map or a related doc`);
     const fields = parseFrontmatter(text);
     statuses.set(path, fields?.status);
-    const problems = frontmatterProblems(fields, todayIso);
+    const problems = frontmatterProblems(fields, today);
     errors.push(...problems.errors.map((problem) => `${path}: ${problem}`));
     warnings.push(...problems.warnings.map((problem) => `${path}: ${problem}`));
   }
@@ -192,7 +247,10 @@ function main() {
   const { errors, warnings } = checkDocs(join(dirname(fileURLToPath(import.meta.url)), '..'));
   for (const warning of warnings) console.warn(`warning: ${warning}`);
   for (const error of errors) console.error(`error: ${error}`);
-  if (errors.length) process.exit(1);
+  if (errors.length) {
+    console.error('The doc rules are in docs/KNOWLEDGE_BASE.md.');
+    process.exit(1);
+  }
   console.log(`Docs OK${warnings.length ? ` (${warnings.length} warnings)` : ''}.`);
 }
 

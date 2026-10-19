@@ -7,6 +7,12 @@
     "node": ">=22.18"
   },
   "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "verify": "npm run check:files && npm run check:docs && npm run check:skills && npm run test:scripts && npm run test:ci && npm run build",
+    "check:docs": "node scripts/check-docs.mjs",
+    "check:files": "node scripts/check-tracked-files.mjs",
+    "check:skills": "node scripts/check-skills.mjs",
+    "test:scripts": "node --test --test-reporter=dot \"scripts/**/*.test.mjs\"",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",

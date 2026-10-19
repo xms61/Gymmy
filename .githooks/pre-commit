@@ -1,4 +1,10 @@
 #!/bin/sh
-# Blocks commits that would publish media, data, secrets or details of this machine.
-# Enable once per clone: git config core.hooksPath .githooks
-exec node scripts/check-tracked-files.mjs --staged
+# Fast checks before every commit, enabled by `npm run setup`. CI runs the full `npm run verify`.
+# Blocks commits that would publish media, data, secrets or details of this machine, and broken docs or skills.
+set -e
+node scripts/check-tracked-files.mjs --staged
+node scripts/check-docs.mjs
+node scripts/check-skills.mjs
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks git --pre-commit --staged --redact --config .gitleaks.toml
+fi

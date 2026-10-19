@@ -5,7 +5,7 @@ import { dirname, join } from 'node:path';
 import { after, test } from 'node:test';
 import { checkDocs } from './check-docs.mjs';
 
-const TODAY = new Date(2026, 8, 25);
+const TODAY = new Date(Date.UTC(2026, 8, 25));
 const roots = [];
 after(() => roots.forEach((root) => rmSync(root, { recursive: true, force: true })));
 
@@ -47,22 +47,30 @@ test('ignores links inside code', () => {
 
 test('reports a doc nothing links to', () => {
   const root = minimalRepo({ 'docs/ORPHAN.md': `${frontmatter()}# Orphan\n` });
-  assert.deepEqual(checkDocs(root, TODAY).errors, ['docs/ORPHAN.md: not linked from AGENTS.md or any doc it links to']);
+  assert.deepEqual(checkDocs(root, TODAY).errors, [
+    'docs/ORPHAN.md: not linked from AGENTS.md or any doc it links to; add it to the map or a related doc',
+  ]);
 });
 
 test('reports missing and invalid frontmatter', () => {
   const missing = minimalRepo({ 'docs/STYLE.md': '# Style\n' });
   const invalid = minimalRepo({ 'docs/STYLE.md': `${frontmatter('done', 'soon')}# Style\n` });
-  assert.deepEqual(checkDocs(missing, TODAY).errors, ['docs/STYLE.md: missing frontmatter (status, last-verified)']);
+  assert.deepEqual(checkDocs(missing, TODAY).errors, [
+    'docs/STYLE.md: missing frontmatter; start the file with status (stub, draft or verified) and last-verified',
+  ]);
   assert.deepEqual(checkDocs(invalid, TODAY).errors, [
     'docs/STYLE.md: status must be one of stub, draft, verified',
     'docs/STYLE.md: last-verified must be a YYYY-MM-DD date',
   ]);
 });
 
-test('reports a last-verified date in the future', () => {
-  const root = minimalRepo({ 'docs/STYLE.md': `${frontmatter('draft', '2026-09-26')}# Style\n` });
-  assert.deepEqual(checkDocs(root, TODAY).errors, ['docs/STYLE.md: last-verified is in the future']);
+test('accepts a date one day ahead of UTC, and reports one further ahead', () => {
+  const tomorrow = minimalRepo({ 'docs/STYLE.md': `${frontmatter('draft', '2026-09-26')}# Style\n` });
+  const later = minimalRepo({ 'docs/STYLE.md': `${frontmatter('draft', '2026-09-27')}# Style\n` });
+  assert.deepEqual(checkDocs(tomorrow, TODAY).errors, []);
+  assert.deepEqual(checkDocs(later, TODAY).errors, [
+    "docs/STYLE.md: last-verified is in the future; use today's UTC date",
+  ]);
 });
 
 test('warns about a verified doc not re-checked for over 90 days', () => {
@@ -77,7 +85,9 @@ test('warns about a verified doc not re-checked for over 90 days', () => {
 
 test('reports an AGENTS.md longer than 100 lines', () => {
   const root = minimalRepo({ 'AGENTS.md': `[Style](docs/STYLE.md)\n${'line\n'.repeat(100)}` });
-  assert.deepEqual(checkDocs(root, TODAY).errors, ['AGENTS.md: 101 lines, the limit is 100; move detail into docs/']);
+  assert.deepEqual(checkDocs(root, TODAY).errors, [
+    'AGENTS.md: 101 lines, the limit is 100; move detail into docs/ and link it',
+  ]);
 });
 
 test('reports an index that misses a doc or disagrees on its status', () => {
@@ -104,12 +114,46 @@ test('reports exec plans missing their required sections', () => {
   ]);
 });
 
-test('skips frontmatter and linking rules for meta, generated and scratch files', () => {
+test('checks links in agent config and changelogs but needs no frontmatter there', () => {
   const root = minimalRepo({
     'README.md': '# Readme\n',
-    '.github/RELEASE_PROCESS.md': '# Release\n',
+    'docs/CHANGELOG-archive.md': '# Older releases\n',
+    '.github/RELEASE_PROCESS.md': '[Map](../AGENTS.md)\n',
+    '.claude/skills/plan/SKILL.md': '---\nname: plan\n---\n[Gone](../../../docs/GONE.md)\n',
+  });
+  assert.deepEqual(checkDocs(root, TODAY).errors, [
+    '.claude/skills/plan/SKILL.md: broken link to ../../../docs/GONE.md',
+  ]);
+});
+
+test('passes when every npm run command in the docs names a script in package.json', () => {
+  const root = minimalRepo({
+    'package.json': JSON.stringify({ scripts: { verify: 'x', 'check:files': 'x' } }),
+    'docs/STYLE.md': `${frontmatter()}Run \`npm run verify\`, \`npm run -s verify\` or npm run verify.\n\`\`\`bash\nnpm run check:files -- --staged\n\`\`\`\nAdd a script with \`npm run <name>\`.\n`,
+  });
+  assert.deepEqual(checkDocs(root, TODAY).errors, []);
+});
+
+test('reports an npm run command whose script is not in package.json', () => {
+  const root = minimalRepo({
+    'package.json': JSON.stringify({ scripts: { verify: 'x' } }),
+    'AGENTS.md': '# Map\n[Style](docs/STYLE.md)\n| Lint | `npm run lint` |\n',
+    'docs/STYLE.md': `${frontmatter()}\`\`\`bash\nnpm run verify && npm run typecheck\n\`\`\`\n`,
+  });
+  const fix = 'fix the command, or add the script to package.json';
+  assert.deepEqual(checkDocs(root, TODAY).errors, [
+    `AGENTS.md:3: \`npm run lint\` names no script in package.json; ${fix}`,
+    `docs/STYLE.md:6: \`npm run typecheck\` names no script in package.json; ${fix}`,
+  ]);
+});
+
+test('skips generated docs, local data and notes, and agent worktrees', () => {
+  const root = minimalRepo({
     'docs/generated/db-schema.md': '# Schema\n',
     'docs/scratch/notes.md': '[x](missing.md)\n',
+    'docs/plans/old.md': '[x](missing.md)\n',
+    'data/notes.md': '[x](missing.md)\n',
+    '.claude/worktrees/copy/AGENTS.md': '[x](missing.md)\n',
   });
   assert.deepEqual(checkDocs(root, TODAY), { errors: [], warnings: [] });
 });

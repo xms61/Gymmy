@@ -11,7 +11,11 @@ import { fileURLToPath } from 'node:url';
 const MAX_BYTES = 1024 * 1024;
 const MAX_READ_BYTES = 64 * 1024 * 1024;
 const BINARY_SNIFF_BYTES = 8000;
+// A bare user or host name is matched anywhere in the text, so generic account names ("Admin") would match
+// ordinary words and block every commit. They identify nobody, and the home-path patterns still catch them in
+// paths. The length floor is three, not the template's five, because this machine's user name is that short.
 const MIN_MACHINE_NAME_LENGTH = 3;
+const GENERIC_NAMES = new Set(['admin', 'administrator', 'guest', 'owner', 'runner', 'ubuntu', 'localhost']);
 const SIZE_LIMIT_EXEMPT = new Set(['package-lock.json']);
 const FORBIDDEN_EXTENSIONS = new Set([
   'ogg',
@@ -85,7 +89,7 @@ function escapeRegExp(text) {
 
 export function machineNamePatterns(names) {
   return names
-    .filter((name) => name.length >= MIN_MACHINE_NAME_LENGTH)
+    .filter((name) => name.length >= MIN_MACHINE_NAME_LENGTH && !GENERIC_NAMES.has(name.toLowerCase()))
     .map((name) => new RegExp(`(?<![\\w-])${escapeRegExp(name)}(?![\\w-])`, 'i'));
 }
 
@@ -93,7 +97,8 @@ export function machineNamePatterns(names) {
 function contentErrors(text, machinePatterns) {
   const errors = [];
   text.split(/\r?\n/).forEach((line, index) => {
-    if (HOME_PATH_PATTERNS.some((pattern) => pattern.test(line))) errors.push(`line ${index + 1}: home-folder path`);
+    if (HOME_PATH_PATTERNS.some((pattern) => pattern.test(line)))
+      errors.push(`line ${index + 1}: home-folder path; refer to the location relative to the repo instead`);
     if (machinePatterns.some((pattern) => pattern.test(line)))
       errors.push(`line ${index + 1}: this machine's user or host name`);
   });
@@ -154,7 +159,9 @@ function main() {
   const errors = checkTrackedFiles(listedPaths(staged).map(indexedFile), patterns);
   for (const error of errors) console.error(`error: ${error}`);
   if (errors.length) {
-    console.error('These files must not be committed. The rules are in the guardrails of .github/RELEASE_PROCESS.md.');
+    console.error(
+      'Unstage these files (git restore --staged <file>) or remove the text. Rules: the guardrails in .github/RELEASE_PROCESS.md.',
+    );
     process.exit(1);
   }
   console.log(`Tracked files OK (${staged ? 'staged files' : 'all tracked files'}).`);

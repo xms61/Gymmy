@@ -1,11 +1,15 @@
 # Weekly update pull requests for npm packages and the pinned GitHub Actions.
-# Minor and patch npm updates arrive as one grouped pull request.
 version: 2
 updates:
+  # Minor and patch updates arrive as one grouped pull request; each major gets its own. The cooldown matches
+  # min-release-age in .npmrc, so Dependabot doesn't propose a version npm would refuse. Security updates, a
+  # repository setting, would skip it.
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
     groups:
       npm-minor-and-patch:
         update-types: [minor, patch]
