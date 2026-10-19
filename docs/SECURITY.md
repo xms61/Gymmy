@@ -42,7 +42,7 @@ Each boundary in [AGENTS.md](../AGENTS.md) and what stops an agent from crossing
 | Never downgrade a dependency to make a build pass | Partly: the guard hook blocks hand edits of the lockfile. Otherwise review only |
 | Ask before adding a dependency | Partly: Claude Code asks before `npm install` and `npm i` (Bash and PowerShell), not `npm add` or hand edits of `package.json` |
 | Ask before changing CI workflows or agent config | Claude Code asks before editing `.github/workflows/`, `.githooks/`, `.claude/`, `.npmrc` and `scripts/agent-hooks/`; REVIEW.md flags such changes for a person |
-| Never push to `main` | Partly: Claude Code asks before a `git push` that names `main`, not a bare `git push` from `main`. The ruleset on `main` doesn't require a pull request yet |
+| Never push to `main` | The repository ruleset on `main`, which requires a pull request with the `verify` and `secrets` checks passing; Claude Code also asks before a `git push` that names `main` |
 | Ask before working on an issue without the `ready-for-agent` label | Partly: only people with triage access can apply labels on GitHub. Nothing stops a local agent from reading an unlabelled issue |
 | Keep the change to the task; ask before deleting files you didn't create or migrating stored data | Judgment: review only |
 
