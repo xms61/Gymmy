@@ -13,7 +13,7 @@ The repository is on GitHub (`origin`, xms61/Gymmy). Each change is one branch, 
 ## Branching
 - `main` always builds and runs.
 - One branch per concern, named `<kind>/<short-topic>` (`setup/phase-0`, `fix/exercise-order`, `refactor/server-split`). A refactor and a behavior change go on separate branches.
-- Merge the pull request with "Create a merge commit" (the same as `git merge --no-ff`), so each change stays one unit in the history, then delete the branch.
+- Merge the pull request with "Squash and merge", so each change stays one commit in the history, then delete the branch. The ruleset on `main` requires linear history, which refuses merge commits, and the `verify` and `secrets` checks.
 
 ## Version
 - Semantic versioning in `package.json`: patch for fixes, minor for features, major for changes to stored data that old versions can't read.

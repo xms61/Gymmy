@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- Pull requests are squash-merged: the ruleset on `main` now requires linear history, a pull request, and the `verify` and `secrets` checks.
 - The repo setup follows the current agentic-repo-template, for Claude Code only. `npm run setup` enables the git hooks and `npm run verify` runs every check; CI runs it on Linux, Windows and macOS, with gitleaks in its own job, and runs no AI agent. The pre-commit hook adds the doc and skills checks, and gitleaks when it is installed. The doc check also fails on an `npm run` command with no script, checks links in `.claude/`, and dates `last-verified` in UTC.
 - Settings is its own screen, opened from the gear or the sync status: the exercise targets as one table, with the data, backup and clear-history tools beside it. Dialogs and the plate calculator take the board's style.
 - Calendar shows the month (now Monday first, each workout with its split's name) and the chosen day's workouts side by side, without a pop-up, and opens on the latest training day. Progress lists every exercise with its estimated 1RM; the chosen one shows its best load and 1RM on flaps, the next target, the charts and every session in a table.
