@@ -1,20 +1,28 @@
 ---
 status: draft
-last-verified: 2026-09-24
+last-verified: 2026-10-19
 ---
 
 # Testing
 
 Tests use Node's built-in runner (`node:test` with `node:assert/strict`). Node runs the `.ts` files directly by stripping types, so there is no test framework or build step.
 
+## Principles
+- Test first: write or update the test, watch it fail for the right reason, then make it pass. A test that has never failed proves nothing.
+- `npm run verify` runs every check a change must pass, locally and in CI. When it gets slow, use a narrower command in the edit loop (one test file, `npm test`); don't drop checks from `verify`.
+- Quiet on success, specific on failure: a failing test names the case and the expected and actual values.
+- Never weaken, skip or delete a failing test to get green. If the test is wrong, fix it in its own commit and say why in the PR.
+- A behavior that a unit test can't reach (a UI flow) gets proved on the running app ([below](#proving-behavior)).
+
 | Command | What | Where |
 | :-- | :-- | :-- |
 | `npm test` | Unit and integration tests | `tests/**/*.test.ts` |
 | `npm run test:coverage` | Tests with coverage thresholds (lines/functions ≥ 85 %, branches ≥ 75 %) | flags in `package.json` |
 | `npm run test:ci` | Typecheck, then tests with coverage | `package.json` |
-| `node --test scripts/*.test.mjs` | Tests of the doc and tracked-files checks | `scripts/` |
+| `npm run test:scripts` | Tests of the repo checks and the agent guard hook | `scripts/**/*.test.mjs`, next to each script |
+| `npm run verify` | The repo checks, their tests, `test:ci` and the build | `package.json` |
 
-CI (`.github/workflows/ci.yml`) runs these, the repo checks and the build on Node 22 for every pull request and every push to `main` ([release process](../.github/RELEASE_PROCESS.md)).
+CI (`.github/workflows/ci.yml`) runs `npm run verify` on Linux, Windows and macOS, on the Node version in `.nvmrc`, for every pull request and every push to `main` ([release process](../.github/RELEASE_PROCESS.md)).
 
 Coverage counts the `src/` and `server/` modules that tests import. React components have no automated tests; check UI changes in the running app (`npm run dev`).
 
@@ -45,3 +53,13 @@ Type stripping only removes type syntax. `tsconfig` enforces the rules it needs,
 ## When a test fails
 - Rerun the single file (see the one-file command in `AGENTS.md`) to see the full error.
 - Fix the code, not the assertion, unless the assertion was wrong. Say which one it was in the PR.
+
+## Proving behavior
+When a change alters what the user sees or does, prove it on the running app (`npm run dev`), not on a proxy such as a passing build or the agent's own report.
+- Use the real user path: the UI or the public `/api`, never internal setters or test-only endpoints.
+- Capture the action and the state it led to, not only the final screen, and check the side effects: rows stored, localStorage written, requests sent.
+- Never drive the app against the real `data/gymmy.db` with test data. The server keeps its data in `data/` under the folder it starts in, so run the dev server from a separate git worktree, whose `data/` starts empty, or check read-only screens only.
+- When a precondition is missing, the proof fails and says which. Never weaken the journey to make it pass.
+- Keep the evidence (screenshots, response bodies, exit codes) where the PR can point to it, and say in the PR what you could not check.
+
+A `verify-gymmy` skill in `.claude/skills/` that launches, drives and cleans up the app the same way every time is not written yet ([tech-debt tracker](exec-plans/tech-debt-tracker.md)).

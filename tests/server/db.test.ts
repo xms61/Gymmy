@@ -24,8 +24,10 @@ const VERSION_0_SCHEMA = `
   );
 `;
 
+// The real path, because SQLite reports the database file with symlinks resolved (macOS's tmpdir is under /var,
+// a symlink to /private/var), and paths derived from it must match.
 function tempDataDir(t: TestContext): string {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gymmy-'));
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'gymmy-')));
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
   return dir;
 }

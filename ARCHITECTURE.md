@@ -1,6 +1,6 @@
 ---
 status: draft
-last-verified: 2026-10-01
+last-verified: 2026-10-19
 ---
 
 # Architecture
@@ -21,7 +21,8 @@ Gymmy is a single-user Push/Pull/Legs workout tracker. A React client, bundled b
   - `src/utils/`: dates and the rest-timer chime.
 - `tests/`: `node:test` tests of the pure modules, and `tests/server/` for the API against temp-dir databases ([TESTING.md](docs/TESTING.md)).
 - `vite.config.ts`: wires in the API plugin and puts the design tokens in `<head>`.
-- `scripts/`: the repo checks (`check-docs.mjs`, `check-tracked-files.mjs`) and their tests.
+- `scripts/`: the repo checks (`check-docs.mjs`, `check-tracked-files.mjs`, `check-skills.mjs`), `setup.mjs`, which enables the git hooks, and `agent-hooks/guard-tool-use.mjs`, the Claude Code guard hook; each with tests.
+- `.claude/`: Claude Code's settings, reviewer subagent and skills ([AGENT_TOOLS.md](docs/AGENT_TOOLS.md)).
 - `docs/`: the knowledge base ([KNOWLEDGE_BASE.md](docs/KNOWLEDGE_BASE.md)).
 
 ## Layers

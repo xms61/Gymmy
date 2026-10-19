@@ -13,7 +13,9 @@ npm run dev
 The dev server opens `http://localhost:3000`. Gymmy reads no environment variables.
 
 ## Commands
-See the Commands table in [AGENTS.md](AGENTS.md). Every pull request and every push to `main` runs the tracked-files and secret checks, the doc checks, the typecheck, the tests and the production build on GitHub Actions (`.github/workflows/ci.yml`). Enable the pre-commit hook once per clone with `git config core.hooksPath .githooks`; it refuses commits that hold training data, keys or paths from this machine.
+See the Commands table in [AGENTS.md](AGENTS.md). Run `npm run setup` once per clone to enable the pre-commit hook, which refuses commits that hold training data, keys or paths from this machine. `npm run verify` runs every check a change must pass: the tracked-files, doc and skills checks, the typecheck, the tests and the production build. GitHub Actions (`.github/workflows/ci.yml`) runs it on Linux, Windows and macOS for every pull request and every push to `main`, with gitleaks.
+
+The repo is set up for Claude Code: [CLAUDE.md](CLAUDE.md) and [docs/AGENT_TOOLS.md](docs/AGENT_TOOLS.md) say what it reads and what holds it to the repo's rules.
 
 How the code is laid out is in [ARCHITECTURE.md](ARCHITECTURE.md), and how the docs are kept in [docs/KNOWLEDGE_BASE.md](docs/KNOWLEDGE_BASE.md).
 

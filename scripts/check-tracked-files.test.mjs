@@ -9,6 +9,7 @@ const WINDOWS_HOME_JSON = ['C:', 'Users', 'someone', 'notes.txt'].join('\\\\');
 const GIT_BASH_HOME = ['', 'c', 'Users', 'someone', 'notes.txt'].join('/');
 const MAC_HOME = ['', 'Users', 'someone', 'notes.txt'].join('/');
 const LINUX_HOME = ['', 'home', 'someone', 'notes.txt'].join('/');
+const HOME_PATH_ERROR = 'home-folder path; refer to the location relative to the repo instead';
 
 function textFile(path, text) {
   return { path, size: Buffer.byteLength(text), text };
@@ -86,7 +87,7 @@ test('reports home-folder paths by line', () => {
   ].join('\n');
   assert.deepEqual(
     checkTrackedFiles([textFile('docs/notes.md', text)]),
-    [2, 3, 4, 5, 6, 7].map((line) => `docs/notes.md: line ${line}: home-folder path`),
+    [2, 3, 4, 5, 6, 7].map((line) => `docs/notes.md: line ${line}: ${HOME_PATH_ERROR}`),
   );
 });
 
@@ -111,4 +112,10 @@ test("reports this machine's user and host names, but not longer words that cont
 
 test('skips content checks for binary files', () => {
   assert.deepEqual(checkTrackedFiles([binaryFile('public/logo.png')]), []);
+});
+
+test('ignores generic account names, which match ordinary words', () => {
+  assert.deepEqual(machineNamePatterns(['Admin', 'ubuntu', 'localhost']), []);
+  const patterns = machineNamePatterns(['Admin']);
+  assert.deepEqual(checkTrackedFiles([textFile('README.md', 'Open the admin page')], patterns), []);
 });

@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- The repo setup follows the current agentic-repo-template, for Claude Code only. `npm run setup` enables the git hooks and `npm run verify` runs every check; CI runs it on Linux, Windows and macOS, with gitleaks in its own job, and runs no AI agent. The pre-commit hook adds the doc and skills checks, and gitleaks when it is installed. The doc check also fails on an `npm run` command with no script, checks links in `.claude/`, and dates `last-verified` in UTC.
 - Settings is its own screen, opened from the gear or the sync status: the exercise targets as one table, with the data, backup and clear-history tools beside it. Dialogs and the plate calculator take the board's style.
 - Calendar shows the month (now Monday first, each workout with its split's name) and the chosen day's workouts side by side, without a pop-up, and opens on the latest training day. Progress lists every exercise with its estimated 1RM; the chosen one shows its best load and 1RM on flaps, the next target, the charts and every session in a table.
 - Home is a platform sign: the next workout in yellow with Start, or the unfinished workout with Resume and Discard, then the targets on flap digits and the record (weekly streak, workouts, volume) along the foot. Bodyweight lifts with no load show BW.
@@ -25,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - React 19 (`react`, `react-dom` and their types, upgraded together because each pair's types require the other's major version). The command line's input ref is typed as nullable, as React 19's `useRef` returns.
 
 ### Added
+- Claude Code setup: `.claude/settings.json` (permissions, sandbox, a guard hook that blocks edits to `.env`, keys and the lockfile, skipped hooks and force pushes, and deny rules for `data/` and the spreadsheet), a `reviewer` subagent with `REVIEW.md`, and the skills exec-plan, doc-gardening, diagnosing-bugs and retro, checked by `scripts/check-skills.mjs`. `docs/AGENT_TOOLS.md` describes them, and `docs/SECURITY.md` lists what enforces each boundary in `AGENTS.md`.
+- `.npmrc` refuses package versions younger than seven days, and Dependabot waits as long.
 - A knowledge base for agent work, taken from the setup of the ysto repo: `ARCHITECTURE.md` (code map, layers, invariants), core beliefs and a design-doc index, exec plans with a template (`docs/PLANS.md`, `docs/exec-plans/`), a tech-debt tracker, `docs/RELIABILITY.md`, `docs/SECURITY.md`, a quality score stub and the doc rules (`docs/KNOWLEDGE_BASE.md`). Every doc now carries `status` and `last-verified` frontmatter.
 - `scripts/check-docs.mjs` checks links, frontmatter, reachability from `AGENTS.md`, the design-doc index and exec-plan sections. `scripts/check-tracked-files.mjs` refuses databases, spreadsheets, keys, `data/`, scratch notes, files over 1 MiB and home-folder paths; `.githooks/pre-commit` runs it on staged files. Both have tests.
 - CI runs both checks and gitleaks in two new jobs, `guard` and `docs`, and reads the Node version from `.nvmrc`. Pull requests get a template.
