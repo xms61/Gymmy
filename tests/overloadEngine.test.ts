@@ -66,6 +66,20 @@ test('keeps the load and asks for reps when later sets fall short', () => {
   assert.equal(rec.recommendedWeightKg, 60);
 });
 
+test('advises more rest when later sets fall below the range', () => {
+  const CASES: [label: string, reps: number[], advised: boolean][] = [
+    ['first set at the top, last below', [8, 6, 5], true],
+    ['first set in the range, last below', [7, 6, 5], true],
+    ['every set in the range', [7, 6, 6], false],
+    ['every set below the range', [5, 5, 4], false]
+  ];
+  for (const [label, reps, advised] of CASES) {
+    const rec = getRecommendation(flatBench(), [benchSession('2026-09-02', 60, reps)]);
+    assert.equal(rec.status, 'progress_reps', label);
+    assert.equal(/rest 2–3 minutes between sets, or stop the early sets 1–2 reps short of failure/.test(rec.reason), advised, label);
+  }
+});
+
 test('uses the most recent session when history is out of order', () => {
   const history = [benchSession('2026-09-01', 60, [8, 8, 8]), benchSession('2026-09-05', 62.5, [7, 6, 6])];
   const rec = getRecommendation(flatBench(), history);
@@ -82,6 +96,94 @@ test('deloads about 10 % when reps drop two sessions in a row, even inside the r
   const rec = getRecommendation(flatBench(), history);
   assert.equal(rec.status, 'deload');
   assert.equal(rec.recommendedWeightKg, 72.5);
+  assert.equal(rec.nextStepGoal, 'Train at 72.5 kg for one session: 2 sets, each stopped about 3 reps short of failure. Then return to 80 kg.');
+});
+
+test('a deload halves the sets, rounded up', () => {
+  const history = [
+    benchSession('2026-09-01', 80, [8, 7, 7, 7]),
+    benchSession('2026-09-03', 80, [7, 7, 6, 6]),
+    benchSession('2026-09-05', 80, [7, 6, 6, 5])
+  ];
+  const rec = getRecommendation({ ...flatBench(), targetSets: 4 }, history);
+  assert.match(rec.nextStepGoal, /: 2 sets,/);
+});
+
+function decliningAt80(): WorkoutSession[] {
+  return [
+    benchSession('2026-09-01', 80, [8, 7, 7]),
+    benchSession('2026-09-03', 80, [7, 7, 6]),
+    benchSession('2026-09-05', 80, [7, 6, 6])
+  ];
+}
+
+test('returns to the weight before the deload after one deload session', () => {
+  const rec = getRecommendation(flatBench(), [...decliningAt80(), benchSession('2026-09-08', 72.5, [8, 8])]);
+  assert.deepEqual([rec.status, rec.currentWeightKg, rec.recommendedWeightKg], ['increase_load', 72.5, 80]);
+  assert.equal(rec.reason, 'Deload done at 72.5 kg. Go back to 80 kg.');
+  assert.equal(rec.nextStepGoal, 'Return to 80 kg for 3 sets of 6–8 reps.');
+});
+
+test('does not return when the deload session used another weight', () => {
+  const rec = getRecommendation(flatBench(), [...decliningAt80(), benchSession('2026-09-08', 75, [7, 7, 7])]);
+  assert.deepEqual([rec.status, rec.recommendedWeightKg], ['progress_reps', 75]);
+});
+
+test('judges the weight afresh after returning from a deload', () => {
+  const history = [...decliningAt80(), benchSession('2026-09-08', 72.5, [8, 8]), benchSession('2026-09-12', 80, [7, 6, 6])];
+  const rec = getRecommendation(flatBench(), history);
+  assert.deepEqual([rec.status, rec.recommendedWeightKg], ['progress_reps', 80]);
+});
+
+test('deloads after three sessions without a new best or a gain at the same weight', () => {
+  const history = [
+    benchSession('2026-09-01', 70, [7, 7, 7]),
+    benchSession('2026-09-08', 70, [7, 7, 6]),
+    benchSession('2026-09-15', 70, [7, 6, 6]),
+    benchSession('2026-09-22', 70, [7, 6, 6])
+  ];
+  const rec = getRecommendation(flatBench(), history);
+  assert.deepEqual([rec.status, rec.recommendedWeightKg], ['deload', 62.5]);
+  assert.match(rec.reason, /^No new best in the last three sessions at 70 kg \(7 → 6\.7 → 6\.3 → 6\.3\)/);
+});
+
+test('a new best in the last three sessions is not a stall', () => {
+  const history = [
+    benchSession('2026-09-01', 70, [7, 7, 7]),
+    benchSession('2026-09-08', 70, [7, 7, 6]),
+    benchSession('2026-09-15', 70, [7, 6, 7]),
+    benchSession('2026-09-22', 70, [8, 7, 7])
+  ];
+  assert.equal(getRecommendation(flatBench(), history).status, 'progress_reps');
+});
+
+test('reps rising for three sessions are not a stall, even below an earlier best', () => {
+  const history = [
+    benchSession('2026-09-01', 60, [7, 6, 6]),
+    benchSession('2026-09-08', 60, [6, 5, 4]),
+    benchSession('2026-09-15', 60, [6, 5, 5]),
+    benchSession('2026-09-22', 60, [7, 5, 5])
+  ];
+  assert.equal(getRecommendation(flatBench(), history).status, 'progress_reps');
+});
+
+test('the strong first session after a deload does not set up the next stall', () => {
+  const history = [
+    ...decliningAt80(),
+    benchSession('2026-09-08', 72.5, [8, 8]),
+    benchSession('2026-09-12', 80, [8, 8, 7]),
+    benchSession('2026-09-19', 80, [7, 7, 7]),
+    benchSession('2026-09-26', 80, [8, 7, 7]),
+    benchSession('2026-10-03', 80, [8, 7, 7])
+  ];
+  assert.equal(getRecommendation(flatBench(), history).status, 'progress_reps');
+});
+
+test('a stall at the lowest load asks for an easier session at the same weight', () => {
+  const history = [10, 10, 10, 10].map((weightKg, i) => liftSession(`2026-09-0${i + 1}`, weightKg, [7, 7, 7]));
+  const rec = getRecommendation(lift('barbell'), history);
+  assert.deepEqual([rec.status, rec.recommendedWeightKg], ['progress_reps', 10]);
+  assert.equal(rec.nextStepGoal, 'Take an easier session at 10 kg: 2 sets, each stopped about 3 reps short of failure.');
 });
 
 test('does not deload after two sessions below the minimum without a downward trend', () => {
@@ -246,9 +348,11 @@ function dumbbellLift(targetRepsMin: number, targetRepsMax: number): ExerciseDef
 test('earns a big dumbbell jump with extra reps first', () => {
   const CASES: [label: string, min: number, max: number, weightKg: number, reps: number, status: OverloadStatus, recommendedKg: number][] = [
     ['Lateral Raise at the top of 10-15', 10, 15, 5, 15, 'progress_reps', 5],
-    ['Lateral Raise at 19 reps', 10, 15, 5, 19, 'increase_load', 7.5],
+    ['Lateral Raise at 29 reps', 10, 15, 5, 29, 'progress_reps', 5],
+    ['Lateral Raise at 30 reps', 10, 15, 5, 30, 'increase_load', 7.5],
     ['Incline DB Press at the top of 8-12', 8, 12, 10, 12, 'progress_reps', 10],
-    ['Incline DB Press at 14 reps', 8, 12, 10, 14, 'increase_load', 12.5],
+    ['Incline DB Press at 17 reps', 8, 12, 10, 17, 'progress_reps', 10],
+    ['Incline DB Press at 18 reps', 8, 12, 10, 18, 'increase_load', 12.5],
     ['a jump under 15 %', 8, 12, 17.5, 12, 'increase_load', 20]
   ];
   for (const [label, min, max, weightKg, reps, status, recommendedKg] of CASES) {
@@ -260,7 +364,7 @@ test('earns a big dumbbell jump with extra reps first', () => {
 test('names the reps a big jump needs', () => {
   const rec = getRecommendation(dumbbellLift(10, 15), [liftSession('2026-09-01', 5, [15, 15, 15])]);
   assert.equal(rec.reason, 'Every set reached the top of the range, but the next load, 7.5 kg, is 50 % heavier.');
-  assert.equal(rec.nextStepGoal, 'Build to 19 reps on every set at 5 kg, then move to 7.5 kg for 10 reps.');
+  assert.equal(rec.nextStepGoal, 'Build to 30 reps on every set at 5 kg, then move to 7.5 kg for 10 reps.');
 });
 
 test('never asks for more than 30 reps before a jump', () => {
