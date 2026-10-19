@@ -1,6 +1,6 @@
 ---
 status: draft
-last-verified: 2026-10-01
+last-verified: 2026-10-19
 ---
 
 # Product
@@ -18,7 +18,7 @@ One lifter, the owner, training a Push/Pull/Legs routine in a home gym with a 10
 Gymmy tells the lifter what to lift next and keeps an honest record of what was lifted. Each session it picks the next split in rotation, suggests a load and rep goal per exercise, times the rests, and stores every set. Success is a lifter who opens the app, does the suggested work, logs it without friction, and over months sees the estimated 1RM and volume climb.
 
 ## Positioning
-A progression engine built around one real gym, not a generic logger. Load suggestions are limited to the weights the owner's own plates, bar and dumbbell can make (`src/data/gymInventory.ts`), and the double-progression rules (top of range moves the load, jumps over 15 % are earned with extra reps by Brzycki, deload after two drops, lighter weight after three stalled sessions) are written for that equipment. The training history never leaves the owner's machine.
+A progression engine built around one real gym, not a generic logger. Load suggestions are limited to the weights the owner's own plates, bar and dumbbell can make (`src/data/gymInventory.ts`), and the double-progression rules (top of range moves the load, jumps over 15 % are earned with extra reps by Epley, a one-session deload after two drops or a stall, lighter weight after three stalled sessions below the range) are written for that equipment. The training history never leaves the owner's machine.
 
 ## Operating Context
 - Sessions follow the Push, Pull, Legs rotation; an "Other" workout does not move it.
