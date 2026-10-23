@@ -120,7 +120,7 @@ test('the focus ring stands out on every surface, in board black on yellow', () 
 type DimmedCase = [text: ColorToken, ownBackground: ColorToken | null, page: ColorToken];
 const DIMMED_TEXT: Record<string, DimmedCase[]> = {
   // Rows of exercises not up next: the name and its flaps.
-  'tracker/SessionBoard.tsx opacity-50': [
+  'components/tracker/SessionBoard.tsx opacity-50': [
     ['ink', null, 'bg'],
     ['ink', 'surface', 'bg'],
     ['ink', 'flap-low', 'bg']
@@ -176,12 +176,14 @@ function blend(top: string, under: string, alpha: number): string {
   return `#${a!.map((value, i) => Math.round(alpha * value + (1 - alpha) * b![i]!).toString(16).padStart(2, '0')).join('')}`;
 }
 
-// Every component's source, keyed by its path under src/components/ with forward slashes.
+// The source of App.tsx and every component, keyed by its path under src/ with forward slashes.
 function componentSources(): [file: string, source: string][] {
-  const root = new URL('../src/components/', import.meta.url);
+  const root = new URL('../src/', import.meta.url);
   // readdirSync names nested files with the OS separator, backslashes on Windows.
-  const files = readdirSync(root, { recursive: true }).map(name => String(name).split(/[\\/]/).join('/'));
-  return files.filter(name => name.endsWith('.tsx')).map(file => [file, readFileSync(new URL(file, root), 'utf8')]);
+  const components = readdirSync(new URL('components/', root), { recursive: true })
+    .map(name => `components/${String(name).split(/[\\/]/).join('/')}`)
+    .filter(name => name.endsWith('.tsx'));
+  return ['App.tsx', ...components].map(file => [file, readFileSync(new URL(file, root), 'utf8')]);
 }
 
 function componentDimming(): Map<string, DimmingClass> {
