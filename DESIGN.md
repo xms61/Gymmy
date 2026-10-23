@@ -352,10 +352,10 @@ A yellow `accent` panel with 4px corners across the content column, always one l
 A circle filled with the split colour, the split's first letter in bold Barlow Condensed `on-split`, and a ring: 1.5rem (`sm`) on start buttons and in calendar day cells, 2rem (`md`) in the band, beside saved-workout titles and on the progress rail's split headings, 3.5rem (`lg`, 5rem from 1280px wide) on the platform sign.
 
 ### Month board (calendar)
-The month and the chosen day side by side, no pop-up. Left: a Monday-first grid of square board cells (`inset`, `line` border), the day number in data type at the top left, and a route marker for each session that day; the chosen day is `surface` with an `ink` border, days of the neighbouring months sit at 40% opacity, and today's number sits on a small Departure White chip. Each training day shows a small route marker with the split's name beside it, one line per session. Right: the chosen date as the column's one heading, then each session as a row: route marker and split name, its time and volume on flaps and a delete button, then each exercise with its done sets as Set strip tiles (set number in `ink-faint`, load × reps in data type at 1.125rem, `ink-muted`, `tap-lg` tall) and its notes. The month's workouts and volume sit on flaps in the header. It opens on the latest training day, in its month; moving to another month opens that month's latest training day, or its 1st.
+The month and the chosen day side by side, no pop-up. Left: a Monday-first grid of square board cells (`inset`, `line` border), the day number in data type at the top left, and a route marker for each session that day; the chosen day is `surface` with an `ink` border, days of the neighbouring months show their number and split names in `ink-faint`, and today's number sits on a small Departure White chip. Each training day shows a small route marker with the split's name beside it, one line per session. Right: the chosen date as the column's one heading, then each session as a row: route marker and split name, its time and volume on flaps and a delete button, then each exercise with its done sets as Set strip tiles (set number in `ink-faint`, load × reps in data type at 1.125rem, `ink-muted`, `tap-lg` tall) and its notes. The month's workouts and volume sit on flaps in the header. It opens on the latest training day, in its month; moving to another month opens that month's latest training day, or its 1st.
 
 ### Exercise rail (progress)
-A rail of every exercise, grouped under its split's route marker, each row its name and latest estimated 1RM on flaps; the chosen row is on `surface`, and exercises with no sessions read "No sessions" at 50% opacity. Beside it, the chosen exercise: its name at Display size, its best load and best estimated 1RM on flaps (3.75rem, 4.5rem from 1280px wide), the next target and its status, two trend charts, then every session as a table row, newest first.
+A rail of every exercise, grouped under its split's route marker, each row its name and latest estimated 1RM on flaps; the chosen row is on `surface`, and exercises with no sessions read "No sessions", their name in `ink-muted`. Beside it, the chosen exercise: its name at Display size, its best load and best estimated 1RM on flaps (3.75rem, 4.5rem from 1280px wide), the next target and its status, two trend charts, then every session as a table row, newest first.
 
 ### Trend chart
 A 2px `ink` line over a 10% `ink` wash on hairline gridlines, with the latest point ringed in board black. A crosshair follows the pointer or the arrow keys and names the session in a small tooltip. Charts are never yellow; the session table below is the chart's text version.
@@ -368,7 +368,8 @@ A 2px `ink` line over a 10% `ink` wash on hairline gridlines, with the latest po
 - **Do** give every secondary action the bordered `control` button with an `edge` border.
 - **Do** keep yellow to the band, the home platform sign, the focus ring, the caret and selection.
 - **Do** show the split as a round route marker.
-- **Do** dim exercises that are neither current nor next to 50% opacity.
+- **Do** dim exercises that are neither current nor next to 50% opacity, the one opacity used on text; `tests/theme.test.ts` checks it keeps 4.5:1.
+- **Don't** dim text with opacity anywhere else. Step down to `ink-muted`, or `ink-faint` on `bg` and `inset` only, where it keeps 4.5:1.
 - **Do** ask for confirmation in the in-app dialog.
 - **Do** use only token classes, as [THEME.md](src/theme/THEME.md) sets out.
 

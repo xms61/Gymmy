@@ -207,6 +207,11 @@
     perspective: 3em;
   }
 
+  /* A flap row that isn't running yet (the rest before the first set) steps its digits down to ink-muted. */
+  .flaps-idle .flap {
+    color: rgb(var(--c-ink-muted));
+  }
+
   .flap::after {
     content: '';
     position: absolute;

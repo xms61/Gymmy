@@ -168,7 +168,8 @@ function SetStrip({ sets, selected, onSelect, onAdd, onRemoveLast }: SetStripPro
             setIdx === selected ? 'border-ink bg-surface text-ink' : 'border-line bg-inset hover:border-edge'
           } ${set.completed ? 'text-ink-muted' : 'text-ink'}`}
         >
-          <span className="text-sm text-ink-faint">{set.setNumber}</span>
+          {/* ink-faint keeps 4.5:1 on the idle inset tile, but not on the selected tile's surface. */}
+          <span className={`text-sm ${setIdx === selected ? 'text-ink-muted' : 'text-ink-faint'}`}>{set.setNumber}</span>
           <span>
             {set.weightKg} × {set.repsCompleted}
           </span>

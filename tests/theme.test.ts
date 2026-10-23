@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { COLOR_TOKENS, DESIGN, type ColorToken } from '../src/theme/tokens.ts';
@@ -76,8 +76,10 @@ const CONTRAST_RULES: [foreground: ColorToken, background: ColorToken, minimum: 
   ['on-plate-light', 'plate-5', 4.5],
   ['on-plate', 'plate-2-5', 4.5],
   ['on-plate', 'plate-1-25', 4.5],
+  // ink-faint is text only on bg and inset (set numbers, days of other months); on surface it is placeholder-only.
+  ['ink-faint', 'inset', 4.5],
+  ['ink-faint', 'bg', 4.5],
   ['ink-faint', 'surface', 3],
-  ['ink-faint', 'bg', 3],
   ['edge', 'surface', 3]
 ];
 
@@ -109,4 +111,52 @@ test('the focus ring stands out on every surface, in board black on yellow', () 
     /\.bg-accent \*,\s*\.bg-accent :focus-visible\s*\{\s*outline-color: rgb\(var\(--c-on-accent\)\);/,
     'index.css must give every element inside .bg-accent areas an on-accent outline color'
   );
+});
+
+// Opacity dims a whole element, text and background together, so the token table above can't see it. Every
+// opacity a component sets outside `disabled:` is declared here with the colours it dims, and must still reach
+// 4.5:1. `opacity-0` hides an element and is skipped.
+type DimmedCase = [text: ColorToken, ownBackground: ColorToken | null, page: ColorToken];
+const DIMMED_TEXT: Record<string, DimmedCase[]> = {
+  // Rows of exercises not up next: the name and its flaps.
+  'tracker/SessionBoard.tsx opacity-50': [
+    ['ink', null, 'bg'],
+    ['ink', 'surface', 'bg'],
+    ['ink', 'flap-low', 'bg']
+  ]
+};
+
+function blend(top: string, under: string, alpha: number): string {
+  const [a, b] = [hexToChannels(top), hexToChannels(under)].map(channels => channels.split(' ').map(Number));
+  return `#${a!.map((value, i) => Math.round(alpha * value + (1 - alpha) * b![i]!).toString(16).padStart(2, '0')).join('')}`;
+}
+
+function componentOpacities(): string[] {
+  const root = new URL('../src/components/', import.meta.url);
+  const found: string[] = [];
+  // readdirSync names nested files with the OS separator, backslashes on Windows.
+  const files = readdirSync(root, { recursive: true }).map(name => String(name).split(/[\\/]/).join('/'));
+  for (const file of files.filter(name => name.endsWith('.tsx'))) {
+    const source = readFileSync(new URL(file, root), 'utf8');
+    for (const [, level] of source.matchAll(/(?<![\w:-])opacity-(\d+)\b/g)) {
+      if (level !== '0') found.push(`${file} opacity-${level}`);
+    }
+  }
+  return [...new Set(found)].sort();
+}
+
+test('dimmed text keeps 4.5:1, so opacity is never a text level on its own', () => {
+  for (const use of componentOpacities()) {
+    const cases = DIMMED_TEXT[use];
+    assert.ok(
+      cases,
+      `${use} dims text the contrast table can't check. Use an ink step instead (ink-faint on bg or inset, ink-muted where the background can be surface), or declare the case in DIMMED_TEXT.`
+    );
+    const alpha = Number(use.split('opacity-')[1]) / 100;
+    for (const [text, own, page] of cases) {
+      const background = own ? blend(DESIGN.colors[own], DESIGN.colors[page], alpha) : DESIGN.colors[page];
+      const ratio = contrastRatio(blend(DESIGN.colors[text], DESIGN.colors[page], alpha), background);
+      assert.ok(ratio >= 4.5, `${use}: ${text} on ${own ?? page} is ${ratio.toFixed(2)}:1 once dimmed, needs 4.5:1`);
+    }
+  }
 });
