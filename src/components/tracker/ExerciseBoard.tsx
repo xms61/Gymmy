@@ -48,7 +48,7 @@ export function ExerciseBoard({
           <h2 id="board-exercise" className="text-6xl leading-[0.95] text-ink">
             {log.exerciseName}
           </h2>
-          <p className="mt-2 font-display text-lg font-medium uppercase tracking-[0.06em] text-ink-muted">
+          <p className="mt-2 font-display text-lg font-medium uppercase tracking-button text-ink-muted">
             Set {set.setNumber} of {log.sets.length}
             {definition && ` · ${definition.targetRepsMin}–${definition.targetRepsMax} reps`}
             {` · ${equipment}`}

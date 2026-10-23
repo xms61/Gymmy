@@ -121,9 +121,9 @@ function SignPanel({ split, state, detail, children }: SignPanelProps) {
         <div>
           <h2 className="flex items-center gap-5 leading-none">
             <span className="text-4xl xl:text-5xl">{state}</span>
-            <Flaps text={split.toUpperCase()} label={split} className="text-[4.5rem] xl:text-[6rem]" />
+            <Flaps text={split.toUpperCase()} label={split} className="text-flap xl:text-sign" />
           </h2>
-          <p className="mt-3 font-display text-lg font-medium uppercase tracking-[0.04em]">{detail}</p>
+          <p className="mt-3 font-display text-lg font-medium uppercase tracking-heading">{detail}</p>
         </div>
       </div>
       {children}
@@ -137,9 +137,9 @@ function TargetRow({ exercise, recommendation }: { exercise: ExerciseDefinition;
   const bodyweight = exercise.equipment === 'bodyweight' && load === 0;
   return (
     <li className="grid grid-cols-[minmax(12rem,20rem)_9.5rem_9.5rem_minmax(0,1fr)] items-center gap-8 border-b border-line last:border-b-0 px-2 py-2">
-      <span className="font-display text-2xl font-semibold uppercase tracking-[0.03em] text-ink truncate">{exercise.name}</span>
+      <span className="font-display text-2xl font-semibold uppercase tracking-heading text-ink truncate">{exercise.name}</span>
       <span className="flex items-baseline gap-2">
-        <Flaps text={bodyweight ? 'BW' : String(load)} cells={5} label={bodyweight ? 'bodyweight' : `${load} kg`} className="text-[2.25rem]" />
+        <Flaps text={bodyweight ? 'BW' : String(load)} cells={5} label={bodyweight ? 'bodyweight' : `${load} kg`} className="text-flap-row" />
         <span className={`section-label ${bodyweight ? 'invisible' : ''}`}>kg</span>
       </span>
       <span className="flex items-baseline gap-2">
@@ -147,7 +147,7 @@ function TargetRow({ exercise, recommendation }: { exercise: ExerciseDefinition;
           text={repRangeOnFlaps(exercise.targetRepsMin, exercise.targetRepsMax)}
           cells={5}
           label={`${exercise.targetRepsMin} to ${exercise.targetRepsMax} reps`}
-          className="text-[2.25rem]"
+          className="text-flap-row"
         />
         <span className="section-label">reps</span>
       </span>
@@ -193,7 +193,7 @@ function Figure({ label, value, unit }: { label: string; value: string; unit?: s
     <div className="grid gap-2">
       <span className="section-label">{label}</span>
       <span className="flex items-baseline gap-2">
-        <Flaps text={value} cells={3} label={`${value}${unit ? ` ${unit}` : ''}`} className="text-[2.25rem]" />
+        <Flaps text={value} cells={3} label={`${value}${unit ? ` ${unit}` : ''}`} className="text-flap-row" />
         {/* Every figure keeps a unit slot, so the three flap rows share one baseline. */}
         <span className={`section-label ${unit ? '' : 'invisible'}`}>{unit ?? 'x'}</span>
       </span>

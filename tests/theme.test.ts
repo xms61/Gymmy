@@ -120,7 +120,7 @@ test('the focus ring stands out on every surface, in board black on yellow', () 
 type DimmedCase = [text: ColorToken, ownBackground: ColorToken | null, page: ColorToken];
 const DIMMED_TEXT: Record<string, DimmedCase[]> = {
   // Rows of exercises not up next: the name and its flaps.
-  'tracker/SessionBoard.tsx opacity-50': [
+  'components/tracker/SessionBoard.tsx opacity-50': [
     ['ink', null, 'bg'],
     ['ink', 'surface', 'bg'],
     ['ink', 'flap-low', 'bg']
@@ -176,13 +176,20 @@ function blend(top: string, under: string, alpha: number): string {
   return `#${a!.map((value, i) => Math.round(alpha * value + (1 - alpha) * b![i]!).toString(16).padStart(2, '0')).join('')}`;
 }
 
-function componentDimming(): Map<string, DimmingClass> {
-  const root = new URL('../src/components/', import.meta.url);
-  const found = new Map<string, DimmingClass>();
+// The source of App.tsx and every component, keyed by its path under src/ with forward slashes.
+function componentSources(): [file: string, source: string][] {
+  const root = new URL('../src/', import.meta.url);
   // readdirSync names nested files with the OS separator, backslashes on Windows.
-  const files = readdirSync(root, { recursive: true }).map(name => String(name).split(/[\\/]/).join('/'));
-  for (const file of files.filter(name => name.endsWith('.tsx'))) {
-    for (const use of dimmingClasses(readFileSync(new URL(file, root), 'utf8'))) found.set(`${file} ${use.className}`, use);
+  const components = readdirSync(new URL('components/', root), { recursive: true })
+    .map(name => `components/${String(name).split(/[\\/]/).join('/')}`)
+    .filter(name => name.endsWith('.tsx'));
+  return ['App.tsx', ...components].map(file => [file, readFileSync(new URL(file, root), 'utf8')]);
+}
+
+function componentDimming(): Map<string, DimmingClass> {
+  const found = new Map<string, DimmingClass>();
+  for (const [file, source] of componentSources()) {
+    for (const use of dimmingClasses(source)) found.set(`${file} ${use.className}`, use);
   }
   return found;
 }
@@ -201,4 +208,15 @@ test('dimmed text keeps 4.5:1, so opacity is never a text level on its own', () 
       assert.ok(ratio >= 4.5, `${use}: ${text} on ${own ?? page} is ${ratio.toFixed(2)}:1 once dimmed, needs 4.5:1`);
     }
   }
+});
+
+test('components size and space type with theme tokens, not hand-typed values', () => {
+  const handTyped = componentSources().flatMap(([file, source]) =>
+    [...source.matchAll(/\b(?:text-\[[\d.]+(?:rem|px|em)\]|tracking-\[[^\]]+\])/g)].map(([match]) => `${file}: ${match}`)
+  );
+  assert.deepEqual(
+    handTyped,
+    [],
+    'Use the type tokens in the @theme block of src/index.css (text-flap-row, text-display, text-flap, text-sign, text-flap-xl; tracking-heading, tracking-button, tracking-label), or add a token there first.'
+  );
 });

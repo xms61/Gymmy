@@ -17,7 +17,7 @@ export function CompletionSummary({ session, onDone }: CompletionSummaryProps) {
         <RouteMarker split={session.splitType} />
         <SummaryTitle text={`${session.splitType} saved`} />
       </div>
-      <Flaps text="LOGGED" className="mt-6 text-[4.5rem]" />
+      <Flaps text="LOGGED" className="mt-6 text-flap" />
 
       <dl className="mt-6 grid grid-cols-3 border-y border-line">
         <Figure label="Date" value={formatSessionDate(session.date)} />

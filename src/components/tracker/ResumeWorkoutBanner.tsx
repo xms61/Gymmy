@@ -19,7 +19,7 @@ export function ResumeWorkoutBanner({ draft, onResume, onDiscard }: ResumeWorkou
       <div className="flex items-center gap-3">
         <RouteMarker split={draft.workoutType} />
         <div>
-          <div className="font-display text-xl font-semibold uppercase tracking-[0.04em] text-ink">Unfinished {draft.workoutType}</div>
+          <div className="font-display text-xl font-semibold uppercase tracking-heading text-ink">Unfinished {draft.workoutType}</div>
           <div className="text-sm text-ink-muted">
             Started {describeDraftStart(draft.startTime)} · {doneSets} of {sets.length} sets done
           </div>

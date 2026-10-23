@@ -162,7 +162,7 @@ export function App() {
                 onClick={() => void goTo(id)}
                 title={`${label} (${index + 1})`}
                 aria-current={activeTab === id ? 'page' : undefined}
-                className={`flex items-center gap-2 px-5 font-display text-lg font-semibold uppercase tracking-[0.06em] transition-colors ${
+                className={`flex items-center gap-2 px-5 font-display text-lg font-semibold uppercase tracking-button transition-colors ${
                   activeTab === id ? 'bg-on-accent text-accent' : 'hover:bg-on-accent/10'
                 }`}
               >
@@ -175,7 +175,7 @@ export function App() {
           <div className="ml-auto flex items-center gap-2">
             <button
               onClick={() => setActiveTab('settings')}
-              className="flex items-center gap-2 h-10 px-3 rounded-control font-display text-base font-semibold uppercase tracking-[0.06em] hover:bg-on-accent/10 transition-colors"
+              className="flex items-center gap-2 h-10 px-3 rounded-control font-display text-base font-semibold uppercase tracking-button hover:bg-on-accent/10 transition-colors"
               title={describeSyncStatus(syncStatus)}
             >
               <Database className="w-4 h-4" />

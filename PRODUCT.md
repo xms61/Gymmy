@@ -1,6 +1,6 @@
 ---
 status: draft
-last-verified: 2026-10-19
+last-verified: 2026-10-23
 ---
 
 # Product
@@ -53,4 +53,4 @@ A progression engine built around one real gym, not a generic logger. Load sugge
 5. Built for one routine at a time, but that routine can change.
 
 ## Accessibility & Inclusion
-The design tokens pass the contrast table in `tests/theme.test.ts` (4.5:1 for text, 3:1 for placeholders and control edges). `prefers-reduced-motion` turns off animations and the finish confetti. Charts can be read with the keyboard. Dialogs trap focus and close on Escape.
+The design tokens pass the contrast table in `tests/theme.test.ts` (4.5:1 for text, 3:1 for placeholders and control edges). `prefers-reduced-motion` turns off animations, so the flaps show a new value at once. Charts can be read with the keyboard. Dialogs trap focus and close on Escape.

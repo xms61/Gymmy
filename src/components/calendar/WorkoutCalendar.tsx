@@ -117,7 +117,7 @@ function MonthBoard({ days, byDate, today, selected, onSelect }: MonthBoardProps
                   {daySessions.map(s => (
                     <span
                       key={s.id}
-                      className={`flex items-center gap-1 font-display text-xs font-semibold uppercase tracking-[0.04em] ${dimmed ? 'text-ink-faint' : 'text-ink'}`}
+                      className={`flex items-center gap-1 font-display text-xs font-semibold uppercase tracking-heading ${dimmed ? 'text-ink-faint' : 'text-ink'}`}
                     >
                       <RouteMarker split={s.splitType} size="sm" />
                       {s.splitType}
@@ -161,7 +161,7 @@ function SessionRecord({ session, onDelete }: { session: WorkoutSession; onDelet
     <article className="grid gap-4">
       <div className="flex items-center gap-3 border-b border-line pb-3">
         <RouteMarker split={session.splitType} />
-        <span className="font-display text-lg font-semibold uppercase tracking-[0.04em] text-ink">{session.splitType}</span>
+        <span className="font-display text-lg font-semibold uppercase tracking-heading text-ink">{session.splitType}</span>
         <span className="ml-auto flex items-baseline gap-4">
           <span className="flex items-baseline gap-1.5">
             <Flaps text={String(session.durationMinutes)} cells={3} label={`${session.durationMinutes} minutes`} className="text-xl" />
@@ -179,7 +179,7 @@ function SessionRecord({ session, onDelete }: { session: WorkoutSession; onDelet
       <ol className="grid gap-3">
         {exercises.map(ex => (
           <li key={ex.exerciseId} className="grid gap-1.5">
-            <span className="font-display text-lg font-semibold uppercase tracking-[0.04em] text-ink">{ex.exerciseName}</span>
+            <span className="font-display text-lg font-semibold uppercase tracking-heading text-ink">{ex.exerciseName}</span>
             <span className="flex flex-wrap gap-1.5">
               {ex.sets
                 .filter(s => s.completed)
@@ -209,7 +209,7 @@ function Figure({ label, value, cells, unit }: { label: string; value: string; c
     <div className="grid gap-2">
       <span className="section-label">{label}</span>
       <span className="flex items-baseline gap-2">
-        <Flaps text={value} cells={cells} label={`${value}${unit ? ` ${unit}` : ''}`} className="text-[2.25rem]" />
+        <Flaps text={value} cells={cells} label={`${value}${unit ? ` ${unit}` : ''}`} className="text-flap-row" />
         <span className={`section-label ${unit ? '' : 'invisible'}`}>{unit ?? 'x'}</span>
       </span>
     </div>

@@ -29,7 +29,7 @@ export function SessionBoard({ logs, current, onSelect }: SessionBoardProps) {
                 aria-current={idx === current ? 'true' : undefined}
                 className={`session-row w-full grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 px-2 py-2.5 text-left text-ink hover:bg-surface transition-colors ${tone}`}
               >
-                <span className="font-display text-lg font-semibold uppercase tracking-[0.04em] truncate">{log.exerciseName}</span>
+                <span className="font-display text-lg font-semibold uppercase tracking-heading truncate">{log.exerciseName}</span>
                 <Flaps text={String(log.sets[0]?.weightKg ?? 0)} cells={5} label={`${log.sets[0]?.weightKg ?? 0} kg`} className="text-xl" />
                 <Flaps
                   text={finished ? 'DONE' : `${done}/${log.sets.length}`}

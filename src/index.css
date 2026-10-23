@@ -65,6 +65,18 @@
   --text-base: 1.0625rem;
   --text-base--line-height: 1.625rem;
 
+  /* The flap and sign sizes DESIGN.md names (typography). Size only; line height comes from the context. */
+  --text-flap-row: 2.25rem;
+  --text-display: 3.75rem;
+  --text-flap: 4.5rem;
+  --text-sign: 6rem;
+  --text-flap-xl: 6.5rem;
+
+  /* Letter spacing by role: headings and names, buttons, labels. */
+  --tracking-heading: 0.02em;
+  --tracking-button: 0.06em;
+  --tracking-label: 0.08em;
+
   --spacing-tap: var(--tap);
   --spacing-tap-lg: var(--tap-lg);
 
@@ -145,15 +157,11 @@
   }
 
   .section-label {
-    @apply font-display text-xs font-semibold uppercase tracking-[0.08em] text-ink-muted;
+    @apply font-display text-xs font-semibold uppercase tracking-label text-ink-muted;
   }
 
   .btn {
-    @apply inline-flex items-center justify-center gap-2 font-display font-semibold uppercase tracking-[0.06em] rounded-control transition-colors disabled:cursor-not-allowed;
-  }
-
-  .btn-primary {
-    @apply bg-accent hover:bg-accent-hover text-on-accent;
+    @apply inline-flex items-center justify-center gap-2 font-display font-semibold uppercase tracking-button rounded-control transition-colors disabled:cursor-not-allowed;
   }
 
   .btn-good {
