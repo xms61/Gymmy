@@ -30,7 +30,7 @@ Each milestone is one branch and one squash-merged PR, in this order, because se
    - Proof: screenshots of every screen at 1024 and 1440 wide, with no overflow, and band and content starting at the same x.
 5. **Accessible names and keys (P2 item 6, P3 items 11 to 13).**
    - Dialogs get `aria-labelledby` pointing to their title (`Dialog.tsx`, `CompletionSummary.tsx`).
-   - Set tiles read as "Set 1, 77.5 kg × 5 reps, done".
+   - Set tiles read as "Set 1: 77.5 kg, 5 reps, done".
    - The RIR picker moves with the arrow keys and is one tab stop (`SetControls.tsx`).
    - The sync "needs attention" state is announced (`App.tsx`).
 6. **Tokens and dead code (P3 items 8 to 10).**

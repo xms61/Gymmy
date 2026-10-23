@@ -65,11 +65,15 @@ export function RirPicker({ setNumber, value, onPick }: { setNumber: number; val
   // The checked choice takes the tab stop, or the first one while none is checked.
   const tabStop = Math.max(RIR_CHOICES.findIndex(rir => rir === value), 0);
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    const next = nextRadioIndex(tabStop, event.key, RIR_CHOICES.length);
+    if (event.altKey || event.ctrlKey || event.metaKey) return; // Alt+Left is the browser's Back
+    const radios = [...event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="radio"]')];
+    // Move from the focused choice: after a click clears the value, focus stays there, not on the tab stop.
+    const focused = radios.indexOf(event.target as HTMLButtonElement);
+    const next = nextRadioIndex(focused >= 0 ? focused : tabStop, event.key, RIR_CHOICES.length);
     if (next === null) return;
     event.preventDefault();
     onPick(RIR_CHOICES[next]!);
-    event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="radio"]')[next]?.focus();
+    radios[next]?.focus();
   };
   return (
     <div role="radiogroup" aria-label={`Reps in reserve, set ${setNumber}`} onKeyDown={onKeyDown} className="flex items-center gap-1.5">
