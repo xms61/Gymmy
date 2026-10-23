@@ -10,6 +10,7 @@ import { RouteMarker } from '../ui/badges.tsx';
 import { askToConfirm, showNotice } from '../ui/ConfirmHost.tsx';
 import { BackupSection } from './BackupSection.tsx';
 import { RefusedChanges } from './RefusedChanges.tsx';
+import { hasUnsavedTargets, rebaseTargetEdits, type TargetField } from './targetEdits.ts';
 
 // The fallback is used when the field is cleared, and every value is clamped to the limits the server accepts.
 const TARGET_FIELDS = [
@@ -17,8 +18,6 @@ const TARGET_FIELDS = [
   { field: 'targetRepsMin', label: 'Min reps', rule: LIMITS.repRange, fallback: 6 },
   { field: 'targetRepsMax', label: 'Max reps', rule: LIMITS.repRange, fallback: 12 }
 ] as const;
-
-type TargetField = (typeof TARGET_FIELDS)[number]['field'];
 
 interface SettingsViewProps {
   exercises: ExerciseDefinition[];
@@ -50,8 +49,15 @@ interface ExerciseTargetsProps {
 
 function ExerciseTargets({ exercises, onSaved, onUnsavedChange }: ExerciseTargetsProps) {
   const [edited, setEdited] = useState(exercises);
+  // The stored targets the edits started from. When a sync or another tab changes them, carry the edits over,
+  // so the table shows the new values and saving can't write the old ones back.
+  const [base, setBase] = useState(exercises);
+  if (base !== exercises) {
+    setBase(exercises);
+    setEdited(rebaseTargetEdits(base, exercises, edited));
+  }
   const [saved, setSaved] = useState(false);
-  const unsaved = edited.some((ex, i) => TARGET_FIELDS.some(({ field }) => ex[field] !== exercises[i]?.[field]));
+  const unsaved = hasUnsavedTargets(edited, exercises);
   useEffect(() => onUnsavedChange(unsaved), [unsaved, onUnsavedChange]);
   useEffect(() => {
     if (!saved) return;
