@@ -1,6 +1,6 @@
 ---
 status: draft
-last-verified: 2026-10-19
+last-verified: 2026-10-23
 ---
 
 # Security
@@ -62,7 +62,7 @@ No AI agent runs in CI, by choice, and CI holds no secrets. Before adding one:
 - Add a dependency only when the standard library or an existing dependency can't do the job ([CODE_STYLE.md](CODE_STYLE.md)). The server uses only Node built-ins (`node:sqlite`). Check that a new package exists, is maintained, and is the one you meant: models invent plausible package names, and attackers register them.
 - The lockfile is committed and changed only by npm.
 - `.npmrc` sets `min-release-age=7` (npm 11.10 or later): npm won't install a version published in the last seven days, a window in which many malicious releases are caught and pulled. Dependabot's version updates wait as long. Its security updates would skip the wait, but they are off on this repository for now ([tech-debt tracker](exec-plans/tech-debt-tracker.md)). To take an urgent fix sooner, install it with `--min-release-age=0`.
-- Dependabot opens weekly PRs for npm and GitHub Actions. Actions are pinned by commit SHA, and gitleaks in CI by version and checksum; check that a new action SHA is the release tag it claims.
+- Dependabot opens weekly PRs for npm and GitHub Actions. Actions are pinned by commit SHA, and gitleaks in CI by version and checksum; check that a new action SHA is the release tag it claims. Dependabot skips major updates of `@types/node`, which follows the oldest Node version Gymmy supports, so the typecheck catches calls to APIs that version lacks.
 
 ## User data
 - Everything stays on the user's machine: `data/gymmy.db`, and a copy in each browser's localStorage. No analytics, no third-party requests; the fonts are bundled.

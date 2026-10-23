@@ -13,6 +13,12 @@ updates:
     groups:
       npm-minor-and-patch:
         update-types: [minor, patch]
+    # @types/node follows the oldest Node version Gymmy supports (engines in package.json, .nvmrc). Newer major
+    # types would let the typecheck pass code that calls APIs Node 22 doesn't have. Remove this when the minimum
+    # Node version goes up, and bump @types/node with it.
+    ignore:
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
   - package-ecosystem: github-actions
     directory: /
     schedule:
