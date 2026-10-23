@@ -1,7 +1,7 @@
 import { Calculator, Check, ChevronRight, Plus, Trash2, Undo2 } from 'lucide-react';
 import type { EquipmentType, ExerciseDefinition, ExerciseSessionLog, ProgressRecommendation, SetLog } from '../../types/workout.ts';
 import { isLoadable, isPlateLoaded } from '../../services/loading.ts';
-import { rirOf, withRir } from '../../services/effort.ts';
+import { describeSet, rirOf, withRir } from '../../services/effort.ts';
 import { clampTo, LIMITS, MAX_NOTES_LENGTH } from '../../validation.ts';
 import { StatusBadge } from '../ui/badges.tsx';
 import { FlapStepper, RirPicker, steppedWeight, unloadableHint, type SetChange } from './SetControls.tsx';
@@ -164,6 +164,7 @@ function SetStrip({ sets, selected, onSelect, onAdd, onRemoveLast }: SetStripPro
           key={set.setNumber}
           onClick={() => onSelect(setIdx)}
           aria-current={setIdx === selected ? 'true' : undefined}
+          aria-label={describeSet(set)}
           className={`set-tile flex items-center gap-2.5 h-tap-lg px-3 rounded-control border font-mono text-lg transition-colors ${
             setIdx === selected ? 'border-ink bg-surface text-ink' : 'border-line bg-inset hover:border-edge'
           } ${set.completed ? 'text-ink-muted' : 'text-ink'}`}

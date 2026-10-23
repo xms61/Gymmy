@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Dialog } from './Dialog.tsx';
+import { Dialog, useDialogTitleId } from './Dialog.tsx';
 
 interface Request {
   message: string;
@@ -45,9 +45,7 @@ export function ConfirmHost() {
 
   return (
     <Dialog width="sm" onClose={() => answer(false)} onBackdropClick={() => answer(false)}>
-      <p role="alert" className="text-lg leading-snug text-ink">
-        {request.message}
-      </p>
+      <ConfirmMessage text={request.message} />
       <div className="mt-6 flex justify-end gap-2">
         {request.confirmLabel === null ? (
           <button onClick={() => answer(true)} className="btn btn-good h-tap-lg px-6 text-base">
@@ -65,5 +63,14 @@ export function ConfirmHost() {
         )}
       </div>
     </Dialog>
+  );
+}
+
+// The message names the dialog; a component of its own, because the id comes from the Dialog around it.
+function ConfirmMessage({ text }: { text: string }) {
+  return (
+    <p id={useDialogTitleId()} role="alert" className="text-lg leading-snug text-ink">
+      {text}
+    </p>
   );
 }

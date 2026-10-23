@@ -180,7 +180,12 @@ export function App() {
             >
               <Database className="w-4 h-4" />
               {syncLabel(syncStatus)}
-              {needsAttention(syncStatus) && <span className="w-2 h-2 rounded-pill bg-on-accent" aria-label="needs attention" />}
+              {needsAttention(syncStatus) && (
+                <>
+                  <span aria-hidden="true" className="w-2 h-2 rounded-pill bg-on-accent" />
+                  <span className="sr-only">, needs attention</span>
+                </>
+              )}
             </button>
 
             <button

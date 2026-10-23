@@ -1,5 +1,5 @@
 import type { WorkoutSession } from '../../types/workout.ts';
-import { Dialog } from '../ui/Dialog.tsx';
+import { Dialog, useDialogTitleId } from '../ui/Dialog.tsx';
 import { Flaps } from '../ui/Flaps.tsx';
 import { RouteMarker } from '../ui/badges.tsx';
 import { formatSessionDate } from '../../utils/date.ts';
@@ -15,7 +15,7 @@ export function CompletionSummary({ session, onDone }: CompletionSummaryProps) {
     <Dialog onClose={onDone} width="lg">
       <div className="flex items-center gap-3">
         <RouteMarker split={session.splitType} />
-        <h2 className="text-3xl text-ink">{session.splitType} saved</h2>
+        <SummaryTitle text={`${session.splitType} saved`} />
       </div>
       <Flaps text="LOGGED" className="mt-6 text-[4.5rem]" />
 
@@ -38,5 +38,14 @@ function Figure({ label, value }: { label: string; value: string }) {
       <dt className="section-label">{label}</dt>
       <dd className="mt-1 font-mono text-2xl font-semibold text-ink">{value}</dd>
     </div>
+  );
+}
+
+// A component of its own, because the title id comes from the Dialog this renders inside.
+function SummaryTitle({ text }: { text: string }) {
+  return (
+    <h2 id={useDialogTitleId()} className="text-3xl text-ink">
+      {text}
+    </h2>
   );
 }
