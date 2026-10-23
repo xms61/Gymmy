@@ -50,7 +50,7 @@ Each milestone is one branch and one squash-merged PR, in this order, because se
 - [x] 2026-10-23 1. Tracker keyboard and the last-set delete
 - [x] 2026-10-23 2. Focus that can be seen everywhere
 - [x] 2026-10-23 3. Text contrast without opacity
-- [ ] 4. One content column
+- [x] 2026-10-23 4. One content column
 - [ ] 5. Accessible names and keys
 - [ ] 6. Tokens and dead code
 - [ ] 7. Settings table after a sync

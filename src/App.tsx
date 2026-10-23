@@ -198,7 +198,7 @@ export function App() {
         </div>
       </header>
 
-      <main className="flex-1 max-w-6xl w-full mx-auto px-6 py-8">
+      <main className="flex-1 max-w-[90rem] w-full mx-auto px-6 py-8">
         {draft && activeTab !== 'dashboard' && <ResumeWorkoutBanner draft={draft} onResume={handleResumeWorkout} onDiscard={handleDiscardDraft} />}
 
         {activeTab === 'dashboard' && (
