@@ -313,7 +313,7 @@ Square, capitalised and flat.
 - **Danger:** `bad-ink` text on a 15% `bad-ink` tint with a 40% border; 25% tint on hover.
 - **Icon button:** no fill at rest, `ink-muted` icon, `control` fill and `ink` icon on hover.
 - **Band buttons:** on the band, actions are board-black on yellow, with a 10% board-black wash on hover. Finish is the inverse, yellow text on a board-black fill.
-- **Hover / Focus:** colour steps over 90ms. Focus is a 2px yellow outline offset 2px.
+- **Hover / Focus:** colour steps over 90ms. Focus is a 2px outline offset 2px: yellow on the board, board black on the band and the home sign (the Signage Rule).
 
 ### Cards / Containers
 - **Corner Style:** 4px for cards, 3px for panels.
@@ -326,7 +326,7 @@ Square, capitalised and flat.
 - **Style:** `surface` fill, 1px `edge` border, 2px corners, `ink` text, `ink-faint` placeholder.
 - **Focus:** the border turns yellow. The flap fields show the 2px yellow outline offset 4px around the whole flap group.
 - **Error:** an unloadable load sets `aria-invalid` and shows one `warn-ink` sentence under the steppers.
-- **Command row:** a borderless transparent input in `data` type on the `inset` foot row, after a label.
+- **Command row:** a borderless transparent input in `data` type on the `inset` foot row, after a label. On focus it shows the 2px yellow outline.
 
 ### Navigation
 The band holds the app name, then tabs with an icon and a capitalised label at full band height. The current tab inverts to yellow text on a board-black fill; others take a 10% board-black wash on hover. The sync status and the settings gear sit at the right end; on the settings screen the gear inverts like a current tab. In a workout, the band holds back, the route marker, the split, the date, the elapsed clock and Finish.

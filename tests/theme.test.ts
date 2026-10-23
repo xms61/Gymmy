@@ -103,9 +103,10 @@ test('the focus ring stands out on every surface, in board black on yellow', () 
     assert.ok(ratio >= 3, `${ring} ring on ${background} is ${ratio.toFixed(2)}:1, needs 3:1`);
   }
   const indexCss = readFileSync(new URL('../src/index.css', import.meta.url), 'utf8');
+  // Every element in the area holds the black before it takes focus, or the ring fades in from yellow.
   assert.match(
     indexCss,
-    /\.bg-accent :focus-visible\s*\{\s*outline-color: rgb\(var\(--c-on-accent\)\);/,
-    'index.css must draw the focus ring in on-accent inside .bg-accent areas'
+    /\.bg-accent \*,\s*\.bg-accent :focus-visible\s*\{\s*outline-color: rgb\(var\(--c-on-accent\)\);/,
+    'index.css must give every element inside .bg-accent areas an on-accent outline color'
   );
 });
