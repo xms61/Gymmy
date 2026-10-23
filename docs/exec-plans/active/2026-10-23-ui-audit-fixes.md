@@ -53,7 +53,7 @@ Each milestone is one branch and one squash-merged PR, in this order, because se
 - [x] 2026-10-23 4. One content column
 - [x] 2026-10-23 5. Accessible names and keys
 - [x] 2026-10-23 6. Tokens and dead code
-- [ ] 7. Settings table after a sync
+- [x] 2026-10-23 7. Settings table after a sync
 - [ ] 8. Re-audit and close out
 
 ## Decision log
@@ -73,6 +73,8 @@ Each milestone is one branch and one squash-merged PR, in this order, because se
 - The audit ran on a worktree at `a244de3`, so its line numbers are older than `main`. Each finding was checked again on `main` at `0c86cd8` before planning, and all still hold.
 
 - Milestone 5: the proof server served a stale transform of `Dialog.tsx` after an edit (its file watcher missed a write), so the Plates dialog first looked unnamed. Compiling the file directly showed the `id`, and a server restart fixed it. When a browser check contradicts the source, restart the dev server before debugging.
+
+- Milestone 7: the suspected bug was real and worse than stale display. Reproduced with two tabs on a scratch database: tab B saved Flat Bench at 5 sets while tab A had Settings open at 4; tab A kept showing 4 and offered "Save targets", and saving there wrote 4 back over 5.
 
 ## Validation
 - `npm run verify` passes after each milestone, and CI passes on each PR.
