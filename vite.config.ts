@@ -1,8 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import { defineConfig, normalizePath, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
-import tailwindcss from 'tailwindcss';
-import autoprefixer from 'autoprefixer';
+import tailwindcss from '@tailwindcss/vite';
 import { gymmySqlitePlugin } from './server/vitePlugin.ts';
 import { DESIGN } from './src/theme/tokens.ts';
 import { tokenStylesheet } from './src/theme/tokensCss.ts';
@@ -26,12 +25,7 @@ const NO_FRAMING = { 'X-Frame-Options': 'DENY', 'Content-Security-Policy': "fram
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), gymmySqlitePlugin(), designTokensPlugin()],
-  css: {
-    postcss: {
-      plugins: [tailwindcss(), autoprefixer()]
-    }
-  },
+  plugins: [react(), tailwindcss(), gymmySqlitePlugin(), designTokensPlugin()],
   server: {
     port: 3000,
     open: true,

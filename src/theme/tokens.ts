@@ -1,5 +1,5 @@
 // The design tokens of the Departure Board design. Components use only these (through the
-// Tailwind classes in tailwind.config.ts), never palette colors.
+// Tailwind classes in the @theme block of src/index.css), never palette colors.
 
 // The localStorage key the old theme picker wrote. Nothing reads it any more; it stays named
 // here and in src/services/STORAGE.md so the key is never reused for something else.

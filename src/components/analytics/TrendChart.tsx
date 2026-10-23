@@ -63,7 +63,7 @@ export function TrendChart({ title, unit, points }: TrendChartProps) {
             onPointerLeave={() => setActive(null)}
             onKeyDown={onKeyDown}
             onBlur={() => setActive(null)}
-            className="block text-ink focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
+            className="block text-ink focus:outline-hidden focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
           >
             {axis.ticks.map(tick => {
               const y = PAD.top + pointY(tick, axis, plotHeight);

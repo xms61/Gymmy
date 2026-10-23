@@ -55,7 +55,7 @@ export function CommandLine({ output, inputRef, onSubmit }: CommandLineProps) {
             autoComplete="off"
             spellCheck={false}
             placeholder="62.5x8@2 logs the next set. / jumps here, ? lists every command."
-            className="flex-1 min-w-0 bg-transparent font-mono text-lg text-ink outline-none placeholder:text-ink-faint"
+            className="flex-1 min-w-0 bg-transparent font-mono text-lg text-ink outline-hidden placeholder:text-ink-faint"
           />
         </label>
       </div>

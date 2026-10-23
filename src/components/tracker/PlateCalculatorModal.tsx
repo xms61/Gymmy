@@ -98,7 +98,7 @@ function PlateDrawing({ plates, equipment }: { plates: number[]; equipment: Plat
     order.map((plate, i) => (
       <div
         key={`${key}-${i}`}
-        className={`${PLATE_STYLE[plate]?.fill} ${PLATE_STYLE[plate]?.size} border border-ink/20 rounded-sm`}
+        className={`${PLATE_STYLE[plate]?.fill} ${PLATE_STYLE[plate]?.size} border border-ink/20 rounded-xs`}
         title={`${plate} kg`}
       />
     ));
@@ -107,18 +107,18 @@ function PlateDrawing({ plates, equipment }: { plates: number[]; equipment: Plat
     <div className="panel p-4 mb-6">
       <div className="w-full flex items-center justify-center space-x-1.5 py-4 overflow-x-auto">
         {oneEnd ? (
-          <div className="w-16 h-2 bg-bar/60 rounded-l-sm" title="End on the floor" />
+          <div className="w-16 h-2 bg-bar/60 rounded-l-xs" title="End on the floor" />
         ) : (
           <>
-            <div className="w-6 h-4 bg-bar/60 rounded-l-sm" />
+            <div className="w-6 h-4 bg-bar/60 rounded-l-xs" />
             {end('left', [...plates].reverse())}
-            <div className="w-2.5 h-6 bg-bar rounded-sm" />
+            <div className="w-2.5 h-6 bg-bar rounded-xs" />
           </>
         )}
         <div className="w-20 h-2 bg-bar" />
-        <div className="w-2.5 h-6 bg-bar rounded-sm" />
+        <div className="w-2.5 h-6 bg-bar rounded-xs" />
         {end('right', plates)}
-        <div className="w-6 h-4 bg-bar/60 rounded-r-sm" />
+        <div className="w-6 h-4 bg-bar/60 rounded-r-xs" />
       </div>
       {plates.length === 0 && <p className="text-center text-base text-ink-muted">No plates needed: the empty bar makes this load.</p>}
     </div>

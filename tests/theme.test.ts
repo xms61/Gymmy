@@ -1,6 +1,7 @@
+import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { DESIGN, type ColorToken } from '../src/theme/tokens.ts';
+import { COLOR_TOKENS, DESIGN, type ColorToken } from '../src/theme/tokens.ts';
 import { hexToChannels, tokenStylesheet } from '../src/theme/tokensCss.ts';
 
 test('writes colors as rgb channels so Tailwind opacity modifiers work', () => {
@@ -27,6 +28,13 @@ test('puts every token on :root', () => {
     assert.ok(css.includes(`--c-${token}: ${hexToChannels(hex)};`), token);
   }
   assert.ok(css.includes(`--flip: ${DESIGN.flipMs}ms;`));
+});
+
+test('gives every color token a Tailwind color in the @theme block of index.css', () => {
+  const indexCss = readFileSync(new URL('../src/index.css', import.meta.url), 'utf8');
+  const themeBlock = /@theme inline reference \{([^}]*)\}/.exec(indexCss)?.[1] ?? '';
+  const themeColors = [...themeBlock.matchAll(/--color-([a-z0-9-]+): rgb\(var\(--c-\1\)\);/g)].map(match => match[1]);
+  assert.deepEqual(themeColors, [...COLOR_TOKENS]);
 });
 
 // WCAG 2 contrast ratio between two #rrggbb colors.
