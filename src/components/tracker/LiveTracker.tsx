@@ -203,7 +203,11 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
     });
   };
 
-  const removeLastSet = (exIdx: number) => {
+  // A logged set is part of the record, so deleting one asks first; an open set goes at once.
+  const removeLastSet = async (exIdx: number) => {
+    const sets = exerciseLogs[exIdx].sets;
+    const lastSet = sets[sets.length - 1];
+    if (lastSet?.completed && !(await askToConfirm(`Delete set ${lastSet.setNumber}? It is already logged.`, 'Delete'))) return;
     updateExercise(exIdx, ex => (ex.sets.length <= 1 ? ex : { ...ex, sets: ex.sets.slice(0, -1) }));
   };
 
@@ -386,7 +390,7 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
               onToggleSet={setIdx => toggleSetComplete(boardIndex, setIdx)}
               onChangeSet={(setIdx, change) => changeSet(boardIndex, setIdx, change)}
               onAddSet={() => addSet(boardIndex)}
-              onRemoveLastSet={() => removeLastSet(boardIndex)}
+              onRemoveLastSet={() => void removeLastSet(boardIndex)}
               onNotesChange={notes => updateExercise(boardIndex, ex => ({ ...ex, notes }))}
               onOpenPlates={(weightKg: number, equipment: EquipmentType) => {
                 if (isPlateLoaded(equipment)) setPlateCalc({ weightKg, equipment });

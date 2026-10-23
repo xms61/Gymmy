@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Desktop web only: the tabs moved from the bottom navigation into a header band, and the tracker keeps its rest timer beside the board at every width.
 
 ### Fixed
+- On the workout screen, Space on a focused button, such as Plates, logged the current set instead of pressing the button. Space and Enter now go to the focused control, and the letter shortcuts still work.
+- The trash button deleted the last set without asking, even when it was logged. A logged set now asks first.
 - The notes boxes' placeholder text is `ink-faint`, as the design tokens say. Tailwind 3's reset had made it a gray from Tailwind's own palette.
 - On the workout screen below 1280px wide, the load cells ran into the reps cells. The board's flaps are now 3.75rem there, 6.5rem from 1280px.
 - Body text is 17px instead of 16px, because at 16px the full stop in numbers like 62.5 looked like a comma on ordinary screens.
