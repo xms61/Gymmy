@@ -1,6 +1,6 @@
 ---
 status: draft
-last-verified: 2026-10-01
+last-verified: 2026-10-23
 ---
 
 # Design tokens
@@ -10,8 +10,7 @@ Gymmy has one design, the Departure Board: a matte black station board, off-whit
 Entry: `src/theme/tokens.ts`: every color, font, corner radius, tap size and the flip duration. The single source of truth for how the app looks.
 - `tokensCss.ts`: turns the tokens into one `:root { --c-…; --font-…; }` rule. `vite.config.ts` puts it in `<head>` of `index.html`, so the first paint has the right colors.
 - `fonts.ts`: imports the bundled Barlow and Barlow Condensed (`@fontsource`), so they work offline. Three font roles: `display` (headings, labels and buttons, in caps), `body`, and `data` (numbers, `font-mono`, with tabular figures).
-- `tailwind.config.ts`: maps the tokens to Tailwind classes (`bg-surface`, `text-ink-muted`, `rounded-card`, `font-display`, `h-tap`, `min-h-tap-lg`).
-- `src/index.css`: the base rules (body, headings, focus ring, selection, scrollbars), the shared component classes (`card`, `panel`, `section-label`, `btn` with `btn-primary | btn-good | btn-secondary | btn-danger`, `icon-btn`, `field`) and the flap cell (`flap`).
+- `src/index.css`: Tailwind 4, configured in CSS. Its `@theme inline reference` block maps the tokens to Tailwind classes (`bg-surface`, `text-ink-muted`, `rounded-card`, `font-display`, `h-tap`, `min-h-tap-lg`): `inline` makes each class read the token variable directly, and `reference` keeps Tailwind from declaring the variables a second time. Then come the base rules (body, headings, focus ring, selection, scrollbars), the shared component classes (`card`, `panel`, `section-label`, `btn` with `btn-primary | btn-good | btn-secondary | btn-danger`, `icon-btn`, `field`) and the flap cell (`flap`).
 - `src/components/ui/Flaps.tsx`: text on split-flap cells. Each cell is two leaves meeting at a hairline split; when its character changes, the old upper leaf falls and the new lower leaf lands, each in two stepped frames. The other cells hold still. Screen readers hear the text once, not cell by cell.
 - `src/components/ui/ConfirmHost.tsx`: `askToConfirm` and `showNotice`, the in-app replacements for the browser's confirm and alert boxes, which embedded browsers can answer "no" to without showing. Never call `window.confirm` or `alert`.
 - `src/components/ui/`: `Dialog` and `DialogHeader` (every modal; `Dialog` takes focus when it opens, keeps Tab inside, closes on Escape and gives focus back when it closes), `RouteMarker` (a split as a round marker, in three sizes) and `StatusBadge` (the progression status in its ink).
@@ -23,15 +22,17 @@ Entry: `src/theme/tokens.ts`: every color, font, corner radius, tap size and the
 - `good` is an off-white flap, the fill of the primary action on the board (Log set). `accent` is the signage yellow: the header bands, the focus ring, the caret and text selection. Secondary actions (Skip, Plates, Cancel) are bordered two-ink buttons.
 - No shadows, gradients, glows or blur. Motion is a stepped flip (`--flip`, `steps()`), never an eased fade or a scale on press.
 - `line` is for decorative dividers and card borders. Inputs, steppers and buttons that need a visible edge use `edge`.
-- A new color token goes in `COLOR_TOKENS` and in `DESIGN.colors`. Only add one when a component uses it.
+- A new color token goes in `COLOR_TOKENS`, in `DESIGN.colors` and as `--color-<token>: rgb(var(--c-<token>));` in the `@theme` block of `src/index.css`. Only add one when a component uses it.
 - The tokens must pass the contrast table in `tests/theme.test.ts`: 4.5:1 for text on its background (including the labels on split colors and plates), 3:1 for placeholders and for the `edge` of inputs and buttons.
-- Class names built from data are written out in full in a table (`SPLIT_FILL`, `MARKER_SIZE`, `PLATE_STYLE`), because Tailwind only generates classes it finds as text.
+- Class names built from data are written out in full in a table (`SPLIT_FILL`, `MARKER_SIZE`, `PLATE_STYLE`), because Tailwind only generates classes it finds as text. It looks in `index.html` and `src/**/*.{js,ts,jsx,tsx}` only (`source(none)` and the `@source` lines in `src/index.css`), so a class named in a doc does not end up in the stylesheet.
 
 ## Gotchas
-- Body text is 17px (`text-base` is redefined in `tailwind.config.ts`). At 16px both Barlow faces smear the full stop into a comma on 1x screens, so 62.5 reads as 62,5; 14, 15, 17 and 18px render it cleanly.
+- Body text is 17px (`--text-base` is redefined in the `@theme` block). At 16px both Barlow faces smear the full stop into a comma on 1x screens, so 62.5 reads as 62,5; 14, 15, 17 and 18px render it cleanly.
 - `prefers-reduced-motion` turns off every animation and transition, including the flap turn.
 - The dev server serves the font files from `node_modules`. A copy of the app whose `node_modules` is a symlink to a folder outside the project gets 403 for the fonts; build it and use `vite preview` instead.
-- Tailwind reads `tailwind.config.ts` when the dev server starts. After changing the tokens or the config, restart `npm run dev` if the page shows a CSS error.
+- Tailwind runs as a Vite plugin (`@tailwindcss/vite`), with no PostCSS step and no autoprefixer: Tailwind 4 adds the vendor prefixes itself.
+- Tailwind 4's `transition-colors` also covers `outline-color`. The base rules give every element the accent as its outline color, so the focus ring appears at once instead of fading in. Buttons get `cursor: pointer` in the base rules too, because Tailwind 4 dropped it from its reset.
+- Tailwind 4 renamed some classes: `outline-none` is now `outline-hidden`, and the old `rounded-sm` (2px) is `rounded-xs`. `outline-hidden` also sets the variable that `outline` and `outline-2` read, so an element that hides its outline on `focus:` brings the ring back with `focus-visible:outline-solid`, not `focus-visible:outline` (see `TrendChart`).
 
 ## Tests
-`tests/theme.test.ts`: the color conversion, the generated stylesheet and the contrast table.
+`tests/theme.test.ts`: the color conversion, the generated stylesheet, the `@theme` colors in `src/index.css` against `COLOR_TOKENS`, and the contrast table.

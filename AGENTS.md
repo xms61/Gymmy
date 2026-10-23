@@ -28,7 +28,7 @@ This file is the map, not the manual. The repository is the system of record: wh
 | [src/services/STORAGE.md](src/services/STORAGE.md) | Touching browser storage, the outbox or `StorageService` |
 | [server/SERVER.md](server/SERVER.md) | Touching the `/api` routes, the SQLite schema or `src/validation.ts` |
 | [DESIGN.md](DESIGN.md) | Designing or restyling any screen: the Departure Board system and its rules |
-| [src/theme/THEME.md](src/theme/THEME.md) | Touching colors, fonts, `tailwind.config.ts`, `src/index.css` or `src/components/ui/` |
+| [src/theme/THEME.md](src/theme/THEME.md) | Touching colors, fonts, Tailwind, `src/index.css` or `src/components/ui/` |
 
 ## Commands
 | Task | Command |

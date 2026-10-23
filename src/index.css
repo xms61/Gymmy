@@ -1,6 +1,75 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Tailwind looks for class names in the app's source only, not in the docs. */
+@import 'tailwindcss' source(none);
+@source '../index.html';
+@source './**/*.{js,ts,jsx,tsx}';
+
+/*
+ * The Tailwind classes of the design tokens (src/theme/tokens.ts): bg-surface, rounded-card,
+ * font-display, h-tap. The values stay in the token stylesheet that vite.config.ts puts on :root:
+ * inline makes each class read its token variable directly, and reference keeps Tailwind from
+ * declaring the variables a second time. tests/theme.test.ts checks that every color token is
+ * listed here.
+ */
+@theme inline reference {
+  --color-bg: rgb(var(--c-bg));
+  --color-surface: rgb(var(--c-surface));
+  --color-flap-low: rgb(var(--c-flap-low));
+  --color-inset: rgb(var(--c-inset));
+  --color-control: rgb(var(--c-control));
+  --color-control-hover: rgb(var(--c-control-hover));
+  --color-line: rgb(var(--c-line));
+  --color-edge: rgb(var(--c-edge));
+  --color-ink: rgb(var(--c-ink));
+  --color-ink-soft: rgb(var(--c-ink-soft));
+  --color-ink-muted: rgb(var(--c-ink-muted));
+  --color-ink-faint: rgb(var(--c-ink-faint));
+  --color-accent: rgb(var(--c-accent));
+  --color-accent-hover: rgb(var(--c-accent-hover));
+  --color-on-accent: rgb(var(--c-on-accent));
+  --color-accent-ink: rgb(var(--c-accent-ink));
+  --color-good: rgb(var(--c-good));
+  --color-good-hover: rgb(var(--c-good-hover));
+  --color-on-good: rgb(var(--c-on-good));
+  --color-good-ink: rgb(var(--c-good-ink));
+  --color-warn-ink: rgb(var(--c-warn-ink));
+  --color-bad-ink: rgb(var(--c-bad-ink));
+  --color-info-ink: rgb(var(--c-info-ink));
+  --color-push: rgb(var(--c-push));
+  --color-pull: rgb(var(--c-pull));
+  --color-legs: rgb(var(--c-legs));
+  --color-other: rgb(var(--c-other));
+  --color-on-split: rgb(var(--c-on-split));
+  --color-plate-25: rgb(var(--c-plate-25));
+  --color-plate-20: rgb(var(--c-plate-20));
+  --color-plate-15: rgb(var(--c-plate-15));
+  --color-plate-10: rgb(var(--c-plate-10));
+  --color-plate-5: rgb(var(--c-plate-5));
+  --color-plate-2-5: rgb(var(--c-plate-2-5));
+  --color-plate-1-25: rgb(var(--c-plate-1-25));
+  --color-on-plate: rgb(var(--c-on-plate));
+  --color-on-plate-light: rgb(var(--c-on-plate-light));
+  --color-bar: rgb(var(--c-bar));
+
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-data);
+  --font-display: var(--font-display);
+
+  --radius-card: var(--radius-card);
+  --radius-panel: var(--radius-panel);
+  --radius-control: var(--radius-control);
+  --radius-chip: var(--radius-chip);
+  --radius-pill: var(--radius-pill);
+
+  /* 17px, not 16px: at 16px both Barlow faces smear the full stop into a comma on ordinary (1x)
+     screens, so 62.5 reads as 62,5. */
+  --text-base: 1.0625rem;
+  --text-base--line-height: 1.625rem;
+
+  --spacing-tap: var(--tap);
+  --spacing-tap-lg: var(--tap-lg);
+
+  --default-transition-duration: var(--flip);
+}
 
 @layer base {
   html, body {
@@ -11,7 +80,7 @@
   }
 
   body {
-    font-size: 1.0625rem; /* see fontSize.base in tailwind.config.ts */
+    font-size: 1.0625rem; /* see --text-base in @theme */
     background-color: rgb(var(--c-bg));
     color: rgb(var(--c-ink-soft));
     font-family: var(--font-body);
@@ -36,6 +105,22 @@
 
   ::placeholder {
     color: rgb(var(--c-ink-faint));
+  }
+
+  /* Tailwind 4 gives buttons the default cursor; the board keeps the pointer of Tailwind 3. */
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+
+  /*
+   * Tailwind 4's transition-colors also covers outline-color. With the ring color set before an
+   * element takes focus, the ring appears at once instead of fading in from the text color.
+   */
+  *,
+  ::before,
+  ::after {
+    outline-color: rgb(var(--c-accent));
   }
 
   :focus-visible {
@@ -82,7 +167,7 @@
   }
 
   .field {
-    @apply bg-surface border border-edge rounded-chip text-ink focus:border-accent focus:outline-none;
+    @apply bg-surface border border-edge rounded-chip text-ink focus:border-accent focus:outline-hidden;
   }
 
   /* Number fields are typed into; the browser's spinner arrows are not part of the board. */

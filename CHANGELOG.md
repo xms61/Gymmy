@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- Tailwind CSS 4 (from 3.4), replacing Dependabot's #48 and #52. The token classes are set in an `@theme` block in `src/index.css` instead of `tailwind.config.ts`, Tailwind runs through `@tailwindcss/vite` instead of PostCSS, and `autoprefixer` and the direct `postcss` dependency are gone. The screens look as before. This also removes `postcss-selector-parser`, which had a known vulnerability below 7.1.6.
 - Load suggestions follow a review of the strength-training research (sources and evidence grades in `docs/exec-plans/completed/2026-10-19-evidence-based-overload.md`). A deload now lasts one session: about 10 % lighter, half the sets, each stopped about 3 reps short of failure, and the next session returns to the weight before it instead of rebuilding a step at a time. A stall also suggests a deload: four or more sessions at one weight where the last three beat no earlier session and gain nothing from first to last. The reps that earn a dumbbell jump over 15 % come from Epley instead of Brzycki: Lateral Raise 30 reps at 5 kg (was 19), Incline DB Press and Biceps Curl 18 at 10 kg (was 14). When later sets fall below the range, the advice suggests more rest between sets.
 - Pull requests are squash-merged: the ruleset on `main` now requires linear history, a pull request, and the `verify` and `secrets` checks.
 - The repo setup follows the current agentic-repo-template, for Claude Code only. `npm run setup` enables the git hooks and `npm run verify` runs every check; CI runs it on Linux, Windows and macOS, with gitleaks in its own job, and runs no AI agent. The pre-commit hook adds the doc and skills checks, and gitleaks when it is installed. The doc check also fails on an `npm run` command with no script, checks links in `.claude/`, and dates `last-verified` in UTC.
@@ -20,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Desktop web only: the tabs moved from the bottom navigation into a header band, and the tracker keeps its rest timer beside the board at every width.
 
 ### Fixed
+- The notes boxes' placeholder text is `ink-faint`, as the design tokens say. Tailwind 3's reset had made it a gray from Tailwind's own palette.
 - On the workout screen below 1280px wide, the load cells ran into the reps cells. The board's flaps are now 3.75rem there, 6.5rem from 1280px.
 - Body text is 17px instead of 16px, because at 16px the full stop in numbers like 62.5 looked like a comma on ordinary screens.
 - Discard, Leave, Delete and the other confirmations did nothing in browsers that suppress the confirm box. They now ask in a dialog on the page.

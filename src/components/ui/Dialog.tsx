@@ -28,7 +28,7 @@ export function Dialog({ children, width = 'md', onClose, onBackdropClick, class
         aria-modal="true"
         tabIndex={-1}
         onClick={event => event.stopPropagation()}
-        className={`card p-6 w-full max-h-[90vh] overflow-y-auto relative focus:outline-none ${WIDTH[width]} ${className}`}
+        className={`card p-6 w-full max-h-[90vh] overflow-y-auto relative focus:outline-hidden ${WIDTH[width]} ${className}`}
       >
         {children}
       </div>
