@@ -17,7 +17,7 @@ Entry: `src/theme/tokens.ts`: every color, font, corner radius, tap size and the
 
 ## Rules
 - Components use token classes only. No palette colors (`slate-800`, `indigo-400`), no hex values, no `rounded-xl`: use `rounded-card | panel | control | chip | pill`.
-- Text comes in four levels: `ink` (flap characters, headings, values), `ink-soft` (body), `ink-muted` (secondary), `ink-faint` (placeholders, rows that are not next). Colored text uses the `*-ink` tokens (`accent-ink`, `good-ink`, `warn-ink`, `bad-ink`, `info-ink`); fills use `accent`, `good`, `control` with their `on-*` text token.
+- Text comes in four levels: `ink` (flap characters, headings, values), `ink-soft` (body), `ink-muted` (secondary), `ink-faint` (placeholders, and small text on `bg` or `inset` only, such as set numbers and days of other months; on `surface` it falls below 4.5:1). Rows that are not next are full `ink` at 50% opacity, the one opacity on text, declared in `tests/theme.test.ts`. Colored text uses the `*-ink` tokens (`accent-ink`, `good-ink`, `warn-ink`, `bad-ink`, `info-ink`); fills use `accent`, `good`, `control` with their `on-*` text token.
 - Flaps carry two inks only: `ink` on `surface`. Color belongs to the yellow band (`accent`) and the route markers (`push`, `pull`, `legs`, `other`).
 - `good` is an off-white flap, the fill of the primary action on the board (Log set). `accent` is the signage yellow: the header bands, the focus ring, the caret and text selection. Secondary actions (Skip, Plates, Cancel) are bordered two-ink buttons.
 - No shadows, gradients, glows or blur. Motion is a stepped flip (`--flip`, `steps()`), never an eased fade or a scale on press.

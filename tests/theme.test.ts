@@ -113,9 +113,10 @@ test('the focus ring stands out on every surface, in board black on yellow', () 
   );
 });
 
-// Opacity dims a whole element, text and background together, so the token table above can't see it. Every
-// opacity a component sets outside `disabled:` is declared here with the colours it dims, and must still reach
-// 4.5:1. `opacity-0` hides an element and is skipped.
+// Opacity dims a whole element, text and background together, and a text colour's alpha (`text-ink/50`)
+// dims the text alone, so the token table above can't see either. Every opacity class or text alpha a component
+// sets, under any variant except `disabled:`, is declared here with the colours it dims and must still reach
+// 4.5:1. `opacity-0` hides an element and is skipped. Opacity set in a style attribute isn't scanned.
 type DimmedCase = [text: ColorToken, ownBackground: ColorToken | null, page: ColorToken];
 const DIMMED_TEXT: Record<string, DimmedCase[]> = {
   // Rows of exercises not up next: the name and its flaps.
@@ -126,36 +127,77 @@ const DIMMED_TEXT: Record<string, DimmedCase[]> = {
   ]
 };
 
+interface DimmingClass {
+  className: string; // as written, variants included: `hover:opacity-50`, `text-ink/50`
+  alpha: number;
+  dimsBackground: boolean; // opacity does; a text colour's alpha doesn't
+}
+
+// `50` is 50%, `[0.4]` and `[40%]` are 40%.
+function alphaOf(value: string): number {
+  const arbitrary = /^\[(.+)\]$/.exec(value)?.[1];
+  if (!arbitrary) return Number(value) / 100;
+  return arbitrary.endsWith('%') ? Number(arbitrary.slice(0, -1)) / 100 : Number(arbitrary);
+}
+
+function dimmingClasses(source: string): DimmingClass[] {
+  const found: DimmingClass[] = [];
+  const PATTERNS: [pattern: RegExp, dimsBackground: boolean][] = [
+    [/(?<![\w-])((?:[\w-]+:)*)opacity-(\d+|\[[^\]\s]+\])/g, true],
+    [/(?<![\w-])((?:[\w-]+:)*)text-[a-z][\w-]*\/(\d+|\[[^\]\s]+\])/g, false]
+  ];
+  for (const [pattern, dimsBackground] of PATTERNS) {
+    for (const [className, variants, value] of source.matchAll(pattern)) {
+      const alpha = alphaOf(value!);
+      if (variants!.split(':').includes('disabled') || alpha === 0) continue;
+      found.push({ className, alpha, dimsBackground });
+    }
+  }
+  return found;
+}
+
+test('finds dimming classes under any variant except disabled:', () => {
+  const source = `hover:opacity-50 xl:group-hover:opacity-40 opacity-[0.3] opacity-[25%] text-ink-soft/60
+    disabled:opacity-40 disabled:text-on-accent/60 opacity-0 bg-on-accent/10 border-warn-ink/40`;
+  assert.deepEqual(
+    dimmingClasses(source).map(({ className, alpha }) => [className, alpha]),
+    [
+      ['hover:opacity-50', 0.5],
+      ['xl:group-hover:opacity-40', 0.4],
+      ['opacity-[0.3]', 0.3],
+      ['opacity-[25%]', 0.25],
+      ['text-ink-soft/60', 0.6]
+    ]
+  );
+});
+
 function blend(top: string, under: string, alpha: number): string {
   const [a, b] = [hexToChannels(top), hexToChannels(under)].map(channels => channels.split(' ').map(Number));
   return `#${a!.map((value, i) => Math.round(alpha * value + (1 - alpha) * b![i]!).toString(16).padStart(2, '0')).join('')}`;
 }
 
-function componentOpacities(): string[] {
+function componentDimming(): Map<string, DimmingClass> {
   const root = new URL('../src/components/', import.meta.url);
-  const found: string[] = [];
+  const found = new Map<string, DimmingClass>();
   // readdirSync names nested files with the OS separator, backslashes on Windows.
   const files = readdirSync(root, { recursive: true }).map(name => String(name).split(/[\\/]/).join('/'));
   for (const file of files.filter(name => name.endsWith('.tsx'))) {
-    const source = readFileSync(new URL(file, root), 'utf8');
-    for (const [, level] of source.matchAll(/(?<![\w:-])opacity-(\d+)\b/g)) {
-      if (level !== '0') found.push(`${file} opacity-${level}`);
-    }
+    for (const use of dimmingClasses(readFileSync(new URL(file, root), 'utf8'))) found.set(`${file} ${use.className}`, use);
   }
-  return [...new Set(found)].sort();
+  return found;
 }
 
 test('dimmed text keeps 4.5:1, so opacity is never a text level on its own', () => {
-  for (const use of componentOpacities()) {
+  for (const [use, { alpha, dimsBackground }] of componentDimming()) {
     const cases = DIMMED_TEXT[use];
     assert.ok(
       cases,
       `${use} dims text the contrast table can't check. Use an ink step instead (ink-faint on bg or inset, ink-muted where the background can be surface), or declare the case in DIMMED_TEXT.`
     );
-    const alpha = Number(use.split('opacity-')[1]) / 100;
     for (const [text, own, page] of cases) {
-      const background = own ? blend(DESIGN.colors[own], DESIGN.colors[page], alpha) : DESIGN.colors[page];
-      const ratio = contrastRatio(blend(DESIGN.colors[text], DESIGN.colors[page], alpha), background);
+      const under = own ? DESIGN.colors[own] : DESIGN.colors[page];
+      const background = dimsBackground && own ? blend(DESIGN.colors[own], DESIGN.colors[page], alpha) : under;
+      const ratio = contrastRatio(blend(DESIGN.colors[text], dimsBackground ? DESIGN.colors[page] : under, alpha), background);
       assert.ok(ratio >= 4.5, `${use}: ${text} on ${own ?? page} is ${ratio.toFixed(2)}:1 once dimmed, needs 4.5:1`);
     }
   }

@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Desktop web only: the tabs moved from the bottom navigation into a header band, and the tracker keeps its rest timer beside the board at every width.
 
 ### Fixed
-- Dimmed text fell below 4.5:1: exercises with no sessions on Progress, days of other months in the calendar, the set number on the selected tile and the rest timer before the first set. They now use a lower ink step instead of opacity, and a test fails on any new opacity that dims text below 4.5:1.
+- Dimmed text fell below 4.5:1: exercises with no sessions on Progress, days of other months in the calendar, the set number on the selected tile and the rest timer before the first set. They now use a lower ink step instead of opacity, and a test fails on any new opacity class or text colour alpha (under any variant except `disabled:`) that isn't declared with its colours and kept at 4.5:1.
 - The focus ring was yellow on the yellow band and home sign, so keyboard focus vanished there. Inside yellow areas it is now board black. The command row shows the ring too, and its screen-reader name is its visible label, "Type a set".
 - On the workout screen, Space on a focused button, such as Plates, logged the current set instead of pressing the button. Space and Enter now go to the focused control, and the letter shortcuts still work.
 - The trash button deleted the last set without asking, even when it was logged. A logged set now asks first.
