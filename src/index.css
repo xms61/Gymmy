@@ -167,7 +167,7 @@
   }
 
   .field {
-    @apply bg-surface border border-edge rounded-chip text-ink focus:border-accent focus:outline-none;
+    @apply bg-surface border border-edge rounded-chip text-ink focus:border-accent focus:outline-hidden;
   }
 
   /* Number fields are typed into; the browser's spinner arrows are not part of the board. */
