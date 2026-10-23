@@ -43,12 +43,12 @@ Each milestone is one branch and one squash-merged PR, in this order, because se
    - Reproduce it first with the diagnosing-bugs skill. If it's real, fix it with a regression test. If it isn't, record why here.
 8. **Re-audit and close out.**
    - Run the Impeccable audit again and fix anything new at P1 or P2.
-   - Update DESIGN.md, THEME.md, TRACKER.md and the CHANGELOG where behaviour changed, then move this plan to `completed/`.
+   - Update DESIGN.md, THEME.md, TRACKER.md and the CHANGELOG where behaviour changed, and refresh the `.impeccable/design.json` sidecar from DESIGN.md (`/impeccable document`), since milestone 2 changed the Signage Rule. Then move this plan to `completed/`.
 
 ## Progress
 - [x] 2026-10-23 Tailwind 4 migration merged (#59, prerequisite)
 - [x] 2026-10-23 1. Tracker keyboard and the last-set delete
-- [ ] 2. Focus that can be seen everywhere
+- [x] 2026-10-23 2. Focus that can be seen everywhere
 - [ ] 3. Text contrast without opacity
 - [ ] 4. One content column
 - [ ] 5. Accessible names and keys

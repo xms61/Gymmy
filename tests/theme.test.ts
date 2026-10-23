@@ -87,3 +87,26 @@ test('text and edges stay readable', () => {
     assert.ok(ratio >= minimum, `${foreground} on ${background} is ${ratio.toFixed(2)}:1, needs ${minimum}:1`);
   }
 });
+
+// The 2px focus ring needs 3:1 against whatever it sits on (WCAG 1.4.11). It is yellow on the board, and the
+// board black on a yellow sign, where a yellow ring would vanish.
+const FOCUS_RING_ON: [ring: ColorToken, background: ColorToken][] = [
+  ['accent', 'bg'],
+  ['accent', 'inset'],
+  ['accent', 'surface'],
+  ['on-accent', 'accent']
+];
+
+test('the focus ring stands out on every surface, in board black on yellow', () => {
+  for (const [ring, background] of FOCUS_RING_ON) {
+    const ratio = contrastRatio(DESIGN.colors[ring], DESIGN.colors[background]);
+    assert.ok(ratio >= 3, `${ring} ring on ${background} is ${ratio.toFixed(2)}:1, needs 3:1`);
+  }
+  const indexCss = readFileSync(new URL('../src/index.css', import.meta.url), 'utf8');
+  // Every element in the area holds the black before it takes focus, or the ring fades in from yellow.
+  assert.match(
+    indexCss,
+    /\.bg-accent \*,\s*\.bg-accent :focus-visible\s*\{\s*outline-color: rgb\(var\(--c-on-accent\)\);/,
+    'index.css must give every element inside .bg-accent areas an on-accent outline color'
+  );
+});

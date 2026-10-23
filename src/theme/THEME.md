@@ -32,6 +32,7 @@ Entry: `src/theme/tokens.ts`: every color, font, corner radius, tap size and the
 - The dev server serves the font files from `node_modules`. A copy of the app whose `node_modules` is a symlink to a folder outside the project gets 403 for the fonts; build it and use `vite preview` instead.
 - Tailwind runs as a Vite plugin (`@tailwindcss/vite`), with no PostCSS step and no autoprefixer: Tailwind 4 adds the vendor prefixes itself.
 - Tailwind 4's `transition-colors` also covers `outline-color`. The base rules give every element the accent as its outline color, so the focus ring appears at once instead of fading in. Buttons get `cursor: pointer` in the base rules too, because Tailwind 4 dropped it from its reset.
+- Inside a `bg-accent` area (the band, the home sign) the focus ring is `on-accent`, set by a base rule in `src/index.css`, and `tests/theme.test.ts` checks that rule and the ring's 3:1 contrast on each surface. Don't remove the global ring with `outline-hidden` on a control that takes keyboard focus.
 - Tailwind 4 renamed some classes: `outline-none` is now `outline-hidden`, and the old `rounded-sm` (2px) is `rounded-xs`. `outline-hidden` also sets the variable that `outline` and `outline-2` read, so an element that hides its outline on `focus:` brings the ring back with `focus-visible:outline-solid`, not `focus-visible:outline` (see `TrendChart`).
 
 ## Tests
