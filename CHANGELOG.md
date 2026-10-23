@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Desktop web only: the tabs moved from the bottom navigation into a header band, and the tracker keeps its rest timer beside the board at every width.
 
 ### Fixed
+- The focus ring was yellow on the yellow band and home sign, so keyboard focus vanished there. Inside yellow areas it is now board black. The command row shows the ring too, and its screen-reader name is its visible label, "Type a set".
 - On the workout screen, Space on a focused button, such as Plates, logged the current set instead of pressing the button. Space and Enter now go to the focused control, and the letter shortcuts still work.
 - The trash button deleted the last set without asking, even when it was logged. A logged set now asks first.
 - The notes boxes' placeholder text is `ink-faint`, as the design tokens say. Tailwind 3's reset had made it a gray from Tailwind's own palette.

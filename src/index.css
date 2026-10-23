@@ -127,6 +127,12 @@
     outline: 2px solid rgb(var(--c-accent));
     outline-offset: 2px;
   }
+
+  /* On a yellow sign a yellow ring would vanish, so there it is drawn in the sign's board black. */
+  .bg-accent *,
+  .bg-accent :focus-visible {
+    outline-color: rgb(var(--c-on-accent));
+  }
 }
 
 @layer components {

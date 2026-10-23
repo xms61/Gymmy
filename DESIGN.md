@@ -1,6 +1,6 @@
 ---
 status: draft
-last-verified: 2026-10-01
+last-verified: 2026-10-23
 name: Gymmy
 description: A Push/Pull/Legs workout tracker drawn as a station departure board.
 colors:
@@ -230,7 +230,7 @@ Every screen is built in this world: the live workout, home, the calendar, progr
 A near-monochrome board of warm blacks and off-whites, with one signage yellow and four route colours kept to small areas.
 
 ### Primary
-- **Signage Yellow** (`accent`): the band across the top of every screen, the platform sign on home, the 2px focus ring, the text caret and text selection. Its hover step (`accent-hover`) belongs to the same family. Text on it is `on-accent`, the board black.
+- **Signage Yellow** (`accent`): the band across the top of every screen, the platform sign on home, the 2px focus ring on the board, the text caret and text selection. Its hover step (`accent-hover`) belongs to the same family. Text on it is `on-accent`, the board black.
 
 ### Secondary
 - **Route colours** (`push` orange, `pull` green, `legs` blue, `other` violet): only as the fill of a round route marker, with `on-split` black lettering.
@@ -253,7 +253,7 @@ A near-monochrome board of warm blacks and off-whites, with one signage yellow a
 ### Named Rules
 **The Two Inks Rule.** Flap cells show `ink` characters on `surface` over `flap-low`, nothing else. Colour never goes on a flap.
 
-**The Signage Rule.** Yellow is the band, the home platform sign, the focus ring, the caret and selection. Buttons on the board are never yellow; the filled primary is Departure White. On a yellow sign, actions are board-black.
+**The Signage Rule.** Yellow is the band, the home platform sign, the focus ring, the caret and selection. Buttons on the board are never yellow; the filled primary is Departure White. On a yellow sign, actions and the focus ring are board-black, because a yellow ring would vanish there.
 
 **The Route Marker Rule.** A split colour appears only as the fill of a round marker with its first letter in `on-split`, and the split's full name always sits beside the marker, so Push and Pull (both P) never rest on colour alone.
 

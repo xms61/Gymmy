@@ -48,7 +48,7 @@ Each milestone is one branch and one squash-merged PR, in this order, because se
 ## Progress
 - [x] 2026-10-23 Tailwind 4 migration merged (#59, prerequisite)
 - [x] 2026-10-23 1. Tracker keyboard and the last-set delete
-- [ ] 2. Focus that can be seen everywhere
+- [x] 2026-10-23 2. Focus that can be seen everywhere
 - [ ] 3. Text contrast without opacity
 - [ ] 4. One content column
 - [ ] 5. Accessible names and keys
