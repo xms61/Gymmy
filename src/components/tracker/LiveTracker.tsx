@@ -360,7 +360,7 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
           </button>
           <RouteMarker split={workoutType} />
           <h1 className="text-3xl leading-none">{workoutType}</h1>
-          <span className="font-display text-lg font-semibold uppercase tracking-[0.04em]">
+          <span className="font-display text-lg font-semibold uppercase tracking-heading">
             {formatSessionDate(toLocalDateString(new Date(startTime)))}
           </span>
           <span title="Time since the workout started" className="ml-auto font-mono text-xl font-semibold">

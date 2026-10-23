@@ -17,12 +17,12 @@ export const COLOR_TOKENS = [
   'ink', // flap characters, headings and values
   'ink-soft', // body text
   'ink-muted', // secondary text
-  'ink-faint', // placeholders, disabled text, rows that are not next
-  'accent', // the yellow signage band and the primary button fill
+  'ink-faint', // placeholders, disabled text, and small text on bg or inset only (set numbers, days of other months)
+  'accent', // signage yellow: the band, the home sign, the focus ring, the caret and selection; never a button on the board
   'accent-hover',
   'on-accent',
   'accent-ink', // yellow text and icons on the board
-  'good', // Done and Finish fill: an off-white flap
+  'good', // the filled primary action on the board (Log set, Done): an off-white flap
   'good-hover',
   'on-good',
   'good-ink', // positive status text

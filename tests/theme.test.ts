@@ -176,13 +176,18 @@ function blend(top: string, under: string, alpha: number): string {
   return `#${a!.map((value, i) => Math.round(alpha * value + (1 - alpha) * b![i]!).toString(16).padStart(2, '0')).join('')}`;
 }
 
-function componentDimming(): Map<string, DimmingClass> {
+// Every component's source, keyed by its path under src/components/ with forward slashes.
+function componentSources(): [file: string, source: string][] {
   const root = new URL('../src/components/', import.meta.url);
-  const found = new Map<string, DimmingClass>();
   // readdirSync names nested files with the OS separator, backslashes on Windows.
   const files = readdirSync(root, { recursive: true }).map(name => String(name).split(/[\\/]/).join('/'));
-  for (const file of files.filter(name => name.endsWith('.tsx'))) {
-    for (const use of dimmingClasses(readFileSync(new URL(file, root), 'utf8'))) found.set(`${file} ${use.className}`, use);
+  return files.filter(name => name.endsWith('.tsx')).map(file => [file, readFileSync(new URL(file, root), 'utf8')]);
+}
+
+function componentDimming(): Map<string, DimmingClass> {
+  const found = new Map<string, DimmingClass>();
+  for (const [file, source] of componentSources()) {
+    for (const use of dimmingClasses(source)) found.set(`${file} ${use.className}`, use);
   }
   return found;
 }
@@ -201,4 +206,15 @@ test('dimmed text keeps 4.5:1, so opacity is never a text level on its own', () 
       assert.ok(ratio >= 4.5, `${use}: ${text} on ${own ?? page} is ${ratio.toFixed(2)}:1 once dimmed, needs 4.5:1`);
     }
   }
+});
+
+test('components size and space type with theme tokens, not hand-typed values', () => {
+  const handTyped = componentSources().flatMap(([file, source]) =>
+    [...source.matchAll(/\b(?:text-\[[\d.]+(?:rem|px|em)\]|tracking-\[[^\]]+\])/g)].map(([match]) => `${file}: ${match}`)
+  );
+  assert.deepEqual(
+    handTyped,
+    [],
+    'Use the type tokens in the @theme block of src/index.css (text-flap-row, text-display, text-flap, text-sign, text-flap-xl; tracking-heading, tracking-button, tracking-label), or add a token there first.'
+  );
 });

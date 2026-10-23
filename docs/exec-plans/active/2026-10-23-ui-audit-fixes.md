@@ -52,7 +52,7 @@ Each milestone is one branch and one squash-merged PR, in this order, because se
 - [x] 2026-10-23 3. Text contrast without opacity
 - [x] 2026-10-23 4. One content column
 - [x] 2026-10-23 5. Accessible names and keys
-- [ ] 6. Tokens and dead code
+- [x] 2026-10-23 6. Tokens and dead code
 - [ ] 7. Settings table after a sync
 - [ ] 8. Re-audit and close out
 

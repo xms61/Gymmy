@@ -72,7 +72,7 @@ function ExerciseRail({ progress, selectedId, onSelect }: ExerciseRailProps) {
                         exercise.id === selectedId ? 'bg-surface text-ink' : `${latest ? 'text-ink-soft' : 'text-ink-muted'} hover:bg-surface`
                       }`}
                     >
-                      <span className="font-display text-lg font-semibold uppercase tracking-[0.04em] truncate">{exercise.name}</span>
+                      <span className="font-display text-lg font-semibold uppercase tracking-heading truncate">{exercise.name}</span>
                       {latest ? (
                         <Flaps text={String(latest.estimated1RM)} cells={5} label={`estimated 1RM ${latest.estimated1RM} kg`} className="text-xl" />
                       ) : (
@@ -99,7 +99,7 @@ function ExerciseRecord({ progress: { exercise, history, recommendation } }: { p
         <h2 id="record-heading" className="text-6xl leading-[0.95] text-ink">
           {exercise.name}
         </h2>
-        <p className="mt-2 font-display text-lg font-medium uppercase tracking-[0.06em] text-ink-muted">
+        <p className="mt-2 font-display text-lg font-medium uppercase tracking-button text-ink-muted">
           {exercise.workoutType} · {exercise.equipment} · {exercise.targetSets} × {exercise.targetRepsMin}–{exercise.targetRepsMax}
         </p>
       </div>
@@ -136,7 +136,7 @@ function Record({ label, value }: { label: string; value: number | null }) {
   return (
     <div className="grid gap-2">
       <span className="section-label">{label}</span>
-      <Flaps text={value === null ? '-' : String(value)} cells={5} label={value === null ? 'none yet' : `${value} kg`} className="text-[3.75rem] xl:text-[4.5rem]" />
+      <Flaps text={value === null ? '-' : String(value)} cells={5} label={value === null ? 'none yet' : `${value} kg`} className="text-display xl:text-flap" />
     </div>
   );
 }
@@ -163,7 +163,7 @@ function SessionHistory({ history }: { history: ExerciseHistoryEntry[] }) {
             .reverse()
             .map(h => (
               <tr key={`${h.date}-${h.sessionName}`} className="border-b border-line">
-                <td className="px-2 py-2.5 font-display text-lg font-semibold uppercase tracking-[0.04em] text-ink-soft">{formatSessionDate(h.date)}</td>
+                <td className="px-2 py-2.5 font-display text-lg font-semibold uppercase tracking-heading text-ink-soft">{formatSessionDate(h.date)}</td>
                 <td className="px-2 py-2.5 font-mono text-lg text-ink text-right">{h.weight}</td>
                 <td className="px-2 py-2.5 font-mono text-lg text-ink-soft">{h.repsString}</td>
                 <td className="px-2 py-2.5 font-mono text-lg text-ink text-right">{h.estimated1RM}</td>

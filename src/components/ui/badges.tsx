@@ -69,7 +69,7 @@ export function StatusBadge({ status }: { status: OverloadStatus }) {
   const style = STATUS_STYLE[status];
   const Icon = style.icon;
   return (
-    <span className={`flex items-center gap-1.5 font-display text-base font-semibold uppercase tracking-[0.06em] ${style.className}`}>
+    <span className={`flex items-center gap-1.5 font-display text-base font-semibold uppercase tracking-button ${style.className}`}>
       <Icon className="w-4 h-4" />
       <span>{style.label}</span>
     </span>

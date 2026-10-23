@@ -31,7 +31,7 @@ export function PlateCalculatorModal({ initialWeightKg, equipment, onClose }: Pl
 
       <div className="grid w-fit gap-3 mb-6">
         <span className="section-label">Load, kg</span>
-        <Flaps text={String(weight)} cells={5} label={`${weight} kg`} className="text-[3.75rem]" />
+        <Flaps text={String(weight)} cells={5} label={`${weight} kg`} className="text-display" />
         <div className="grid grid-cols-2 gap-1.5">
           <button
             onClick={() => lighter !== null && setWeight(lighter)}
@@ -98,7 +98,7 @@ function PlateDrawing({ plates, equipment }: { plates: number[]; equipment: Plat
     order.map((plate, i) => (
       <div
         key={`${key}-${i}`}
-        className={`${PLATE_STYLE[plate]?.fill} ${PLATE_STYLE[plate]?.size} border border-ink/20 rounded-xs`}
+        className={`${PLATE_STYLE[plate]?.fill} ${PLATE_STYLE[plate]?.size} border border-ink/20 rounded-chip`}
         title={`${plate} kg`}
       />
     ));
@@ -107,18 +107,18 @@ function PlateDrawing({ plates, equipment }: { plates: number[]; equipment: Plat
     <div className="panel p-4 mb-6">
       <div className="w-full flex items-center justify-center space-x-1.5 py-4 overflow-x-auto">
         {oneEnd ? (
-          <div className="w-16 h-2 bg-bar/60 rounded-l-xs" title="End on the floor" />
+          <div className="w-16 h-2 bg-bar/60 rounded-l-chip" title="End on the floor" />
         ) : (
           <>
-            <div className="w-6 h-4 bg-bar/60 rounded-l-xs" />
+            <div className="w-6 h-4 bg-bar/60 rounded-l-chip" />
             {end('left', [...plates].reverse())}
-            <div className="w-2.5 h-6 bg-bar rounded-xs" />
+            <div className="w-2.5 h-6 bg-bar rounded-chip" />
           </>
         )}
         <div className="w-20 h-2 bg-bar" />
-        <div className="w-2.5 h-6 bg-bar rounded-xs" />
+        <div className="w-2.5 h-6 bg-bar rounded-chip" />
         {end('right', plates)}
-        <div className="w-6 h-4 bg-bar/60 rounded-r-xs" />
+        <div className="w-6 h-4 bg-bar/60 rounded-r-chip" />
       </div>
       {plates.length === 0 && <p className="text-center text-base text-ink-muted">No plates needed: the empty bar makes this load.</p>}
     </div>
@@ -135,7 +135,7 @@ function PlateList({ plates, ends }: { plates: number[]; ends: 1 | 2 }) {
             <span className={`min-w-11 h-9 px-1.5 rounded-chip ${PLATE_STYLE[plate]?.fill} ${PLATE_STYLE[plate]?.text} grid place-items-center font-mono text-sm font-semibold`}>
               {plate}
             </span>
-            <span className="font-display text-lg font-semibold uppercase tracking-[0.04em] text-ink-soft">{plate} kg</span>
+            <span className="font-display text-lg font-semibold uppercase tracking-heading text-ink-soft">{plate} kg</span>
           </span>
           <span className="font-mono text-lg text-ink">
             {count} {ends === 2 ? `per side, ${count * 2} in all` : count === 1 ? 'plate' : 'plates'}

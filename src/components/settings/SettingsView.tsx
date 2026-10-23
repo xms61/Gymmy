@@ -74,7 +74,7 @@ function ExerciseTargets({ exercises, onSaved, onUnsavedChange }: ExerciseTarget
     <section aria-labelledby="targets-heading" className="grid gap-4">
       <div className="flex items-end justify-between gap-6">
         <div>
-          <h2 id="targets-heading" className="text-5xl xl:text-[3.75rem] leading-[0.95] text-ink">
+          <h2 id="targets-heading" className="text-5xl xl:text-display leading-[0.95] text-ink">
             Exercise targets
           </h2>
           <p className="mt-2 text-base text-ink-soft">The sets and rep range each exercise aims for. Load suggestions work from these.</p>
@@ -105,7 +105,7 @@ function ExerciseTargets({ exercises, onSaved, onUnsavedChange }: ExerciseTarget
             <tbody key={split}>
               <tr>
                 <th colSpan={4} scope="rowgroup" className="pt-5 pb-2 px-2 text-left">
-                  <span className="flex items-center gap-2.5 font-display text-xl font-semibold uppercase tracking-[0.04em] text-ink">
+                  <span className="flex items-center gap-2.5 font-display text-xl font-semibold uppercase tracking-heading text-ink">
                     <RouteMarker split={split} />
                     {split}
                   </span>
@@ -127,7 +127,7 @@ function TargetRow({ exercise, onChange }: { exercise: ExerciseDefinition; onCha
   return (
     <>
       <tr className="border-t border-line">
-        <th scope="row" className="px-2 py-2 font-display text-lg font-semibold uppercase tracking-[0.04em] text-ink-soft">
+        <th scope="row" className="px-2 py-2 font-display text-lg font-semibold uppercase tracking-heading text-ink-soft">
           {exercise.name}
         </th>
         {TARGET_FIELDS.map(({ field, label, rule, fallback }) => (
@@ -190,7 +190,7 @@ function SyncSection({ syncStatus }: { syncStatus: SyncStatus }) {
         <h3 id="sync-heading" className="text-2xl text-ink">
           Data
         </h3>
-        <span className={`font-display text-base font-semibold uppercase tracking-[0.06em] ${needsAttention(syncStatus) ? 'text-warn-ink' : 'text-good-ink'}`}>
+        <span className={`font-display text-base font-semibold uppercase tracking-button ${needsAttention(syncStatus) ? 'text-warn-ink' : 'text-good-ink'}`}>
           {syncLabel(syncStatus)}
         </span>
       </div>
