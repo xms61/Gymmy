@@ -49,7 +49,7 @@ Each milestone is one branch and one squash-merged PR, in this order, because se
 - [x] 2026-10-23 Tailwind 4 migration merged (#59, prerequisite)
 - [x] 2026-10-23 1. Tracker keyboard and the last-set delete
 - [x] 2026-10-23 2. Focus that can be seen everywhere
-- [ ] 3. Text contrast without opacity
+- [x] 2026-10-23 3. Text contrast without opacity
 - [ ] 4. One content column
 - [ ] 5. Accessible names and keys
 - [ ] 6. Tokens and dead code
@@ -69,6 +69,7 @@ Each milestone is one branch and one squash-merged PR, in this order, because se
 - 2026-10-23: accepted side effect, found in review: after a mouse click on a set tile, "+ Set" or an RIR choice, focus stays there, so Space presses that button again (re-selects the tile, adds a set, clears the RIR) instead of ticking the set under the cursor. Space has to operate the focused control (WCAG 2.1.1). Space returns to the cursor once focus leaves the button, for example with a click on the board. Revisit if mouse-then-Space turns out to be a common way to log.
 
 ## Surprises
+- Milestone 3: the rest timer's flaps before the first set were at 40% opacity, 3.33:1, which the audit missed. The new test scans every component for opacity on text, so it caught this one too.
 - The audit ran on a worktree at `a244de3`, so its line numbers are older than `main`. Each finding was checked again on `main` at `0c86cd8` before planning, and all still hold.
 
 ## Validation

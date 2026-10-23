@@ -64,12 +64,12 @@ function ExerciseRail({ progress, selectedId, onSelect }: ExerciseRailProps) {
               {rows.map(({ exercise, history }) => {
                 const latest = history[history.length - 1];
                 return (
-                  <li key={exercise.id} className={`border-b border-line ${latest || exercise.id === selectedId ? '' : 'opacity-50'}`}>
+                  <li key={exercise.id} className="border-b border-line">
                     <button
                       onClick={() => onSelect(exercise.id)}
                       aria-current={exercise.id === selectedId ? 'true' : undefined}
                       className={`w-full grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-2 py-2 text-left transition-colors ${
-                        exercise.id === selectedId ? 'bg-surface text-ink' : 'text-ink-soft hover:bg-surface'
+                        exercise.id === selectedId ? 'bg-surface text-ink' : `${latest ? 'text-ink-soft' : 'text-ink-muted'} hover:bg-surface`
                       }`}
                     >
                       <span className="font-display text-lg font-semibold uppercase tracking-[0.04em] truncate">{exercise.name}</span>

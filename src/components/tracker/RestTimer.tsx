@@ -100,7 +100,7 @@ export function RestIdle({ seconds }: { seconds: number }) {
   return (
     <section aria-label="Rest timer">
       <RestHeading state="Ready" />
-      <Flaps text={formatClock(seconds)} cells={4} label={`${formatClock(seconds)} rest after this set`} className="mt-3 text-[4.5rem] opacity-40" />
+      <Flaps text={formatClock(seconds)} cells={4} label={`${formatClock(seconds)} rest after this set`} className="mt-3 text-[4.5rem] flaps-idle" />
       <p className="mt-3 text-base text-ink-muted">Starts when you log a set.</p>
     </section>
   );

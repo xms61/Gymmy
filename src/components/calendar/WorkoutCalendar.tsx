@@ -95,6 +95,9 @@ function MonthBoard({ days, byDate, today, selected, onSelect }: MonthBoardProps
         {days.map(day => {
           const daySessions = byDate.get(day.date) ?? [];
           const isSelected = day.date === selected;
+          // Days of the neighbouring months step down to ink-faint, which keeps 4.5:1 on inset; not on surface,
+          // so a selected day keeps its full ink.
+          const dimmed = !day.inMonth && !isSelected;
           return (
             <button
               key={day.date}
@@ -103,16 +106,19 @@ function MonthBoard({ days, byDate, today, selected, onSelect }: MonthBoardProps
               aria-label={`${formatDisplayDate(day.date)}${daySessions.length ? `, ${daySessions.map(s => s.splitType).join(' and ')}` : ''}`}
               className={`aspect-square min-h-16 p-1.5 flex flex-col justify-between rounded-panel border text-left transition-colors ${
                 isSelected ? 'bg-surface border-ink' : 'bg-inset border-line hover:border-edge'
-              } ${day.inMonth ? '' : 'opacity-40'}`}
+              }`}
             >
-              <span className={`font-mono text-lg leading-none ${day.date === today ? 'w-fit px-1 -mx-1 rounded-chip bg-good text-on-good' : 'text-ink-soft'}`}>
+              <span className={`font-mono text-lg leading-none ${day.date === today ? 'w-fit px-1 -mx-1 rounded-chip bg-good text-on-good' : dimmed ? 'text-ink-faint' : 'text-ink-soft'}`}>
                 {day.dayNumber}
               </span>
               {daySessions.length > 0 && (
                 <span className="grid gap-1">
                   {/* The split's name rides with its marker, so Push and Pull never rest on colour alone. */}
                   {daySessions.map(s => (
-                    <span key={s.id} className="flex items-center gap-1 font-display text-xs font-semibold uppercase tracking-[0.04em] text-ink">
+                    <span
+                      key={s.id}
+                      className={`flex items-center gap-1 font-display text-xs font-semibold uppercase tracking-[0.04em] ${dimmed ? 'text-ink-faint' : 'text-ink'}`}
+                    >
                       <RouteMarker split={s.splitType} size="sm" />
                       {s.splitType}
                     </span>
