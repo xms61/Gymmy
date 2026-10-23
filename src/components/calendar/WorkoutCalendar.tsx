@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
 import type { WorkoutSession } from '../../types/workout.ts';
-import { formatReps } from '../../services/effort.ts';
+import { describeSet, formatReps } from '../../services/effort.ts';
 import { latestSession } from '../../services/rotation.ts';
 import { formatDisplayDate, getTodayDateString, toLocalDateString } from '../../utils/date.ts';
 import { RouteMarker } from '../ui/badges.tsx';
@@ -185,8 +185,13 @@ function SessionRecord({ session, onDelete }: { session: WorkoutSession; onDelet
                 .filter(s => s.completed)
                 .map(s => (
                   <span key={s.setNumber} className="flex items-center gap-2.5 h-tap-lg px-3 rounded-control border border-line bg-inset font-mono text-lg text-ink-muted">
-                    <span className="text-sm text-ink-faint">{s.setNumber}</span>
-                    {s.weightKg} × {formatReps(s)}
+                    <span className="sr-only">{describeSet(s)}</span>
+                    <span aria-hidden="true" className="text-sm text-ink-faint">
+                      {s.setNumber}
+                    </span>
+                    <span aria-hidden="true">
+                      {s.weightKg} × {formatReps(s)}
+                    </span>
                   </span>
                 ))}
             </span>

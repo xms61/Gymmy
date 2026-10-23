@@ -30,7 +30,7 @@ Each milestone is one branch and one squash-merged PR, in this order, because se
    - Proof: screenshots of every screen at 1024 and 1440 wide, with no overflow, and band and content starting at the same x.
 5. **Accessible names and keys (P2 item 6, P3 items 11 to 13).**
    - Dialogs get `aria-labelledby` pointing to their title (`Dialog.tsx`, `CompletionSummary.tsx`).
-   - Set tiles read as "Set 1, 77.5 kg × 5 reps, done".
+   - Set tiles read as "Set 1: 77.5 kg, 5 reps, done".
    - The RIR picker moves with the arrow keys and is one tab stop (`SetControls.tsx`).
    - The sync "needs attention" state is announced (`App.tsx`).
 6. **Tokens and dead code (P3 items 8 to 10).**
@@ -51,7 +51,7 @@ Each milestone is one branch and one squash-merged PR, in this order, because se
 - [x] 2026-10-23 2. Focus that can be seen everywhere
 - [x] 2026-10-23 3. Text contrast without opacity
 - [x] 2026-10-23 4. One content column
-- [ ] 5. Accessible names and keys
+- [x] 2026-10-23 5. Accessible names and keys
 - [ ] 6. Tokens and dead code
 - [ ] 7. Settings table after a sync
 - [ ] 8. Re-audit and close out
@@ -71,6 +71,8 @@ Each milestone is one branch and one squash-merged PR, in this order, because se
 ## Surprises
 - Milestone 3: the rest timer's flaps before the first set were at 40% opacity, 3.33:1, which the audit missed. The new test scans every component for opacity on text, so it caught this one too.
 - The audit ran on a worktree at `a244de3`, so its line numbers are older than `main`. Each finding was checked again on `main` at `0c86cd8` before planning, and all still hold.
+
+- Milestone 5: the proof server served a stale transform of `Dialog.tsx` after an edit (its file watcher missed a write), so the Plates dialog first looked unnamed. Compiling the file directly showed the `id`, and a server restart fixed it. When a browser check contradicts the source, restart the dev server before debugging.
 
 ## Validation
 - `npm run verify` passes after each milestone, and CI passes on each PR.

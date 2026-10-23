@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Desktop web only: the tabs moved from the bottom navigation into a header band, and the tracker keeps its rest timer beside the board at every width.
 
 ### Fixed
+- Screen readers heard dialogs only as "dialog", set tiles as "1 60 × 6", and nothing for the sync dot. Dialogs are now named by their title, set tiles read "Set 1: 60 kg, 6 reps, done", and the sync status says when it needs attention. The RIR picker is one tab stop that the arrow keys, Home and End move through.
 - Home, Calendar, Progress and Settings sat in a 72rem column under a 90rem band, so on wide windows the content started 144px in from the band. They now use the band's 90rem column, as DESIGN.md says.
 - Dimmed text fell below 4.5:1: exercises with no sessions on Progress, days of other months in the calendar, the set number on the selected tile and the rest timer before the first set. They now use a lower ink step instead of opacity, and a test fails on any new opacity class or text colour alpha (under any variant except `disabled:`) that isn't declared with its colours and kept at 4.5:1.
 - The focus ring was yellow on the yellow band and home sign, so keyboard focus vanished there. Inside yellow areas it is now board black. The command row shows the ring too, and its screen-reader name is its visible label, "Type a set".

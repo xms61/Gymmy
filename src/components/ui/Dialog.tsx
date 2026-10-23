@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode, type RefObject } from 'react';
+import { createContext, useContext, useEffect, useId, useRef, type ReactNode, type RefObject } from 'react';
 import { X } from 'lucide-react';
 
 interface DialogProps {
@@ -13,9 +13,18 @@ const WIDTH = { sm: 'max-w-sm', md: 'max-w-md', lg: 'max-w-lg' };
 
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-// The overlay and card every modal uses.
+// The id a dialog's title carries, so the dialog is announced by its title instead of as "dialog".
+const DialogTitleIdContext = createContext<string | undefined>(undefined);
+
+export function useDialogTitleId(): string | undefined {
+  return useContext(DialogTitleIdContext);
+}
+
+// The overlay and card every modal uses. Its title is the element that takes `useDialogTitleId()` as its id:
+// DialogHeader's title, or the dialog's own heading or message.
 export function Dialog({ children, width = 'md', onClose, onBackdropClick, className = '' }: DialogProps) {
   const panelRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
   useKeyboardFocus(panelRef, onClose);
   return (
     <div
@@ -26,11 +35,12 @@ export function Dialog({ children, width = 'md', onClose, onBackdropClick, class
         ref={panelRef}
         role="dialog"
         aria-modal="true"
+        aria-labelledby={titleId}
         tabIndex={-1}
         onClick={event => event.stopPropagation()}
         className={`card p-6 w-full max-h-[90vh] overflow-y-auto relative focus:outline-hidden ${WIDTH[width]} ${className}`}
       >
-        {children}
+        <DialogTitleIdContext.Provider value={titleId}>{children}</DialogTitleIdContext.Provider>
       </div>
     </div>
   );
@@ -90,10 +100,13 @@ interface DialogHeaderProps {
 
 // The dialog's title at Headline size with one line under it, and a close button.
 export function DialogHeader({ title, subtitle, onClose }: DialogHeaderProps) {
+  const titleId = useDialogTitleId();
   return (
     <div className="flex items-start justify-between gap-4 mb-6 border-b border-line pb-3">
       <div>
-        <h3 className="text-3xl leading-none text-ink">{title}</h3>
+        <h3 id={titleId} className="text-3xl leading-none text-ink">
+          {title}
+        </h3>
         {subtitle && <p className="mt-2 text-base text-ink-muted">{subtitle}</p>}
       </div>
       <button onClick={onClose} className="icon-btn" title="Close" aria-label="Close">

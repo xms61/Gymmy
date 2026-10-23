@@ -19,3 +19,12 @@ export function formatReps(set: SetLog): string {
   const rir = rirOf(set);
   return rir === null ? String(set.repsCompleted) : `${set.repsCompleted} @ RIR ${rir}`;
 }
+
+// A set as a screen reader should hear it; the tiles show it as "1  60 × 8 ✓".
+export function describeSet(set: SetLog): string {
+  const rir = rirOf(set);
+  const parts = [`${set.weightKg} kg`, `${set.repsCompleted} ${set.repsCompleted === 1 ? 'rep' : 'reps'}`];
+  if (rir !== null) parts.push(`RIR ${rir}`);
+  if (set.completed) parts.push('done');
+  return `Set ${set.setNumber}: ${parts.join(', ')}`;
+}

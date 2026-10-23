@@ -1,10 +1,11 @@
-import type { ReactNode } from 'react';
+import type { KeyboardEvent, ReactNode } from 'react';
 import { Minus, Plus } from 'lucide-react';
 import type { EquipmentType, SetLog } from '../../types/workout.ts';
 import { clampTo, LIMITS } from '../../validation.ts';
 import { stepLoad } from '../../services/loading.ts';
 import { RIR_CHOICES } from '../../services/effort.ts';
 import { Flaps } from '../ui/Flaps.tsx';
+import { nextRadioIndex } from '../ui/radioKeys.ts';
 
 export type SetChange = (set: SetLog) => SetLog;
 
@@ -59,18 +60,32 @@ function StepButton({ title, onClick, children }: { title: string; onClick: () =
 }
 
 // Optional, and offered only once the set is done: how many more reps it had left. Picking the
-// chosen value again clears it.
+// chosen value again clears it. One tab stop: the arrow keys, Home and End move the choice, as in any radio group.
 export function RirPicker({ setNumber, value, onPick }: { setNumber: number; value: number | null; onPick: (rir: number | null) => void }) {
+  // The checked choice takes the tab stop, or the first one while none is checked.
+  const tabStop = Math.max(RIR_CHOICES.findIndex(rir => rir === value), 0);
+  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.altKey || event.ctrlKey || event.metaKey) return; // Alt+Left is the browser's Back
+    const radios = [...event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="radio"]')];
+    // Move from the focused choice: after a click clears the value, focus stays there, not on the tab stop.
+    const focused = radios.indexOf(event.target as HTMLButtonElement);
+    const next = nextRadioIndex(focused >= 0 ? focused : tabStop, event.key, RIR_CHOICES.length);
+    if (next === null) return;
+    event.preventDefault();
+    onPick(RIR_CHOICES[next]!);
+    radios[next]?.focus();
+  };
   return (
-    <div role="radiogroup" aria-label={`Reps in reserve, set ${setNumber}`} className="flex items-center gap-1.5">
+    <div role="radiogroup" aria-label={`Reps in reserve, set ${setNumber}`} onKeyDown={onKeyDown} className="flex items-center gap-1.5">
       <span className="section-label w-10 flex-none" title="Reps in reserve: how many more reps you had left. 0 means you could not do another.">
         RIR
       </span>
-      {RIR_CHOICES.map(rir => (
+      {RIR_CHOICES.map((rir, index) => (
         <button
           key={rir}
           role="radio"
           aria-checked={value === rir}
+          tabIndex={index === tabStop ? 0 : -1}
           onClick={() => onPick(value === rir ? null : rir)}
           className={`flex-1 max-w-14 h-tap rounded-chip font-mono text-lg font-semibold border transition-colors ${
             value === rir ? 'bg-good text-on-good border-good' : 'bg-control hover:bg-control-hover text-ink-soft border-edge'

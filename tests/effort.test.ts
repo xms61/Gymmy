@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { formatReps, rirOf, withRir } from '../src/services/effort.ts';
+import { describeSet, formatReps, rirOf, withRir } from '../src/services/effort.ts';
 import type { SetLog } from '../src/types/workout.ts';
 
 const SET: SetLog = { setNumber: 1, weightKg: 60, repsCompleted: 8, targetReps: '6–8', completed: true };
@@ -20,4 +20,10 @@ test('reps read "8 @ RIR 2" only when the RIR was logged', () => {
   assert.equal(formatReps(SET), '8');
   assert.equal(formatReps(withRir(SET, 2)), '8 @ RIR 2');
   assert.equal(formatReps({ ...SET, rpe: 8.5 }), '8 @ RIR 1.5');
+});
+
+test('names a set for screen readers with its number, load, reps, RIR and state', () => {
+  assert.equal(describeSet(SET), 'Set 1: 60 kg, 8 reps, done');
+  assert.equal(describeSet(withRir({ ...SET, setNumber: 3, weightKg: 77.5 }, 2)), 'Set 3: 77.5 kg, 8 reps, RIR 2, done');
+  assert.equal(describeSet({ ...SET, setNumber: 2, repsCompleted: 1, completed: false }), 'Set 2: 60 kg, 1 rep');
 });

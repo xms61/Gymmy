@@ -14,6 +14,7 @@ Entry: `src/theme/tokens.ts`: every color, font, corner radius, tap size and the
 - `src/components/ui/Flaps.tsx`: text on split-flap cells. Each cell is two leaves meeting at a hairline split; when its character changes, the old upper leaf falls and the new lower leaf lands, each in two stepped frames. The other cells hold still. Screen readers hear the text once, not cell by cell.
 - `src/components/ui/ConfirmHost.tsx`: `askToConfirm` and `showNotice`, the in-app replacements for the browser's confirm and alert boxes, which embedded browsers can answer "no" to without showing. Never call `window.confirm` or `alert`.
 - `src/components/ui/`: `Dialog` and `DialogHeader` (every modal; `Dialog` takes focus when it opens, keeps Tab inside, closes on Escape and gives focus back when it closes), `RouteMarker` (a split as a round marker, in three sizes) and `StatusBadge` (the progression status in its ink).
+- Every dialog is named by its title: `Dialog` labels itself with an id that its title element takes from `useDialogTitleId()`. `DialogHeader` does it for its title; a dialog without one gives the id to its own heading or message (the finish summary, the confirm host).
 
 ## Rules
 - Components use token classes only. No palette colors (`slate-800`, `indigo-400`), no hex values, no `rounded-xl`: use `rounded-card | panel | control | chip | pill`.
