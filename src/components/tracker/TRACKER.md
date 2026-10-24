@@ -1,6 +1,6 @@
 ---
 status: draft
-last-verified: 2026-10-23
+last-verified: 2026-10-24
 ---
 
 # Live tracker
@@ -32,9 +32,9 @@ Entry: `src/components/tracker/LiveTracker.tsx`: the screen for logging one work
 - The tracker holds a screen wake lock while it is open, and asks again when the tab comes back to the front.
 - One exercise owns the board at a time: the one the set cursor is on. Logging a set moves the cursor to the next open set, in the same exercise or the next one with open sets, so the next set takes the board.
 - Reps in reserve (RIR) is optional. Once a set is done, a 0–5 picker appears under it; picking the chosen value again clears it. It is stored in `SetLog.rpe` as 10 − RIR (`src/services/effort.ts`), so the stored format is unchanged, and history shows it as "8 @ RIR 2". Nothing in the load suggestions reads it yet.
-- The RIR picker is one tab stop: the arrow keys, Home and End move the choice and focus together (`nextRadioIndex` in `src/components/ui/radioKeys.ts`). Set tiles carry a spoken name from `describeSet` in `src/services/effort.ts`, such as "Set 1: 60 kg, 6 reps, RIR 2, done".
+- The RIR picker is one tab stop: the arrow keys, Home and End move the choice and focus together (`nextRadioIndex` in `src/components/ui/radioKeys.ts`). Set tiles carry a spoken name from `describeSet` in `src/services/effort.ts`, such as "Set 1: 60 kg, 6 reps, RIR 2, done". The calendar lists only done sets, so its tiles leave "done" out (`omitState`).
 - Commands act on the next open set, starting at the exercise under the cursor: `62.5x8@2` sets load, reps and RIR and marks the set done (which starts the rest timer like a tap), `x9` and `65x` change one value, `+` and `-` step the load through `stepLoad`, `d` and `u` mark done and undo. `fin` asks before saving, and `q` goes through the same confirmation as the back button.
-- Keyboard: `j` and `k` move it, Space ticks the set under it, `n` and `p` jump between exercises, and `/` or `:` focuses the prompt. Shortcuts are ignored while a text field has focus, a modifier is held, or a dialog is open, and Space and Enter go to a focused button, link or control instead (`isShortcutFree` in `src/components/keyboardShortcuts.ts`, the rule in `shortcutTarget.ts`).
+- Keyboard: `j` and `k` move it, Space ticks the set under it, `n` and `p` jump between exercises, and `/` or `:` focuses the prompt. Shortcuts are ignored while a text field has focus, a modifier is held, or a dialog is open, and Space and Enter go to a focused button, link or control instead (`isShortcutFree` in `src/components/keyboardShortcuts.ts`, the rule in `shortcutTarget.ts`). The document listener subscribes once, on mount, and calls the latest render's handler through `handleShortcutRef`, so it never acts on a stale cursor.
 - The trash button after the set tiles deletes the last set. A logged set asks first; an open set goes at once.
 - The exercise note is a one-row textarea that stays on one line, so Journal can let it wrap and grow in the margin.
 

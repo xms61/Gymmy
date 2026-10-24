@@ -185,7 +185,7 @@ function SessionRecord({ session, onDelete }: { session: WorkoutSession; onDelet
                 .filter(s => s.completed)
                 .map(s => (
                   <span key={s.setNumber} className="flex items-center gap-2.5 h-tap-lg px-3 rounded-control border border-line bg-inset font-mono text-lg text-ink-muted">
-                    <span className="sr-only">{describeSet(s)}</span>
+                    <span className="sr-only">{describeSet(s, { omitState: true })}</span>
                     <span aria-hidden="true" className="text-sm text-ink-faint">
                       {s.setNumber}
                     </span>

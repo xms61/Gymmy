@@ -27,3 +27,8 @@ test('names a set for screen readers with its number, load, reps, RIR and state'
   assert.equal(describeSet(withRir({ ...SET, setNumber: 3, weightKg: 77.5 }, 2)), 'Set 3: 77.5 kg, 8 reps, RIR 2, done');
   assert.equal(describeSet({ ...SET, setNumber: 2, repsCompleted: 1, completed: false }), 'Set 2: 60 kg, 1 rep');
 });
+
+test('leaves out the state where every set listed is done', () => {
+  assert.equal(describeSet(SET, { omitState: true }), 'Set 1: 60 kg, 8 reps');
+  assert.equal(describeSet(withRir(SET, 2), { omitState: true }), 'Set 1: 60 kg, 8 reps, RIR 2');
+});

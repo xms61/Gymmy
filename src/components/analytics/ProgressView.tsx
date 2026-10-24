@@ -56,10 +56,10 @@ function ExerciseRail({ progress, selectedId, onSelect }: ExerciseRailProps) {
         if (rows.length === 0) return null;
         return (
           <section key={split} aria-label={split}>
-            <h3 className="flex items-center gap-2.5 text-2xl text-ink">
+            <h2 className="flex items-center gap-2.5 text-2xl text-ink">
               <RouteMarker split={split} />
               {split}
-            </h3>
+            </h2>
             <ol className="mt-2 border-t border-line">
               {rows.map(({ exercise, history }) => {
                 const latest = history[history.length - 1];
