@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import type {
   EquipmentType,
@@ -285,22 +285,29 @@ export const LiveTracker: React.FC<LiveTrackerProps> = ({
   };
 
   // "/" or ":" jumps to the prompt, j and k move the set cursor, and Space ticks the set under it.
+  const handleShortcut = (event: KeyboardEvent) => {
+    if (!isShortcutFree(event)) return;
+    if (event.key === '/' || event.key === ':') {
+      event.preventDefault();
+      commandInputRef.current?.focus();
+    } else if (event.key === 'j' || event.key === 'k') {
+      setCursor(moveCursor(exerciseLogs, cursor, event.key === 'j' ? 1 : -1));
+    } else if (event.key === ' ') {
+      event.preventDefault();
+      toggleSetComplete(cursor.exerciseIndex, cursor.setIndex);
+    }
+  };
+  // The listener subscribes once and calls the handler from the latest render through this ref.
+  // A layout effect updates it before the browser can deliver the next key.
+  const handleShortcutRef = useRef(handleShortcut);
+  useLayoutEffect(() => {
+    handleShortcutRef.current = handleShortcut;
+  });
   useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (!isShortcutFree(event)) return;
-      if (event.key === '/' || event.key === ':') {
-        event.preventDefault();
-        commandInputRef.current?.focus();
-      } else if (event.key === 'j' || event.key === 'k') {
-        setCursor(moveCursor(exerciseLogs, cursor, event.key === 'j' ? 1 : -1));
-      } else if (event.key === ' ') {
-        event.preventDefault();
-        toggleSetComplete(cursor.exerciseIndex, cursor.setIndex);
-      }
-    };
+    const onKeyDown = (event: KeyboardEvent) => handleShortcutRef.current(event);
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
-  });
+  }, []);
   // Finish needs at least one done set, and the saved session records its volume.
   const completedSetsCount = exerciseLogs.reduce(
     (acc, ex) => acc + ex.sets.filter(s => s.completed).length,

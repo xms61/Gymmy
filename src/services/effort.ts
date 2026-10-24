@@ -20,11 +20,12 @@ export function formatReps(set: SetLog): string {
   return rir === null ? String(set.repsCompleted) : `${set.repsCompleted} @ RIR ${rir}`;
 }
 
-// A set as a screen reader should hear it; the tiles show it as "1  60 × 8 ✓".
-export function describeSet(set: SetLog): string {
+// A set as a screen reader should hear it; the tiles show it as "1  60 × 8 ✓". omitState is for
+// lists where every set is done, so "done" would only repeat itself.
+export function describeSet(set: SetLog, { omitState = false } = {}): string {
   const rir = rirOf(set);
   const parts = [`${set.weightKg} kg`, `${set.repsCompleted} ${set.repsCompleted === 1 ? 'rep' : 'reps'}`];
   if (rir !== null) parts.push(`RIR ${rir}`);
-  if (set.completed) parts.push('done');
+  if (set.completed && !omitState) parts.push('done');
   return `Set ${set.setNumber}: ${parts.join(', ')}`;
 }

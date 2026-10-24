@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Desktop web only: the tabs moved from the bottom navigation into a header band, and the tracker keeps its rest timer beside the board at every width.
 
 ### Fixed
+- Screen readers met the Progress rail's split headings (level 3) before the exercise title (level 2); the split names are now level 2 inside the Exercises navigation. The calendar's set tiles no longer end in "done", since it lists only done sets. The workout screen subscribes to the keyboard once instead of on every render.
 - With Settings open, targets saved in another tab or arriving by sync didn't show, the table claimed unsaved changes, and Save wrote the old targets back over the new ones. The table now takes the new values and keeps only the edits made on this screen.
 - Screen readers heard dialogs only as "dialog", set tiles as "1 60 × 6", and nothing for the sync dot. Dialogs are now named by their title, set tiles read "Set 1: 60 kg, 6 reps, done", and the sync status says when it needs attention. The RIR picker is one tab stop that the arrow keys, Home and End move through.
 - Home, Calendar, Progress and Settings sat in a 72rem column under a 90rem band, so on wide windows the content started 144px in from the band. They now use the band's 90rem column, as DESIGN.md says.
