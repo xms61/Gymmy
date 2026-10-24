@@ -54,7 +54,7 @@ Each milestone is one branch and one squash-merged PR, in this order, because se
 - [x] 2026-10-23 5. Accessible names and keys
 - [x] 2026-10-23 6. Tokens and dead code
 - [x] 2026-10-23 7. Settings table after a sync
-- [ ] 8. Re-audit and close out
+- [x] 2026-10-24 8. Re-audit and close out
 
 ## Decision log
 - 2026-10-23: one PR per milestone, in order, in one session, because milestones 1, 2, 3 and 5 share files, so parallel tickets would conflict. Rejected: GitHub tickets for parallel sessions.
@@ -83,4 +83,18 @@ Each milestone is one branch and one squash-merged PR, in this order, because se
 - A repeat Impeccable audit scores at least 17/20 with no P1 or P2 findings.
 
 ## Outcome
-Filled in when the plan moves to completed/.
+All eight milestones shipped, one squash-merged PR each: #60 (keyboard and last-set delete), #61 (focus on yellow and the command row), #62 (dimmed text), #63 (the 90rem column), #64 (accessible names and RIR keys), #65 (type tokens and dead styles), #66 (Settings after a sync, a data-loss bug the audit only suspected) and this close-out.
+
+Re-audit on 2026-10-24, on `main` at `cd7d5f9`, against a scratch database: **18/20, Excellent** (was 14/20). No P0, P1 or P2 findings remain.
+
+| Dimension | Before | After | Evidence |
+| :-- | :-- | :-- | :-- |
+| Accessibility | 2 | 4 | Every control on the four screens, the workout screen and the Plates dialog has an accessible name; no `aria-labelledby` points nowhere; every focusable element shows a ring with at least 3:1, or the field's yellow border; text contrast is enforced by `tests/theme.test.ts` |
+| Performance | 3 | 3 | Unchanged; the workout screen's key listener subscribes again on every render |
+| Responsive (desktop only) | 3 | 3 | No overflow at 1024 or 1440; band and content share the 90rem column |
+| Theming | 3 | 4 | Type sizes and spacing are tokens, and a test fails on hand-typed ones |
+| Implementation integrity | 3 | 4 | The detector finds nothing; DESIGN.md, THEME.md and the `.impeccable/design.json` sidecar match the code |
+
+The audit's first focus scan flagged the exercise notes field. It was a false positive: the field sits in a closed `<details>`, and once opened it takes focus with the yellow border `.field` uses.
+
+Follow-ups, all P3, are in the [tech-debt tracker](../tech-debt-tracker.md): the Progress rail's `h3` headings come before the screen's `h2`; the workout screen's key listener subscribes again on every render; the calendar's set tiles say "done" on sets that are all done.
