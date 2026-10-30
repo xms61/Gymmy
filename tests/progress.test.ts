@@ -59,9 +59,9 @@ test('matches a logged exercise by name when its id differs', () => {
 });
 
 test('estimates 1RM from the best single set, not the heaviest weight with the most reps', () => {
-  const [entry] = exerciseHistory(squats(), [legsSession('2026-09-01', [set(60, 6), set(50, 12)])]);
-  // 60 kg x 6 estimates 69.7 kg and 50 kg x 12 estimates 72 kg; mixing them (60 kg x 12) gave 86.4 kg.
-  assert.equal(entry?.estimated1RM, 72);
+  const [entry] = exerciseHistory(squats(), [legsSession('2026-09-01', [set(60, 6), set(50, 15)])]);
+  // 60 kg x 6 estimates 72 kg and 50 kg x 15 estimates 75 kg; mixing them (60 kg x 15) gave 90 kg.
+  assert.equal(entry?.estimated1RM, 75);
 });
 
 test('session volume adds up weight times reps over the completed sets', () => {

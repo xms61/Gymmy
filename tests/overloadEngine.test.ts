@@ -222,16 +222,30 @@ test('compares only sessions at the current weight', () => {
   assert.equal(getRecommendation(flatBench(), history).status, 'progress_reps');
 });
 
-test('estimates 1RM with the Brzycki formula', () => {
+test('estimates 1RM with the Epley formula', () => {
   const CASES: [weightKg: number, reps: number, expected: number][] = [
     [100, 0, 0],
     [100, 1, 100],
-    [100, 6, 116.1],
-    [60, 10, 80]
+    [100, 6, 120],
+    [60, 10, 80],
+    [5, 30, 10]
   ];
   for (const [weightKg, reps, expected] of CASES) {
     assert.equal(estimate1RM(weightKg, reps), expected, `${weightKg} kg x ${reps}`);
   }
+});
+
+test('the estimated 1RM rises steadily with reps, with no jump or drop at high reps', () => {
+  // Brzycki gave 5 kg x 36 as 180 kg and 5 kg x 37 as 8 kg.
+  const estimates = [30, 35, 36, 37, 40].map(reps => estimate1RM(5, reps));
+  assert.deepEqual(estimates, [10, 10.8, 11, 11.2, 11.7]);
+});
+
+test('the reps that earn a big jump predict the same 1RM as the bottom of the range after it', () => {
+  const lateralRaise = { ...lift('dumbbell'), targetRepsMin: 10, targetRepsMax: 15 };
+  const goal = getRecommendation(lateralRaise, [liftSession('2026-09-01', 5, [15, 15, 15, 15])]).nextStepGoal;
+  assert.match(goal, /Build to 30 reps on every set at 5 kg, then move to 7.5 kg for 10 reps/);
+  assert.equal(estimate1RM(5, 30), estimate1RM(7.5, 10));
 });
 
 function lift(equipment: EquipmentType): ExerciseDefinition {

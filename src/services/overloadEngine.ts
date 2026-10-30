@@ -247,10 +247,11 @@ function deloadWeight(weightKg: number, equipment: EquipmentType): number {
   return Math.max(lightestLoad(equipment), Math.min(tenPercentLighter, oneStepLighter));
 }
 
-// Brzycki formula.
+// Epley, the model repsToMoveUp uses, so reps that earn a jump predict the same 1RM as the bottom of
+// the range after it. Brzycki overestimates above about 10 reps (20 % at 19 reps on the bench press,
+// Nuzzo et al. 2024) and divides by zero at 37.
 export function estimate1RM(weightKg: number, reps: number): number {
   if (reps <= 0) return 0;
   if (reps === 1) return weightKg;
-  if (reps >= 37) return Math.round(weightKg * 1.5);
-  return Math.round(weightKg * (36 / (37 - reps)) * 10) / 10;
+  return Math.round(weightKg * (1 + reps / EPLEY_REPS) * 10) / 10;
 }
